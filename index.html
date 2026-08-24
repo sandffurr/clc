@@ -1,256 +1,3 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Party Buzz - Minimal Cyber Edition</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Kanit', sans-serif; touch-action: manipulation; }
-        button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
-        .buzz-btn-active:active { transform: scale(0.92); }
-        .pulse-fast { animation: pulseGlow 0.8s infinite alternate; }
-        @keyframes pulseGlow { 
-            0% { box-shadow: 0 0 15px rgba(244, 63, 94, 0.2); } 
-            100% { box-shadow: 0 0 35px rgba(244, 63, 94, 0.7); } 
-        }
-        .glow-amber { box-shadow: 0 0 25px rgba(245, 158, 11, 0.25); }
-        .glow-emerald { box-shadow: 0 0 25px rgba(16, 185, 129, 0.25); }
-        .glow-cyan { box-shadow: 0 0 25px rgba(6, 182, 212, 0.25); }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-    </style>
-</head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-start p-3 sm:p-5 select-none antialiased">
-
-    <!-- HEADER NAVIGATION -->
-    <header class="w-full max-w-5xl p-3 sm:p-4 flex justify-between items-center bg-slate-900/40 border border-slate-800/80 rounded-2xl mb-4 backdrop-blur-xl">
-        <div class="flex items-center gap-2 cursor-pointer" onclick="location.href=location.pathname">
-            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span>
-            <span class="font-black text-lg tracking-widest text-white">PARTY<span class="text-amber-400">BUZZ</span></span>
-        </div>
-        <div class="flex items-center gap-2">
-            <button id="btn-sound-toggle" onclick="toggleMute()" class="text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-900/80 text-slate-400 border border-slate-800 hover:text-white hover:border-slate-700 transition">
-                🔊 SOUND: ON
-            </button>
-            <div id="connection-status" class="text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-900/80 text-slate-500 border border-slate-800 flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-amber-500"></span> CONNECTING
-            </div>
-        </div>
-    </header>
-
-    <main class="w-full max-w-5xl flex-1 flex flex-col items-center justify-center">
-
-        <!-- SCREEN 1: ROLE SELECT -->
-        <div id="view-select" class="w-full max-w-sm bg-slate-900/50 p-6 sm:p-8 rounded-3xl border border-slate-800 shadow-2xl text-center backdrop-blur-2xl">
-            <h1 class="text-2xl font-black mb-1 text-white tracking-wide">SELECT ROLE</h1>
-            <p class="text-xs text-slate-500 mb-6 font-light">เลือกโหมดการใช้งานอุปกรณ์ของคุณ</p>
-            <div class="space-y-3">
-                <button onclick="setupDisplay()" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-black py-3.5 rounded-2xl transition active:scale-95 shadow-lg shadow-amber-400/10">
-                    📺 TV DISPLAY (จอแสดงผล)
-                </button>
-                <button onclick="setupHost()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 rounded-2xl border border-slate-700/80 transition active:scale-95">
-                    📱 HOST CONTROLLER (ผู้ควบคุม)
-                </button>
-                <button onclick="showPlayerLogin()" class="w-full bg-slate-900 hover:bg-slate-850 text-slate-300 font-bold py-3.5 rounded-2xl border border-slate-800 transition active:scale-95">
-                    🎮 PLAYER (ปุ่มกดผู้เล่น)
-                </button>
-            </div>
-        </div>
-
-        <!-- SCREEN 2: TV DISPLAY -->
-        <div id="view-display" class="w-full bg-slate-900/30 p-4 sm:p-6 rounded-3xl border border-slate-800/80 hidden flex-col items-center backdrop-blur-2xl transition-all">
-            <div class="w-full flex items-center justify-between bg-slate-950/80 p-4 rounded-2xl border border-slate-800/80 mb-4">
-                <div class="flex items-center gap-4">
-                    <div id="display-qrcode" class="p-1.5 bg-white rounded-xl shadow-md"></div>
-                    <div>
-                        <span class="text-[10px] font-bold text-slate-500 tracking-widest uppercase block">ROOM CODE</span>
-                        <div id="display-room-code" class="text-3xl sm:text-4xl font-black text-amber-400 font-mono tracking-widest">----</div>
-                    </div>
-                </div>
-
-                <div class="flex items-center gap-3">
-                    <div id="display-timer-box" class="hidden flex-col items-center bg-rose-950/40 border border-rose-500/50 px-6 py-1.5 rounded-2xl pulse-fast">
-                        <span id="display-timer-label" class="text-[9px] font-black text-rose-400 uppercase tracking-widest">TIMER</span>
-                        <span id="display-timer-val" class="text-4xl font-black text-rose-400 font-mono">00</span>
-                    </div>
-                </div>
-            </div>
-
-            <div id="display-main-card" class="w-full bg-slate-950/90 border border-slate-800 p-8 sm:p-12 rounded-3xl mb-4 text-center transition-all duration-300 glow-amber relative overflow-hidden">
-                <div id="display-mode-badge" class="absolute top-3 left-4 text-[10px] font-bold px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-amber-400 uppercase tracking-widest">
-                    READY
-                </div>
-                
-                <div id="display-question-text" class="text-2xl sm:text-4xl font-extrabold text-slate-100 min-h-[110px] flex flex-col items-center justify-center leading-relaxed tracking-wide">
-                    WAITING FOR GAME TO START...
-                </div>
-            </div>
-
-            <div id="display-winner-spotlight" class="w-full hidden mb-4 p-4 rounded-2xl bg-gradient-to-r from-amber-500/20 via-rose-500/20 to-amber-500/20 border border-amber-500/50 text-center animate-bounce">
-                <span class="text-xs font-black text-amber-400 tracking-widest uppercase block mb-1">⚡ FASTEST BUZZ ⚡</span>
-                <span id="display-winner-name" class="text-3xl font-black text-white tracking-wide">--</span>
-            </div>
-
-            <div class="w-full grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="md:col-span-2">
-                    <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-2">⚡ BUZZ QUEUE</span>
-                    <div id="display-buzz-list" class="space-y-2 max-h-[260px] overflow-y-auto pr-1">
-                        <div class="text-center py-8 text-slate-700 text-xs border border-dashed border-slate-800/80 rounded-2xl">
-                            WAITING FOR BUZZ...
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-2">🏆 SCOREBOARD</span>
-                    <div id="display-scoreboard" class="space-y-1.5 max-h-[260px] overflow-y-auto bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80">
-                        <p class="text-xs text-slate-700 text-center py-6">NO SCORES YET</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- SCREEN 3: HOST CONTROLLER (RESTRUCTURED FOR ERGONOMICS) -->
-        <div id="view-host" class="w-full max-w-md bg-slate-900/80 p-4 rounded-3xl border border-slate-800 hidden flex-col items-center backdrop-blur-2xl shadow-2xl">
-            
-            <!-- TOP STATUS BAR -->
-            <div class="w-full flex justify-between items-center mb-3 bg-slate-950 p-3 rounded-2xl border border-slate-800">
-                <div>
-                    <span class="text-[9px] text-slate-500 uppercase font-black tracking-widest block">ROOM CODE</span>
-                    <span id="host-room-code" class="text-2xl font-black text-amber-400 font-mono tracking-wider">----</span>
-                </div>
-                <div class="flex gap-2">
-                    <button id="btn-toggle-lock" onclick="toggleLock()" class="bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold px-3 py-2 rounded-xl text-xs border border-slate-700/80 transition active:scale-95 flex items-center gap-1.5">
-                        🔒 LOCK
-                    </button>
-                    <button onclick="setupHostWithCode()" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-400 px-3 py-2 rounded-xl transition text-xs font-semibold">
-                        🔑 Join Code
-                    </button>
-                </div>
-            </div>
-
-            <!-- ZONE 1: PRIMARY GAMEPLAY ACTIONS (LARGE TOUCH TARGETS) -->
-            <div class="w-full bg-slate-950/90 p-3.5 rounded-2xl border border-amber-500/30 mb-3 shadow-lg">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-[10px] font-black text-amber-400 uppercase tracking-wider">⚡ ควบคุมเกมสด (LIVE CONTROL)</span>
-                    <span id="host-rule-badge" class="text-[9px] bg-slate-900 border border-slate-800 text-slate-400 px-2.5 py-0.5 rounded-full font-mono">กติกา: กดได้ทันที</span>
-                </div>
-
-                <!-- MAIN ACTION CONTAINER (DYNAMICALLY UPDATED VIA JS) -->
-                <div id="host-mode-actions" class="space-y-2 mb-2"></div>
-
-                <!-- ALWAYS ACCESSIBLE RESET BUTTON -->
-                <button onclick="resetBuzzer()" class="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black py-3.5 rounded-xl text-sm transition active:scale-95 shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2">
-                    🔄 RESET BUZZER (เปิดรับปุ่มกด)
-                </button>
-            </div>
-
-            <!-- ZONE 2: GAME PRESET & CUSTOM CONTENT -->
-            <div class="w-full bg-slate-950/60 p-3.5 rounded-2xl border border-slate-800/80 mb-3 transition-all">
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1.5">🎮 เลือกโหมด & สุ่มโจทย์</label>
-                
-                <div class="grid grid-cols-3 gap-2 mb-2.5">
-                    <select id="select-game-mode" onchange="onGameModeChange()" class="col-span-2 bg-slate-900 border border-slate-700 text-amber-300 font-bold text-xs rounded-xl px-3 py-2.5 outline-none focus:border-amber-400">
-                        <option value="song">🎵 1. ทายเพลงจาก Siri</option>
-                        <option value="hint">💡 2. ทายคำจากคำใบ้</option>
-                        <option value="speed_go">🎯 3. วัดความไวช่วง GO!</option>
-                        <option value="reverse">🔤 4. ถอดรหัสคำย้อนกลับ</option>
-                        <option value="trivia">⚡ 5. คำถามตอบไว</option>
-                        <option value="spelling">🔠 6. สะกดคำศัพท์</option>
-                    </select>
-                    <button onclick="randomPresetItem()" class="bg-amber-400/10 border border-amber-500/40 text-amber-400 hover:bg-amber-400/20 font-bold rounded-xl text-xs active:scale-95 transition flex items-center justify-center gap-1">
-                        🎲 สุ่มโจทย์
-                    </button>
-                </div>
-
-                <select id="select-preset-song" onchange="onSelectPresetChange()" class="w-full bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl p-2.5 outline-none font-medium mb-2">
-                </select>
-
-                <button onclick="toggleCustomLyricsArea()" class="w-full bg-slate-900/50 border border-dashed border-slate-800 text-slate-400 font-semibold py-2 rounded-xl text-xs transition hover:text-white hover:border-slate-700">
-                    ✏️ ป้อนโจทย์/ข้อความเอง
-                </button>
-
-                <div id="custom-lyrics-container" class="hidden mt-2 pt-2 border-t border-slate-800">
-                    <textarea id="input-host-lyrics" rows="2" placeholder="พิมพ์ข้อความ (ขึ้นบรรทัดใหม่ = ขั้นถัดไป)..." class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white focus:outline-none mb-2 font-mono"></textarea>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button onclick="sendCustomLyrics()" class="bg-slate-800 border border-slate-700 text-slate-200 font-bold py-2 rounded-xl text-xs hover:bg-slate-700 active:scale-95">
-                            🗣️ อ่านโจทย์ทันที
-                        </button>
-                        <button onclick="addNewItemToPreset()" class="bg-slate-800 border border-slate-700 text-amber-400 font-bold py-2 rounded-xl text-xs hover:bg-slate-700 active:scale-95">
-                            ➕ บันทึกเข้าคลัง
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ZONE 3: TIMERS & SCOREBOARD QUICK ACTIONS -->
-            <div class="w-full bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80 mb-3">
-                <div class="flex justify-between items-center">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">⏱️ จับเวลาถอยหลัง</span>
-                    <div class="flex gap-1.5">
-                        <button onclick="startTimerConfigured(5)" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-amber-400 font-mono font-bold px-3 py-1 rounded-lg text-xs active:scale-95">5s</button>
-                        <button onclick="startTimerConfigured(10)" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-amber-400 font-mono font-bold px-3 py-1 rounded-lg text-xs active:scale-95">10s</button>
-                        <button onclick="startTimerConfigured(20)" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-amber-400 font-mono font-bold px-3 py-1 rounded-lg text-xs active:scale-95">20s</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="w-full bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80 mb-3">
-                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">🏆 คะแนนผู้เล่น</span>
-                <div id="host-scoreboard" class="space-y-1.5 max-h-[120px] overflow-y-auto pr-1">
-                    <p class="text-xs text-slate-600 text-center py-2">ยังไม่มีผู้เล่น</p>
-                </div>
-            </div>
-
-            <button onclick="clearRoomCompletely()" class="text-slate-600 hover:text-rose-400 text-[11px] py-1 transition font-medium">
-                ⚠️ ล้างข้อมูลห้องทั้งหมด (Reset Room)
-            </button>
-        </div>
-
-        <!-- SCREEN 4: PLAYER LOGIN -->
-        <div id="view-player-login" class="w-full max-w-sm bg-slate-900/60 p-6 rounded-3xl border border-slate-800 shadow-2xl hidden backdrop-blur-2xl">
-            <h2 class="text-xl font-black text-center mb-1 text-white uppercase tracking-wider">JOIN GAME</h2>
-            <p class="text-xs text-slate-500 text-center mb-6">ใส่นามแฝงและรหัสห้องเพื่อเข้าเล่น</p>
-
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-[10px] text-slate-500 uppercase font-bold mb-1">YOUR NAME</label>
-                    <input type="text" id="input-player-name" placeholder="ชื่อของคุณ" maxlength="12" class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-amber-400 text-center font-bold text-base transition">
-                </div>
-                <div>
-                    <label class="block text-[10px] text-slate-500 uppercase font-bold mb-1">ROOM CODE</label>
-                    <input type="text" id="input-room-code" placeholder="4 DIGITS" maxlength="6" class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-amber-400 font-mono tracking-widest focus:outline-none focus:border-amber-400 text-center font-bold text-xl uppercase transition">
-                </div>
-                <button onclick="joinRoom()" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-black py-3.5 rounded-xl shadow-lg transition active:scale-95 text-base">
-                    ENTER GAME
-                </button>
-            </div>
-        </div>
-
-        <!-- SCREEN 5: PLAYER GAME BUZZER -->
-        <div id="view-player-game" class="w-full max-w-sm bg-slate-900/60 p-5 rounded-3xl border border-slate-800 hidden flex-col items-center text-center backdrop-blur-2xl">
-            <div class="w-full flex justify-between items-center mb-4 border-b border-slate-800/80 pb-3">
-                <span id="player-display-name" class="font-bold text-slate-200 text-sm">--</span>
-                <span id="player-display-score" class="text-xs bg-slate-950 text-amber-400 border border-slate-800 px-3 py-1 rounded-full font-mono font-bold">0 PTS</span>
-            </div>
-
-            <div id="player-question-box" class="w-full bg-slate-950 border border-slate-800 p-3 rounded-2xl mb-3 text-xs font-medium text-slate-400 min-h-[48px] flex items-center justify-center">
-                WAITING FOR HOST...
-            </div>
-
-            <div id="player-status-banner" class="w-full py-2 px-4 rounded-xl bg-slate-950 border border-slate-800 text-emerald-400 text-xs font-bold mb-4">
-                READY TO BUZZ
-            </div>
-
-            <button id="buzz-button" onclick="pressBuzz()" class="buzz-btn-active w-56 h-56 rounded-full bg-gradient-to-b from-rose-500 to-rose-700 border-8 border-slate-950 shadow-2xl flex flex-col items-center justify-center cursor-pointer transition transform my-2">
-                <span class="text-4xl font-black tracking-widest text-white drop-shadow-md">BUZZ</span>
-            </button>
-        </div>
 
     </main>
 
@@ -264,6 +11,7 @@
         let isMuted = false;
         let buzzList = [];
         let playerScores = {};
+        let disqualifiedPlayers = new Set();
         
         let timerInterval = null;
         let currentSongInfo = null;
@@ -272,24 +20,78 @@
         let currentTimerMode = 'after';
         let currentTimerSec = 10;
         let currentBuzzTriggerMode = 'during';
-        
-        // GLOBAL SPEECH INSTANCE
+
+        // SPEECH SYNTHESIS FIX FOR GITHUB PAGES / SAFARI / CHROME
+        let audioUnlocked = false;
+        let thaiVoice = null;
         window.currentUtterance = null;
+
+        function populateVoices() {
+            if (!('speechSynthesis' in window)) return;
+            const voices = window.speechSynthesis.getVoices();
+            thaiVoice = voices.find(v => v.lang.includes('th') || v.lang.includes('TH')) || null;
+        }
+
+        if ('speechSynthesis' in window) {
+            populateVoices();
+            window.speechSynthesis.onvoiceschanged = populateVoices;
+        }
+
+        function unlockAudioEngine() {
+            if (audioUnlocked) return;
+            
+            // 1. Resume Web Audio API
+            try {
+                const ctx = getAudioContext();
+                if (ctx && ctx.state === 'suspended') {
+                    ctx.resume();
+                }
+            } catch(e) {}
+
+            // 2. Unlock SpeechSynthesis Engine with a silent dummy utterance
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.resume();
+                const dummy = new SpeechSynthesisUtterance('');
+                dummy.volume = 0;
+                dummy.lang = 'th-TH';
+                window.speechSynthesis.speak(dummy);
+            }
+
+            audioUnlocked = true;
+            const banner = document.getElementById('audio-unlock-banner');
+            if (banner) banner.classList.add('hidden');
+        }
 
         // MULTI-MODE DATABASE
         const gamePresets = {
             song: [
-                { title: 'ทรงอย่างแบด', artist: 'Paper Planes', lyrics: "ทรงอย่างแบด แซดอย่างบ่อย\nเธอทำให้ฉันต้องเจ็บช้ำ\nปล่อยให้ฉันต้องคิดถึงเธออยู่ข้างเดียว" },
-                { title: 'พิง', artist: 'NON TANONT', lyrics: "ที่ตรงนี้มีคนที่รอเธออยู่\nที่ตรงนี้มีคนที่รักเธอเกินใคร\nหากว่าเธอเหนื่อยล้าลองหันมองกลับมา" },
-                { title: 'ถ้าเราเจอกันอีก', artist: 'Tilly Birds', lyrics: "ถ้าหากว่าในวันนั้นเราไม่ได้เจอกัน\nวันนี้ฉันคงไม่ต้องเสียใจกับการจากลา" }
+                { title: 'ทรงอย่างแบด', artist: 'Paper Planes', lyrics: "ทรงอย่างแบด แซดอย่างบ่อย
+เธอทำให้ฉันต้องเจ็บช้ำ
+ปล่อยให้ฉันต้องคิดถึงเธออยู่ข้างเดียว" },
+                { title: 'พิง', artist: 'NON TANONT', lyrics: "ที่ตรงนี้มีคนที่รอเธออยู่
+ที่ตรงนี้มีคนที่รักเธอเกินใคร
+หากว่าเธอเหนื่อยล้าลองหันมองกลับมา" },
+                { title: 'ถ้าเราเจอกันอีก', artist: 'Tilly Birds', lyrics: "ถ้าหากว่าในวันนั้นเราไม่ได้เจอกัน
+วันนี้ฉันคงไม่ต้องเสียใจกับการจากลา" }
             ],
             hint: [
-                { title: 'ผลไม้สีเหลือง', artist: 'เฉลย: กล้วย', lyrics: "คำใบ้ที่ 1: เป็นผลไม้ที่มีเปลือกสีเหลือง\nคำใบ้ที่ 2: ลิงชอบกินมากที่สุด\nคำใบ้ที่ 3: นิยมนำไปเชื่อมหรือบวดชี" },
-                { title: 'สถานที่สำคัญ', artist: 'เฉลย: สนามบินสุวรรณภูมิ', lyrics: "คำใบ้ที่ 1: อยู่ในจังหวัดสมุทรปราการ\nคำใบ้ที่ 2: มีเครื่องบินขึ้นลงตลอด 24 ชั่วโมง\nคำใบ้ที่ 3: มีรูปปั้นยักษ์ขนาดใหญ่อยู่ข้างใน" }
+                { title: 'ผลไม้สีเหลือง', artist: 'เฉลย: กล้วย', lyrics: "คำใบ้ที่ 1: เป็นผลไม้ที่มีเปลือกสีเหลือง
+คำใบ้ที่ 2: ลิงชอบกินมากที่สุด
+คำใบ้ที่ 3: นิยมนำไปเชื่อมหรือบวดชี" },
+                { title: 'สถานที่สำคัญ', artist: 'เฉลย: สนามบินสุวรรณภูมิ', lyrics: "คำใบ้ที่ 1: อยู่ในจังหวัดสมุทรปราการ
+คำใบ้ที่ 2: มีเครื่องบินขึ้นลงตลอด 24 ชั่วโมง
+คำใบ้ที่ 3: มีรูปปั้นยักษ์ขนาดใหญ่อยู่ข้างใน" }
             ],
             speed_go: [
-                { title: 'วัดความไว: รอบที่ 1', artist: 'เฉลย: คนกดไวที่สุดได้แต้ม', lyrics: "เตรียมมือให้พร้อมที่ปุ่มกด\nระวัง...\n3\n2\n1\nGO!" },
-                { title: 'วัดความไว: รอบที่ 2', artist: 'เฉลย: คนกดไวที่สุดได้แต้ม', lyrics: "พร้อมแล้วหรือยัง...\nนับถอยหลัง...\nกดได้เลย!" }
+                { title: 'วัดความไว: รอบที่ 1', artist: 'เฉลย: คนกดไวที่สุดได้แต้ม', lyrics: "เตรียมมือให้พร้อมที่ปุ่มกด
+ระวัง...
+3
+2
+1
+GO!" },
+                { title: 'วัดความไว: รอบที่ 2', artist: 'เฉลย: คนกดไวที่สุดได้แต้ม', lyrics: "พร้อมแล้วหรือยัง...
+นับถอยหลัง...
+กดได้เลย!" }
             ],
             reverse: [
                 { title: 'คำย้อนกลับ 1', artist: 'เฉลย: ชาบูสุกี้', lyrics: "สุก - ชา - บู" },
@@ -306,7 +108,8 @@
             ]
         };
 
-        function toggleMute() {
+        function toggleMute(e) {
+            if (e) e.stopPropagation();
             isMuted = !isMuted;
             document.getElementById('btn-sound-toggle').innerText = isMuted ? "🔇 SOUND: OFF" : "🔊 SOUND: ON";
         }
@@ -344,6 +147,14 @@
                     gain.gain.setValueAtTime(0.3, ctx.currentTime);
                     gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
                     osc.start(); osc.stop(ctx.currentTime + 0.2);
+                } else if (type === 'wrong') {
+                    const osc = ctx.createOscillator(); const gain = ctx.createGain();
+                    osc.connect(gain); gain.connect(ctx.destination);
+                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, ctx.currentTime);
+                    osc.frequency.setValueAtTime(110, ctx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                    osc.start(); osc.stop(ctx.currentTime + 0.3);
                 } else if (type === 'correct') {
                     [523.25, 659.25, 783.99].forEach((freq, idx) => {
                         const o = ctx.createOscillator(); const g = ctx.createGain();
@@ -366,37 +177,53 @@
             } catch(e) {}
         }
 
-        // --- SPEECH SYNTHESIS ---
+        // --- ENHANCED SIRI / TTS SPEECH SYNTHESIS ---
         function speakThaiLine(text, onEndCallback) {
-            if (!('speechSynthesis' in window)) {
+            if (isMuted || !('speechSynthesis' in window)) {
                 if (onEndCallback) onEndCallback();
                 return;
             }
+
+            if (!audioUnlocked) unlockAudioEngine();
 
             window.speechSynthesis.cancel();
 
             setTimeout(() => {
                 window.currentUtterance = new SpeechSynthesisUtterance(text);
                 window.currentUtterance.lang = 'th-TH';
-                window.currentUtterance.rate = 0.9;
+                window.currentUtterance.rate = 0.95;
+                window.currentUtterance.pitch = 1.0;
+                window.currentUtterance.volume = 1.0;
 
-                const voices = window.speechSynthesis.getVoices();
-                const thVoice = voices.find(v => v.lang.includes('th') || v.lang.includes('TH'));
-                if (thVoice) {
-                    window.currentUtterance.voice = thVoice;
+                if (!thaiVoice) populateVoices();
+                if (thaiVoice) {
+                    window.currentUtterance.voice = thaiVoice;
                 }
 
-                window.currentUtterance.onend = () => {
-                    if (onEndCallback) onEndCallback();
+                let hasEnded = false;
+                const safeOnEnd = () => {
+                    if (!hasEnded) {
+                        hasEnded = true;
+                        if (onEndCallback) onEndCallback();
+                    }
                 };
 
+                window.currentUtterance.onend = safeOnEnd;
                 window.currentUtterance.onerror = (err) => {
-                    console.warn("Speech error:", err);
-                    if (onEndCallback) onEndCallback();
+                    console.warn("Speech synthesis warning:", err);
+                    safeOnEnd();
                 };
+
+                // Safety timeout for mobile browsers where onend may fail to trigger
+                const estimatedMs = Math.max(2000, text.length * 350);
+                setTimeout(() => {
+                    if (!hasEnded) {
+                        safeOnEnd();
+                    }
+                }, estimatedMs);
 
                 window.speechSynthesis.speak(window.currentUtterance);
-            }, 50);
+            }, 60);
         }
 
         function stopSpeaking() {
@@ -471,7 +298,7 @@
             }
         }
 
-        // MQTT
+        // MQTT Engine
         function initMQTT(callback) {
             const statusEl = document.getElementById('connection-status');
             mqttClient = mqtt.connect('wss://broker.emqx.io:8084/mqtt', {
@@ -510,7 +337,7 @@
             }
         }
 
-        // HOST WORKFLOW CONTROLS
+        // HOST CONTROLS
         function onGameModeChange() {
             const mode = document.getElementById('select-game-mode').value;
             const actionBox = document.getElementById('host-mode-actions');
@@ -526,10 +353,9 @@
                     <button onclick="playSelectedPreset()" class="w-full bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 font-black py-3 rounded-xl text-xs transition active:scale-95 shadow">
                         ▶️ เริ่มอ่านโจทย์ประจำข้อ
                     </button>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button onclick="songAnswerWrong()" class="bg-slate-900 hover:bg-slate-800 text-slate-200 font-bold py-2.5 rounded-xl text-xs border border-slate-800 active:scale-95">➡️ ${label}</button>
-                        <button onclick="songAnswerCorrect()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs active:scale-95 shadow-md shadow-emerald-600/20">✓ เฉลยคำตอบ (+1)</button>
-                    </div>
+                    <button onclick="songNextLine()" class="w-full bg-slate-900 hover:bg-slate-800 text-slate-200 font-bold py-2.5 rounded-xl text-xs border border-slate-800 active:scale-95">
+                        ➡️ ${label}
+                    </button>
                 `;
             } else if (mode === 'speed_go') {
                 ruleText = "กติกา: ล็อกปุ่มจนกว่าจะ GO!";
@@ -537,7 +363,6 @@
                     <button onclick="playSelectedPreset('on_zero')" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-black py-3 rounded-xl text-xs transition active:scale-95 shadow-lg shadow-rose-600/20">
                         🎯 เริ่มนับถอยหลัง GO!
                     </button>
-                    <button onclick="songAnswerCorrect()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs active:scale-95">✓ ให้คะแนนคนกดเร็วสุด (+1)</button>
                 `;
             } else if (mode === 'reverse' || mode === 'trivia') {
                 ruleText = mode === 'trivia' ? "กติกา: อ่านโจทย์จบจับเวลา" : "กติกา: กดได้ตลอดเวลา";
@@ -545,7 +370,6 @@
                     <button onclick="playSelectedPreset()" class="w-full bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 font-black py-3 rounded-xl text-xs transition active:scale-95 shadow">
                         ⚡ อ่านคำถาม/คำย้อนกลับ
                     </button>
-                    <button onclick="songAnswerCorrect()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs active:scale-95">✓ เฉลยคำตอบ (+1)</button>
                 `;
             }
 
@@ -589,7 +413,8 @@
         function startLineByLinePlayback(lyricsText, mode, triggerMode) {
             stopSpeaking();
             stopTimer();
-            lyricLines = lyricsText.split('\n').map(l => l.trim()).filter(Boolean);
+            lyricLines = lyricsText.split('
+').map(l => l.trim()).filter(Boolean);
             if (lyricLines.length === 0) lyricLines = [lyricsText];
             currentLineIndex = 0;
             currentTimerMode = mode || 'after';
@@ -659,6 +484,7 @@
 
         function resetBuzzer() {
             buzzList = [];
+            disqualifiedPlayers.clear();
             stopSpeaking();
             stopTimer();
             hideWinnerSpotlight();
@@ -680,6 +506,7 @@
             if (!item) return;
             currentSongInfo = item;
             buzzList = [];
+            disqualifiedPlayers.clear();
             hideWinnerSpotlight();
             
             const mode = document.getElementById('select-game-mode').value;
@@ -706,6 +533,7 @@
             if(!lyrics) return alert('กรุณาพิมพ์ข้อความ');
             currentSongInfo = { title: 'โจทย์กำหนดเอง', artist: 'Host' };
             buzzList = [];
+            disqualifiedPlayers.clear();
             hideWinnerSpotlight();
             
             publishControl({ action: 'reset' });
@@ -730,24 +558,38 @@
             onSelectPresetChange();
         }
 
-        function songAnswerCorrect() {
-            if (buzzList.length > 0) {
-                const winner = buzzList[0].name;
-                playerScores[winner] = (playerScores[winner] || 0) + 1;
+        // JUDGING LOGIC (CORRECT / WRONG)
+        function judgeAnswer(isCorrect) {
+            if (buzzList.length === 0) return;
+
+            const currentWinner = buzzList[0].name;
+
+            if (isCorrect) {
+                // Award points
+                playerScores[currentWinner] = (playerScores[currentWinner] || 0) + 1;
                 publishControl({ action: 'scores', scores: playerScores });
+                publishControl({ 
+                    action: 'reveal_answer', 
+                    song: currentSongInfo || { title: 'เฉลย', artist: '' } 
+                });
+                try { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); } catch(e){}
+            } else {
+                // Wrong answer / penalty (-1 pt optional)
+                playerScores[currentWinner] = Math.max(0, (playerScores[currentWinner] || 0) - 1);
+                publishControl({ action: 'scores', scores: playerScores });
+
+                // Pass to next person in queue or unlock buzzer for remaining eligible players
+                publishControl({ action: 'answer_wrong', wrongPlayer: currentWinner });
             }
-            publishControl({ 
-                action: 'reveal_answer', 
-                song: currentSongInfo || { title: 'เฉลย', artist: '' } 
-            });
         }
 
-        function songAnswerWrong() {
+        function songNextLine() {
             publishControl({ action: 'next_line' });
         }
 
         function startTimerConfigured(seconds) {
             buzzList = [];
+            disqualifiedPlayers.clear();
             hideWinnerSpotlight();
             publishControl({ action: 'reset' });
             publishControl({ action: 'timer', duration: seconds, triggerMode: 'during' });
@@ -761,7 +603,7 @@
 
         function clearRoomCompletely() {
             if (confirm('ล้างข้อมูลห้องทั้งหมดหรือไม่?')) {
-                buzzList = []; playerScores = {};
+                buzzList = []; playerScores = {}; disqualifiedPlayers.clear();
                 stopSpeaking(); stopTimer();
                 renderHostScoreboard();
                 publishControl({ action: 'clear' });
@@ -798,7 +640,7 @@
             `).join('');
         }
 
-        // PLAYER SETUP
+        // PLAYER LOGIC
         function showPlayerLogin() { 
             const savedName = localStorage.getItem('pb_name');
             const savedRoom = localStorage.getItem('pb_room');
@@ -825,7 +667,7 @@
         }
 
         function pressBuzz() {
-            if (hasBuzzed || isLocked) return;
+            if (hasBuzzed || isLocked || disqualifiedPlayers.has(myPlayerName)) return;
             hasBuzzed = true;
             playSound('buzz');
             updatePlayerButtonUI(false, "BUZZED!");
@@ -843,6 +685,13 @@
             const banner = document.getElementById('player-status-banner');
             if (!btn || !banner) return;
 
+            if (disqualifiedPlayers.has(myPlayerName)) {
+                btn.className = "w-56 h-56 rounded-full bg-slate-900 border-8 border-slate-950 flex flex-col items-center justify-center cursor-not-allowed opacity-30 my-2";
+                banner.className = "w-full py-2 px-4 rounded-xl bg-slate-950 border border-slate-800 text-rose-500 text-xs font-bold mb-4";
+                banner.innerText = "ตอบผิดแล้ว (DISQUALIFIED THIS ROUND)";
+                return;
+            }
+
             if (unlocked) {
                 btn.className = "buzz-btn-active w-56 h-56 rounded-full bg-gradient-to-b from-rose-500 to-rose-700 border-8 border-slate-950 shadow-2xl flex flex-col items-center justify-center cursor-pointer transition transform my-2 pulse-fast";
                 banner.className = "w-full py-2 px-4 rounded-xl bg-slate-950 border border-slate-800 text-emerald-400 text-xs font-bold mb-4";
@@ -858,8 +707,11 @@
         function handleIncomingMessage(topic, payload) {
             if (topic.endsWith('/buzz')) {
                 const exists = buzzList.some(i => i.name === payload.name);
-                if (!exists && !isLocked) {
+                if (!exists && !isLocked && !disqualifiedPlayers.has(payload.name)) {
                     buzzList.push(payload);
+                    // Sort queue strictly by client timestamp for fairness
+                    buzzList.sort((a,b) => a.timestamp - b.timestamp);
+
                     if (!(payload.name in playerScores)) playerScores[payload.name] = 0;
                     renderTVBuzzList();
                     renderHostScoreboard();
@@ -881,7 +733,7 @@
 
             if (topic.endsWith('/control')) {
                 if (payload.action === 'reset') {
-                    buzzList = []; hasBuzzed = false; isLocked = false;
+                    buzzList = []; hasBuzzed = false; isLocked = false; disqualifiedPlayers.clear();
                     stopSpeaking(); stopTimer(); hideWinnerSpotlight();
                     renderTVBuzzList();
                     updatePlayerButtonUI(true);
@@ -890,14 +742,15 @@
                     stopSpeaking(); stopTimer();
                     updatePlayerButtonUI(false, "LOCKED");
                 } else if (payload.action === 'unlock') {
-                    isLocked = false; hasBuzzed = false;
+                    isLocked = false;
+                    if (!disqualifiedPlayers.has(myPlayerName)) hasBuzzed = false;
                     updatePlayerButtonUI(true);
                 } else if (payload.action === 'timer') {
-                    buzzList = []; hasBuzzed = false; hideWinnerSpotlight();
+                    buzzList = []; hasBuzzed = false; disqualifiedPlayers.clear(); hideWinnerSpotlight();
                     stopSpeaking();
                     startCountdown(payload.duration, payload.triggerMode);
                 } else if (payload.action === 'read_lyrics_linebyline') {
-                    hasBuzzed = false; hideWinnerSpotlight();
+                    hasBuzzed = false; disqualifiedPlayers.clear(); hideWinnerSpotlight();
                     const badge = document.getElementById('display-mode-badge');
                     if (badge && payload.gameModeName) badge.innerText = payload.gameModeName;
                     startLineByLinePlayback(payload.lyrics, payload.mode, payload.triggerMode);
@@ -909,6 +762,32 @@
                     } else {
                         stopTimer();
                         document.getElementById('display-question-text').innerText = "END OF QUESTION";
+                    }
+                } else if (payload.action === 'answer_wrong') {
+                    playSound('wrong');
+                    const wrongPlayer = payload.wrongPlayer;
+                    disqualifiedPlayers.add(wrongPlayer);
+                    
+                    // Remove wrong player from current queue
+                    buzzList = buzzList.filter(item => item.name !== wrongPlayer);
+                    renderTVBuzzList();
+
+                    if (buzzList.length > 0) {
+                        // Advance spotlight to next player in queue
+                        const spotlight = document.getElementById('display-winner-spotlight');
+                        const winnerName = document.getElementById('display-winner-name');
+                        if (spotlight && winnerName) {
+                            winnerName.innerText = buzzList[0].name;
+                            spotlight.classList.remove('hidden');
+                        }
+                    } else {
+                        // Queue empty, automatically unlock buzzer for remaining players who haven't buzzed/been disqualified
+                        hideWinnerSpotlight();
+                        isLocked = false;
+                        if (!disqualifiedPlayers.has(myPlayerName)) {
+                            hasBuzzed = false;
+                            updatePlayerButtonUI(true, "TRY AGAIN!");
+                        }
                     }
                 } else if (payload.action === 'reveal_answer') {
                     stopSpeaking(); stopTimer();
@@ -937,6 +816,8 @@
 
         function renderTVBuzzList() {
             const listEl = document.getElementById('display-buzz-list');
+            const queueCount = document.getElementById('tv-queue-count');
+            if (queueCount) queueCount.innerText = `${buzzList.length} IN QUEUE`;
             if (!listEl) return;
 
             if (buzzList.length === 0) {
