@@ -29,11 +29,6 @@
 </head>
 <body onclick="unlockAudioEngine()" class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-start p-3 sm:p-5 select-none antialiased">
 
-    <!-- AUDIO UNLOCK BANNER -->
-    <div id="audio-unlock-banner" onclick="unlockAudioEngine()" class="w-full max-w-5xl bg-amber-500/20 border border-amber-500/50 rounded-2xl p-3 mb-3 text-center cursor-pointer hover:bg-amber-500/30 transition flex items-center justify-center gap-2 text-amber-300 text-xs font-bold animate-pulse">
-        <span>📢 แตะตรงไหนก็ได้บนหน้าจอ 1 ครั้ง เพื่อเปิดใช้งานเสียง Siri และ Audio FX</span>
-    </div>
-
     <!-- HEADER NAVIGATION -->
     <header class="w-full max-w-5xl p-3 sm:p-4 flex justify-between items-center bg-slate-900/40 border border-slate-800/80 rounded-2xl mb-4 backdrop-blur-xl">
         <div class="flex items-center gap-2 cursor-pointer" onclick="location.href=location.pathname">
@@ -301,7 +296,7 @@
             });
         }
 
-        // --- ENHANCED SIRI / TTS SPEECH SYNTHESIS ---
+        // --- SILENT AUDIO UNLOCK & SPEECH SYNTHESIS ---
         let audioUnlocked = false;
         let thaiVoice = null;
         window.activeUtterance = null;
@@ -325,10 +320,7 @@
             } catch(e) {}
 
             if ('speechSynthesis' in window) window.speechSynthesis.resume();
-
             audioUnlocked = true;
-            const banner = document.getElementById('audio-unlock-banner');
-            if (banner) banner.classList.add('hidden');
         }
 
         // MULTI-MODE DATABASE
