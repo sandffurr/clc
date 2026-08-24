@@ -294,15 +294,16 @@
         let currentTimerSec = 10;
         let currentBuzzTriggerMode = 'during';
 
-        // SPEECH SYNTHESIS FIX FOR GITHUB PAGES / SAFARI / CHROME
+        // --- ENHANCED SIRI / TTS SPEECH SYNTHESIS (FIXED FOR SAFARI / CHROME / GITHUB PAGES) ---
         let audioUnlocked = false;
         let thaiVoice = null;
-        window.currentUtterance = null;
+        window.activeUtterance = null; // Store reference to prevent Garbage Collection on Safari/Chrome
 
         function populateVoices() {
             if (!('speechSynthesis' in window)) return;
             const voices = window.speechSynthesis.getVoices();
-            thaiVoice = voices.find(v => v.lang.includes('th') || v.lang.includes('TH')) || null;
+            // Prioritize Thai voices (including Siri / Premium voices on macOS/iOS)
+            thaiVoice = voices.find(v => v.lang.replace('_', '-').toLowerCase().startsWith('th')) || null;
         }
 
         if ('speechSynthesis' in window) {
@@ -321,13 +322,9 @@
                 }
             } catch(e) {}
 
-            // 2. Unlock SpeechSynthesis Engine with a silent dummy utterance
+            // 2. Resume SpeechSynthesis Engine
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.resume();
-                const dummy = new SpeechSynthesisUtterance('');
-                dummy.volume = 0;
-                dummy.lang = 'th-TH';
-                window.speechSynthesis.speak(dummy);
             }
 
             audioUnlocked = true;
@@ -338,33 +335,17 @@
         // MULTI-MODE DATABASE
         const gamePresets = {
             song: [
-                { title: 'ทรงอย่างแบด', artist: 'Paper Planes', lyrics: "ทรงอย่างแบด แซดอย่างบ่อย
-เธอทำให้ฉันต้องเจ็บช้ำ
-ปล่อยให้ฉันต้องคิดถึงเธออยู่ข้างเดียว" },
-                { title: 'พิง', artist: 'NON TANONT', lyrics: "ที่ตรงนี้มีคนที่รอเธออยู่
-ที่ตรงนี้มีคนที่รักเธอเกินใคร
-หากว่าเธอเหนื่อยล้าลองหันมองกลับมา" },
-                { title: 'ถ้าเราเจอกันอีก', artist: 'Tilly Birds', lyrics: "ถ้าหากว่าในวันนั้นเราไม่ได้เจอกัน
-วันนี้ฉันคงไม่ต้องเสียใจกับการจากลา" }
+                { title: 'ทรงอย่างแบด', artist: 'Paper Planes', lyrics: "ทรงอย่างแบด แซดอย่างบ่อย\nเธอทำให้ฉันต้องเจ็บช้ำ\nปล่อยให้ฉันต้องคิดถึงเธออยู่ข้างเดียว" },
+                { title: 'พิง', artist: 'NON TANONT', lyrics: "ที่ตรงนี้มีคนที่รอเธออยู่\nที่ตรงนี้มีคนที่รักเธอเกินใคร\nหากว่าเธอเหนื่อยล้าลองหันมองกลับมา" },
+                { title: 'ถ้าเราเจอกันอีก', artist: 'Tilly Birds', lyrics: "ถ้าหากว่าในวันนั้นเราไม่ได้เจอกัน\nวันนี้ฉันคงไม่ต้องเสียใจกับการจากลา" }
             ],
             hint: [
-                { title: 'ผลไม้สีเหลือง', artist: 'เฉลย: กล้วย', lyrics: "คำใบ้ที่ 1: เป็นผลไม้ที่มีเปลือกสีเหลือง
-คำใบ้ที่ 2: ลิงชอบกินมากที่สุด
-คำใบ้ที่ 3: นิยมนำไปเชื่อมหรือบวดชี" },
-                { title: 'สถานที่สำคัญ', artist: 'เฉลย: สนามบินสุวรรณภูมิ', lyrics: "คำใบ้ที่ 1: อยู่ในจังหวัดสมุทรปราการ
-คำใบ้ที่ 2: มีเครื่องบินขึ้นลงตลอด 24 ชั่วโมง
-คำใบ้ที่ 3: มีรูปปั้นยักษ์ขนาดใหญ่อยู่ข้างใน" }
+                { title: 'ผลไม้สีเหลือง', artist: 'เฉลย: กล้วย', lyrics: "คำใบ้ที่ 1: เป็นผลไม้ที่มีเปลือกสีเหลือง\nคำใบ้ที่ 2: ลิงชอบกินมากที่สุด\nคำใบ้ที่ 3: นิยมนำไปเชื่อมหรือบวดชี" },
+                { title: 'สถานที่สำคัญ', artist: 'เฉลย: สนามบินสุวรรณภูมิ', lyrics: "คำใบ้ที่ 1: อยู่ในจังหวัดสมุทรปราการ\nคำใบ้ที่ 2: มีเครื่องบินขึ้นลงตลอด 24 ชั่วโมง\nคำใบ้ที่ 3: มีรูปปั้นยักษ์ขนาดใหญ่อยู่ข้างใน" }
             ],
             speed_go: [
-                { title: 'วัดความไว: รอบที่ 1', artist: 'เฉลย: คนกดไวที่สุดได้แต้ม', lyrics: "เตรียมมือให้พร้อมที่ปุ่มกด
-ระวัง...
-3
-2
-1
-GO!" },
-                { title: 'วัดความไว: รอบที่ 2', artist: 'เฉลย: คนกดไวที่สุดได้แต้ม', lyrics: "พร้อมแล้วหรือยัง...
-นับถอยหลัง...
-กดได้เลย!" }
+                { title: 'วัดความไว: รอบที่ 1', artist: 'เฉลย: คนกดไวที่สุดได้แต้ม', lyrics: "เตรียมมือให้พร้อมที่ปุ่มกด\nระวัง...\n3\n2\n1\nGO!" },
+                { title: 'วัดความไว: รอบที่ 2', artist: 'เฉลย: คนกดไวที่สุดได้แต้ม', lyrics: "พร้อมแล้วหรือยัง...\นับถอยหลัง...\nกดได้เลย!" }
             ],
             reverse: [
                 { title: 'คำย้อนกลับ 1', artist: 'เฉลย: ชาบูสุกี้', lyrics: "สุก - ชา - บู" },
@@ -450,7 +431,7 @@ GO!" },
             } catch(e) {}
         }
 
-        // --- ENHANCED SIRI / TTS SPEECH SYNTHESIS ---
+        // --- ENHANCED SIRI / TTS SPEECH SYNTHESIS ENGINE ---
         function speakThaiLine(text, onEndCallback) {
             if (isMuted || !('speechSynthesis' in window)) {
                 if (onEndCallback) onEndCallback();
@@ -462,46 +443,53 @@ GO!" },
             window.speechSynthesis.cancel();
 
             setTimeout(() => {
-                window.currentUtterance = new SpeechSynthesisUtterance(text);
-                window.currentUtterance.lang = 'th-TH';
-                window.currentUtterance.rate = 0.95;
-                window.currentUtterance.pitch = 1.0;
-                window.currentUtterance.volume = 1.0;
+                const utterance = new SpeechSynthesisUtterance(text);
+                window.activeUtterance = utterance; // Keep strong reference for GC fix
+
+                utterance.lang = 'th-TH';
+                utterance.rate = 0.95;
+                utterance.pitch = 1.0;
+                utterance.volume = 1.0;
 
                 if (!thaiVoice) populateVoices();
                 if (thaiVoice) {
-                    window.currentUtterance.voice = thaiVoice;
+                    utterance.voice = thaiVoice;
                 }
 
                 let hasEnded = false;
+                let safetyTimeout = null;
+
                 const safeOnEnd = () => {
                     if (!hasEnded) {
                         hasEnded = true;
+                        if (safetyTimeout) clearTimeout(safetyTimeout);
+                        window.activeUtterance = null;
                         if (onEndCallback) onEndCallback();
                     }
                 };
 
-                window.currentUtterance.onend = safeOnEnd;
-                window.currentUtterance.onerror = (err) => {
-                    console.warn("Speech synthesis warning:", err);
+                utterance.onend = safeOnEnd;
+                utterance.onerror = (err) => {
+                    console.warn("Speech synthesis error/warning:", err);
                     safeOnEnd();
                 };
 
-                // Safety timeout for mobile browsers where onend may fail to trigger
-                const estimatedMs = Math.max(2000, text.length * 350);
-                setTimeout(() => {
+                // Generous safety timeout to prevent premature cutoff on slow TTS engines
+                const estimatedMs = Math.max(4000, text.length * 700);
+                safetyTimeout = setTimeout(() => {
                     if (!hasEnded) {
                         safeOnEnd();
                     }
                 }, estimatedMs);
 
-                window.speechSynthesis.speak(window.currentUtterance);
-            }, 60);
+                window.speechSynthesis.speak(utterance);
+            }, 100);
         }
 
         function stopSpeaking() {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
+                window.activeUtterance = null;
             }
         }
 
@@ -686,8 +674,7 @@ GO!" },
         function startLineByLinePlayback(lyricsText, mode, triggerMode) {
             stopSpeaking();
             stopTimer();
-            lyricLines = lyricsText.split('
-').map(l => l.trim()).filter(Boolean);
+            lyricLines = lyricsText.split('\n').map(l => l.trim()).filter(Boolean);
             if (lyricLines.length === 0) lyricLines = [lyricsText];
             currentLineIndex = 0;
             currentTimerMode = mode || 'after';
