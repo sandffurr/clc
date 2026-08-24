@@ -55,7 +55,7 @@
             <p class="text-xs text-slate-500 mb-6 font-light">เลือกโหมดการใช้งานอุปกรณ์ของคุณ</p>
             <div class="space-y-3">
                 <button onclick="setupDisplay()" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-black py-3.5 rounded-2xl transition active:scale-95 shadow-lg shadow-amber-400/10">
-                    📺 TV DISPLAY (จอแสดงผล)
+                    📺 TV DISPLAY (จอแสดงผล & เสียง)
                 </button>
                 <button onclick="setupHost()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 rounded-2xl border border-slate-700/80 transition active:scale-95">
                     📱 HOST CONTROLLER (ผู้ควบคุม)
@@ -141,11 +141,34 @@
                 </div>
             </div>
 
+            <!-- SETTING: BUZZ TIMING RULE & TIMER CONFIG -->
+            <div class="w-full bg-slate-950/90 p-3.5 rounded-2xl border border-slate-800 mb-3">
+                <span class="text-[10px] font-black text-amber-400 uppercase tracking-wider block mb-2">⚙️ ตั้งค่ากติกา & เวลาการกด</span>
+                
+                <div class="mb-2">
+                    <label class="block text-[10px] text-slate-400 font-bold mb-1">เงื่อนไขการกดปุ่ม (Buzz Timing Mode):</label>
+                    <select id="select-buzz-timing" class="w-full bg-slate-900 border border-slate-700 text-amber-300 font-bold text-xs rounded-xl px-3 py-2 outline-none">
+                        <option value="during">⚡ กดได้ระหว่างนับถอยหลัง (Buzz During Timer)</option>
+                        <option value="on_zero">🛑 ล็อกปุ่ม - กดเมื่อหมดเวลา / สัญญาณ GO! (Buzz On GO)</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <span class="text-[10px] text-slate-400 font-bold">เวลานับถอยหลัง:</span>
+                    <input type="number" id="input-custom-timer-sec" value="10" min="1" max="90" class="w-16 bg-slate-900 border border-slate-700 text-amber-400 font-mono font-bold text-center rounded-xl py-1 text-xs outline-none">
+                    <span class="text-xs text-slate-400 font-bold">วิ</span>
+                    <div class="flex gap-1 ml-auto">
+                        <button onclick="document.getElementById('input-custom-timer-sec').value=5" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 text-[10px] font-mono px-2 py-1 rounded-lg">5s</button>
+                        <button onclick="document.getElementById('input-custom-timer-sec').value=10" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 text-[10px] font-mono px-2 py-1 rounded-lg">10s</button>
+                        <button onclick="document.getElementById('input-custom-timer-sec').value=20" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 text-[10px] font-mono px-2 py-1 rounded-lg">20s</button>
+                    </div>
+                </div>
+            </div>
+
             <!-- ZONE 1: LIVE CONTROL & SCORING DECISIONS -->
             <div class="w-full bg-slate-950/90 p-3.5 rounded-2xl border border-amber-500/30 mb-3 shadow-lg">
                 <div class="flex justify-between items-center mb-2">
                     <span class="text-[10px] font-black text-amber-400 uppercase tracking-wider">⚡ ควบคุมเกมสด & การตัดสิน</span>
-                    <span id="host-rule-badge" class="text-[9px] bg-slate-900 border border-slate-800 text-slate-400 px-2.5 py-0.5 rounded-full font-mono">กติกา: กดได้ทันที</span>
                 </div>
 
                 <!-- DYNAMIC MODE ACTIONS -->
@@ -170,6 +193,10 @@
                         🔄 RESET BUZZER
                     </button>
                 </div>
+
+                <button onclick="safeAction(startTimerFromConfig)" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-2.5 rounded-xl text-xs transition active:scale-95 shadow">
+                    ⏱️ เริ่มนับถอยหลังตามที่ตั้งค่าไว้
+                </button>
             </div>
 
             <!-- ZONE 2: GAME PRESET & CUSTOM CONTENT -->
@@ -210,18 +237,7 @@
                 </div>
             </div>
 
-            <!-- ZONE 3: TIMERS & SCOREBOARD QUICK ACTIONS -->
-            <div class="w-full bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80 mb-3">
-                <div class="flex justify-between items-center">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">⏱️ จับเวลาถอยหลัง</span>
-                    <div class="flex gap-1.5">
-                        <button onclick="safeAction(() => startTimerConfigured(5))" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-amber-400 font-mono font-bold px-3 py-1 rounded-lg text-xs active:scale-95">5s</button>
-                        <button onclick="safeAction(() => startTimerConfigured(10))" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-amber-400 font-mono font-bold px-3 py-1 rounded-lg text-xs active:scale-95">10s</button>
-                        <button onclick="safeAction(() => startTimerConfigured(20))" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-amber-400 font-mono font-bold px-3 py-1 rounded-lg text-xs active:scale-95">20s</button>
-                    </div>
-                </div>
-            </div>
-
+            <!-- ZONE 3: SCOREBOARD QUICK ACTIONS -->
             <div class="w-full bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80 mb-3">
                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">🏆 คะแนนผู้เล่น</span>
                 <div id="host-scoreboard" class="space-y-1.5 max-h-[120px] overflow-y-auto pr-1">
@@ -295,10 +311,11 @@
         let currentTimerMode = 'after';
         let currentTimerSec = 10;
         let currentBuzzTriggerMode = 'during';
+        let roundStartTime = 0; // TV Master Timestamp
         
         let isActionDebounced = false;
 
-        // --- DEBOUNCE UTILITY (ป้องกัน Host กดเบิ้ล) ---
+        // --- DEBOUNCE UTILITY ---
         function safeAction(fn, delay = 400) {
             if (isActionDebounced) return;
             isActionDebounced = true;
@@ -445,8 +462,10 @@
             } catch(e) {}
         }
 
+        // อ่านเสียงอ่านโจทย์เฉพาะเครื่องที่เป็น TV Display เท่านั้น
         function speakThaiLine(text, onEndCallback) {
-            if (isMuted || !('speechSynthesis' in window)) {
+            const isTV = !document.getElementById('view-display').classList.contains('hidden');
+            if (!isTV || isMuted || !('speechSynthesis' in window)) {
                 if (onEndCallback) onEndCallback();
                 return;
             }
@@ -479,9 +498,7 @@
                 };
 
                 utterance.onend = safeOnEnd;
-                utterance.onerror = (err) => {
-                    safeOnEnd();
-                };
+                utterance.onerror = () => safeOnEnd();
 
                 const estimatedMs = Math.max(4000, text.length * 700);
                 safetyTimeout = setTimeout(() => {
@@ -503,6 +520,7 @@
             stopTimer();
             let timeLeft = duration;
             currentBuzzTriggerMode = triggerMode || 'during';
+            roundStartTime = Date.now();
 
             const timerBox = document.getElementById('display-timer-box');
             const timerVal = document.getElementById('display-timer-val');
@@ -540,6 +558,7 @@
                         if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
                         isLocked = false;
                         hasBuzzed = false;
+                        roundStartTime = Date.now(); // อัปเดตเวลาอ้างอิง ณ สัญญาณ GO!
                         if (timerLabel) timerLabel.innerText = "GO!";
                         if (timerVal) timerVal.innerText = "GO!";
                         updatePlayerButtonUI(true, "PRESS NOW!");
@@ -605,18 +624,25 @@
             }
         }
 
-        // HOST CONTROLS
+        // HOST CONTROLS & DYNAMIC UI
+        function getHostSettings() {
+            const timing = document.getElementById('select-buzz-timing') ? document.getElementById('select-buzz-timing').value : 'during';
+            const sec = parseInt(document.getElementById('input-custom-timer-sec') ? document.getElementById('input-custom-timer-sec').value : '10', 10) || 10;
+            return { timing, sec };
+        }
+
         function onGameModeChange() {
             const mode = document.getElementById('select-game-mode').value;
             const actionBox = document.getElementById('host-mode-actions');
-            const ruleBadge = document.getElementById('host-rule-badge');
+            const timingSelect = document.getElementById('select-buzz-timing');
             
-            let actionsHTML = '';
-            let ruleText = '';
+            if (timingSelect) {
+                timingSelect.value = (mode === 'speed_go') ? 'on_zero' : 'during';
+            }
 
+            let actionsHTML = '';
             if (mode === 'song' || mode === 'hint' || mode === 'spelling') {
                 const label = mode === 'song' ? 'เนื้อเพลงบรรทัดถัดไป' : (mode === 'hint' ? 'อ่านคำใบ้ถัดไป' : 'สะกดตัวถัดไป');
-                ruleText = "กติกา: กดได้ตลอดเวลา";
                 actionsHTML = `
                     <button onclick="safeAction(playSelectedPreset)" class="w-full bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 font-black py-3 rounded-xl text-xs transition active:scale-95 shadow">
                         ▶️ เริ่มอ่านโจทย์ประจำข้อ
@@ -626,14 +652,12 @@
                     </button>
                 `;
             } else if (mode === 'speed_go') {
-                ruleText = "กติกา: ล็อกปุ่มจนกว่าจะ GO!";
                 actionsHTML = `
-                    <button onclick="safeAction(() => playSelectedPreset('on_zero'))" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-black py-3 rounded-xl text-xs transition active:scale-95 shadow-lg shadow-rose-600/20">
+                    <button onclick="safeAction(playSelectedPreset)" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-black py-3 rounded-xl text-xs transition active:scale-95 shadow-lg shadow-rose-600/20">
                         🎯 เริ่มนับถอยหลัง GO!
                     </button>
                 `;
             } else if (mode === 'reverse' || mode === 'trivia') {
-                ruleText = mode === 'trivia' ? "กติกา: อ่านโจทย์จบจับเวลา" : "กติกา: กดได้ตลอดเวลา";
                 actionsHTML = `
                     <button onclick="safeAction(playSelectedPreset)" class="w-full bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 font-black py-3 rounded-xl text-xs transition active:scale-95 shadow">
                         ⚡ อ่านคำถาม/คำย้อนกลับ
@@ -642,7 +666,6 @@
             }
 
             actionBox.innerHTML = actionsHTML;
-            if (ruleBadge) ruleBadge.innerText = ruleText;
             renderPresetDropdown();
         }
 
@@ -678,14 +701,14 @@
             container.classList.toggle('hidden');
         }
 
-        function startLineByLinePlayback(lyricsText, mode, triggerMode) {
+        function startLineByLinePlayback(lyricsText, mode, triggerMode, secDuration) {
             stopSpeaking();
             stopTimer();
             lyricLines = lyricsText.split('\n').map(l => l.trim()).filter(Boolean);
             if (lyricLines.length === 0) lyricLines = [lyricsText];
             currentLineIndex = 0;
             currentTimerMode = mode || 'after';
-            currentTimerSec = 10;
+            currentTimerSec = secDuration || 10;
             currentBuzzTriggerMode = triggerMode || 'during';
             playCurrentLine();
         }
@@ -724,7 +747,7 @@
             });
 
             initMQTT(() => {
-                mqttClient.subscribe(`partybuzz/${currentRoom}/buzz`);
+                mqttClient.subscribe(`partybuzz/${currentRoom}/buzz_request`);
                 mqttClient.subscribe(`partybuzz/${currentRoom}/control`);
             });
         }
@@ -745,7 +768,8 @@
             document.getElementById('host-room-code').innerText = currentRoom;
             onGameModeChange();
             initMQTT(() => {
-                mqttClient.subscribe(`partybuzz/${currentRoom}/buzz`);
+                mqttClient.subscribe(`partybuzz/${currentRoom}/buzz_request`);
+                mqttClient.subscribe(`partybuzz/${currentRoom}/control`);
             });
         }
 
@@ -779,7 +803,7 @@
             btn.className = isLocked ? "bg-rose-600 hover:bg-rose-500 text-white font-bold px-3 py-2 rounded-xl text-xs transition active:scale-95 shadow-md shadow-rose-600/20" : "bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold px-3 py-2 rounded-xl text-xs border border-slate-700/80 transition active:scale-95";
         }
 
-        function playSelectedPreset(forceTriggerMode) {
+        function playSelectedPreset() {
             const list = getCurrentModePresets();
             const idx = document.getElementById('select-preset-song').value;
             const item = list[idx];
@@ -790,13 +814,22 @@
             hideWinnerSpotlight();
             
             const mode = document.getElementById('select-game-mode').value;
-            const trigger = forceTriggerMode || (mode === 'speed_go' ? 'on_zero' : 'during');
+            const { timing, sec } = getHostSettings();
             
             publishControl({ action: 'reset' });
             publishControl({ 
                 action: 'read_lyrics_linebyline', 
-                lyrics: item.lyrics, mode: 'after', triggerMode: trigger, gameModeName: mode.toUpperCase() 
+                lyrics: item.lyrics, mode: 'after', triggerMode: timing, duration: sec, gameModeName: mode.toUpperCase() 
             });
+        }
+
+        function startTimerFromConfig() {
+            const { timing, sec } = getHostSettings();
+            buzzList = [];
+            disqualifiedPlayers.clear();
+            hideWinnerSpotlight();
+            publishControl({ action: 'reset' });
+            publishControl({ action: 'timer', duration: sec, triggerMode: timing });
         }
 
         function randomPresetItem() {
@@ -816,10 +849,12 @@
             disqualifiedPlayers.clear();
             hideWinnerSpotlight();
             
+            const { timing, sec } = getHostSettings();
+
             publishControl({ action: 'reset' });
             publishControl({ 
                 action: 'read_lyrics_linebyline', 
-                lyrics: lyrics, mode: 'after', triggerMode: 'during', gameModeName: 'CUSTOM' 
+                lyrics: lyrics, mode: 'after', triggerMode: timing, duration: sec, gameModeName: 'CUSTOM' 
             });
         }
 
@@ -861,14 +896,6 @@
 
         function songNextLine() {
             publishControl({ action: 'next_line' });
-        }
-
-        function startTimerConfigured(seconds) {
-            buzzList = [];
-            disqualifiedPlayers.clear();
-            hideWinnerSpotlight();
-            publishControl({ action: 'reset' });
-            publishControl({ action: 'timer', duration: seconds, triggerMode: 'during' });
         }
 
         function addScore(name, pts) {
@@ -944,29 +971,24 @@
         }
 
         function pressBuzz() {
-            // เพิ่มระบบออกตัวก่อน (False Start) ในโหมดนับถอยหลัง GO
+            if (hasBuzzed || disqualifiedPlayers.has(myPlayerName)) return;
+
+            // ส่งสัญญาณไปยัง Master (TV/Host) เพื่อให้อิงเวลาจากส่วนกลาง
+            mqttClient.publish(`partybuzz/${currentRoom}/buzz_request`, JSON.stringify({
+                name: myPlayerName
+            }));
+
+            // อัปเดต UI ฝั่งตัวเองชั่วคราว
             if (currentBuzzTriggerMode === 'on_zero' && isLocked) {
                 disqualifiedPlayers.add(myPlayerName);
                 playSound('wrong');
                 updatePlayerButtonUI(false, "FALSE START! (ฟาวล์ - ออกตัวก่อน)");
-                mqttClient.publish(`partybuzz/${currentRoom}/buzz`, JSON.stringify({
-                    name: myPlayerName, timeStr: 'FOUL', timestamp: Date.now(), foul: true
-                }));
-                return;
+            } else if (!isLocked) {
+                hasBuzzed = true;
+                playSound('buzz');
+                if (navigator.vibrate) navigator.vibrate(80);
+                updatePlayerButtonUI(false, "BUZZED!");
             }
-
-            if (hasBuzzed || isLocked || disqualifiedPlayers.has(myPlayerName)) return;
-            hasBuzzed = true;
-            playSound('buzz');
-            if (navigator.vibrate) navigator.vibrate(80);
-            updatePlayerButtonUI(false, "BUZZED!");
-
-            const now = new Date();
-            const timeStr = `${now.getMinutes()}:${now.getSeconds()}.${Math.floor(now.getMilliseconds()/10).toString().padStart(2, '0')}`;
-            
-            mqttClient.publish(`partybuzz/${currentRoom}/buzz`, JSON.stringify({
-                name: myPlayerName, timeStr: timeStr, timestamp: Date.now()
-            }));
         }
 
         function updatePlayerButtonUI(unlocked, text) {
@@ -994,39 +1016,77 @@
 
         // REALTIME MQTT HANDLER
         function handleIncomingMessage(topic, payload) {
-            if (topic.endsWith('/buzz')) {
-                if (payload.foul) {
-                    disqualifiedPlayers.add(payload.name);
-                    return;
-                }
-                const exists = buzzList.some(i => i.name === payload.name);
-                if (!exists && !isLocked && !disqualifiedPlayers.has(payload.name)) {
-                    buzzList.push(payload);
-                    buzzList.sort((a,b) => a.timestamp - b.timestamp);
+            
+            // จอ TV / Host รับคำขอ Buzz แล้วประทับเวลา (Timestamp) ของ TV เพื่อความเที่ยงตรง
+            if (topic.endsWith('/buzz_request')) {
+                const isTVOrHost = !document.getElementById('view-display').classList.contains('hidden') || !document.getElementById('view-host').classList.contains('hidden');
+                
+                if (isTVOrHost) {
+                    const tvNow = Date.now();
+                    
+                    if (currentBuzzTriggerMode === 'on_zero' && isLocked) {
+                        disqualifiedPlayers.add(payload.name);
+                        publishControl({ action: 'player_foul', name: payload.name });
+                        return;
+                    }
 
-                    if (!(payload.name in playerScores)) playerScores[payload.name] = 0;
+                    const exists = buzzList.some(i => i.name === payload.name);
+                    if (!exists && !isLocked && !disqualifiedPlayers.has(payload.name)) {
+                        const elapsedSec = roundStartTime > 0 ? ((tvNow - roundStartTime) / 1000).toFixed(2) : '0.00';
+                        const formattedTime = `+${elapsedSec}s`;
+
+                        buzzList.push({
+                            name: payload.name,
+                            timeStr: formattedTime,
+                            timestamp: tvNow
+                        });
+
+                        buzzList.sort((a,b) => a.timestamp - b.timestamp);
+                        if (!(payload.name in playerScores)) playerScores[payload.name] = 0;
+
+                        // กระจาย คิวที่จัดเรียงเวลาโดย TV ให้กับทุกเครื่อง
+                        publishControl({ 
+                            action: 'sync_queue', 
+                            buzzList: buzzList,
+                            buzzedPlayer: payload.name
+                        });
+                    }
+                }
+            }
+
+            if (topic.endsWith('/control')) {
+                if (payload.action === 'sync_queue') {
+                    buzzList = payload.buzzList;
                     renderTVBuzzList();
                     renderHostScoreboard();
-                    playSound(buzzList.length === 1 ? 'correct' : 'buzz');
+
+                    if (payload.buzzedPlayer === myPlayerName) {
+                        hasBuzzed = true;
+                        updatePlayerButtonUI(false, "BUZZED!");
+                    }
 
                     if (buzzList.length === 1) {
+                        playSound('correct');
                         const spotlight = document.getElementById('display-winner-spotlight');
                         const winnerName = document.getElementById('display-winner-name');
                         const winnerLabel = document.getElementById('display-winner-label');
                         if (spotlight && winnerName) {
                             if (winnerLabel) winnerLabel.innerText = "⚡ FASTEST BUZZ ⚡";
-                            winnerName.innerText = payload.name;
+                            winnerName.innerText = buzzList[0].name;
                             spotlight.classList.remove('hidden');
                         }
+                    } else {
+                        playSound('buzz');
                     }
 
                     stopSpeaking();
                     stopTimer();
-                }
-            }
-
-            if (topic.endsWith('/control')) {
-                if (payload.action === 'reset') {
+                } else if (payload.action === 'player_foul') {
+                    disqualifiedPlayers.add(payload.name);
+                    if (payload.name === myPlayerName) {
+                        updatePlayerButtonUI(false, "FALSE START! (ฟาวล์ - ออกตัวก่อน)");
+                    }
+                } else if (payload.action === 'reset') {
                     buzzList = []; hasBuzzed = false; isLocked = false; disqualifiedPlayers.clear();
                     stopSpeaking(); stopTimer(); hideWinnerSpotlight();
                     renderTVBuzzList();
@@ -1047,7 +1107,7 @@
                     hasBuzzed = false; disqualifiedPlayers.clear(); hideWinnerSpotlight();
                     const badge = document.getElementById('display-mode-badge');
                     if (badge && payload.gameModeName) badge.innerText = payload.gameModeName;
-                    startLineByLinePlayback(payload.lyrics, payload.mode, payload.triggerMode);
+                    startLineByLinePlayback(payload.lyrics, payload.mode, payload.triggerMode, payload.duration);
                 } else if (payload.action === 'next_line') {
                     hasBuzzed = false;
                     currentLineIndex++;
@@ -1069,7 +1129,6 @@
                     const winnerName = document.getElementById('display-winner-name');
                     const winnerLabel = document.getElementById('display-winner-label');
                     
-                    // แสดงข้อความแจ้งเตือนคนตอบผิดบนหน้าจอชั่วคราว (1.5 วินาที) ก่อนเปลี่ยนคิว
                     if (spotlight && winnerName) {
                         if (winnerLabel) winnerLabel.innerText = "❌ ตอบผิด! ❌";
                         winnerName.innerText = wrongPlayer;
@@ -1115,7 +1174,6 @@
                     stopSpeaking(); stopTimer();
                     location.reload();
                 } else if (payload.action === 'request_state') {
-                    // ส่ง Sync กลับไปให้คนที่เพิ่ง Join
                     publishControl({
                         action: 'sync_state',
                         isLocked: isLocked,
