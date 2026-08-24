@@ -1,3 +1,276 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Party Buzz - Enhanced Cyber Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Kanit', sans-serif; touch-action: manipulation; }
+        button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        .buzz-btn-active:active { transform: scale(0.92); }
+        .pulse-fast { animation: pulseGlow 0.8s infinite alternate; }
+        @keyframes pulseGlow { 
+            0% { box-shadow: 0 0 15px rgba(244, 63, 94, 0.3); } 
+            100% { box-shadow: 0 0 40px rgba(244, 63, 94, 0.9); } 
+        }
+        .glow-amber { box-shadow: 0 0 25px rgba(245, 158, 11, 0.25); }
+        .glow-emerald { box-shadow: 0 0 25px rgba(16, 185, 129, 0.25); }
+        .glow-cyan { box-shadow: 0 0 25px rgba(6, 182, 212, 0.25); }
+        .glow-rose { box-shadow: 0 0 25px rgba(244, 63, 94, 0.3); }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    </style>
+</head>
+<body onclick="unlockAudioEngine()" class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-start p-3 sm:p-5 select-none antialiased">
+
+    <!-- AUDIO UNLOCK BANNER (Appears until first user tap to guarantee TTS & WebAudio work on GitHub Pages / Safari / Chrome) -->
+    <div id="audio-unlock-banner" onclick="unlockAudioEngine()" class="w-full max-w-5xl bg-amber-500/20 border border-amber-500/50 rounded-2xl p-3 mb-3 text-center cursor-pointer hover:bg-amber-500/30 transition flex items-center justify-center gap-2 text-amber-300 text-xs font-bold animate-pulse">
+        <span>📢 แตะตรงไหนก็ได้บนหน้าจอ 1 ครั้ง เพื่อเปิดใช้งานเสียง Siri และ Audio FX (สำหรับ GitHub Pages & Mobile)</span>
+    </div>
+
+    <!-- HEADER NAVIGATION -->
+    <header class="w-full max-w-5xl p-3 sm:p-4 flex justify-between items-center bg-slate-900/40 border border-slate-800/80 rounded-2xl mb-4 backdrop-blur-xl">
+        <div class="flex items-center gap-2 cursor-pointer" onclick="location.href=location.pathname">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span>
+            <span class="font-black text-lg tracking-widest text-white">PARTY<span class="text-amber-400">BUZZ</span> <span class="text-[10px] font-normal px-2 py-0.5 rounded-full bg-amber-400/10 text-amber-400 border border-amber-400/30">PRO</span></span>
+        </div>
+        <div class="flex items-center gap-2">
+            <button id="btn-sound-toggle" onclick="toggleMute(event)" class="text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-900/80 text-slate-400 border border-slate-800 hover:text-white hover:border-slate-700 transition">
+                🔊 SOUND: ON
+            </button>
+            <div id="connection-status" class="text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-900/80 text-slate-500 border border-slate-800 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-amber-500"></span> CONNECTING
+            </div>
+        </div>
+    </header>
+
+    <main class="w-full max-w-5xl flex-1 flex flex-col items-center justify-center">
+
+        <!-- SCREEN 1: ROLE SELECT -->
+        <div id="view-select" class="w-full max-w-sm bg-slate-900/50 p-6 sm:p-8 rounded-3xl border border-slate-800 shadow-2xl text-center backdrop-blur-2xl">
+            <h1 class="text-2xl font-black mb-1 text-white tracking-wide">SELECT ROLE</h1>
+            <p class="text-xs text-slate-500 mb-6 font-light">เลือกโหมดการใช้งานอุปกรณ์ของคุณ</p>
+            <div class="space-y-3">
+                <button onclick="setupDisplay()" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-black py-3.5 rounded-2xl transition active:scale-95 shadow-lg shadow-amber-400/10">
+                    📺 TV DISPLAY (จอแสดงผล)
+                </button>
+                <button onclick="setupHost()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 rounded-2xl border border-slate-700/80 transition active:scale-95">
+                    📱 HOST CONTROLLER (ผู้ควบคุม)
+                </button>
+                <button onclick="showPlayerLogin()" class="w-full bg-slate-900 hover:bg-slate-850 text-slate-300 font-bold py-3.5 rounded-2xl border border-slate-800 transition active:scale-95">
+                    🎮 PLAYER (ปุ่มกดผู้เล่น)
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN 2: TV DISPLAY -->
+        <div id="view-display" class="w-full bg-slate-900/30 p-4 sm:p-6 rounded-3xl border border-slate-800/80 hidden flex-col items-center backdrop-blur-2xl transition-all">
+            <div class="w-full flex items-center justify-between bg-slate-950/80 p-4 rounded-2xl border border-slate-800/80 mb-4">
+                <div class="flex items-center gap-4">
+                    <div id="display-qrcode" class="p-1.5 bg-white rounded-xl shadow-md"></div>
+                    <div>
+                        <span class="text-[10px] font-bold text-slate-500 tracking-widest uppercase block">ROOM CODE</span>
+                        <div id="display-room-code" class="text-3xl sm:text-4xl font-black text-amber-400 font-mono tracking-widest">----</div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <div id="display-timer-box" class="hidden flex-col items-center bg-rose-950/40 border border-rose-500/50 px-6 py-1.5 rounded-2xl pulse-fast">
+                        <span id="display-timer-label" class="text-[9px] font-black text-rose-400 uppercase tracking-widest">TIMER</span>
+                        <span id="display-timer-val" class="text-4xl font-black text-rose-400 font-mono">00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="display-main-card" class="w-full bg-slate-950/90 border border-slate-800 p-8 sm:p-12 rounded-3xl mb-4 text-center transition-all duration-300 glow-amber relative overflow-hidden">
+                <div id="display-mode-badge" class="absolute top-3 left-4 text-[10px] font-bold px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-amber-400 uppercase tracking-widest">
+                    READY
+                </div>
+                
+                <div id="display-question-text" class="text-2xl sm:text-4xl font-extrabold text-slate-100 min-h-[110px] flex flex-col items-center justify-center leading-relaxed tracking-wide">
+                    WAITING FOR GAME TO START...
+                </div>
+            </div>
+
+            <div id="display-winner-spotlight" class="w-full hidden mb-4 p-4 rounded-2xl bg-gradient-to-r from-amber-500/20 via-rose-500/20 to-amber-500/20 border border-amber-500/50 text-center animate-bounce">
+                <span class="text-xs font-black text-amber-400 tracking-widest uppercase block mb-1">⚡ FASTEST BUZZ ⚡</span>
+                <span id="display-winner-name" class="text-3xl font-black text-white tracking-wide">--</span>
+            </div>
+
+            <div class="w-full grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="md:col-span-2">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">⚡ BUZZ QUEUE</span>
+                        <span id="tv-queue-count" class="text-[10px] font-mono text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20">0 IN QUEUE</span>
+                    </div>
+                    <div id="display-buzz-list" class="space-y-2 max-h-[260px] overflow-y-auto pr-1">
+                        <div class="text-center py-8 text-slate-700 text-xs border border-dashed border-slate-800/80 rounded-2xl">
+                            WAITING FOR BUZZ...
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-2">🏆 SCOREBOARD</span>
+                    <div id="display-scoreboard" class="space-y-1.5 max-h-[260px] overflow-y-auto bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80">
+                        <p class="text-xs text-slate-700 text-center py-6">NO SCORES YET</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 3: HOST CONTROLLER -->
+        <div id="view-host" class="w-full max-w-md bg-slate-900/80 p-4 rounded-3xl border border-slate-800 hidden flex-col items-center backdrop-blur-2xl shadow-2xl">
+            
+            <!-- TOP STATUS BAR -->
+            <div class="w-full flex justify-between items-center mb-3 bg-slate-950 p-3 rounded-2xl border border-slate-800">
+                <div>
+                    <span class="text-[9px] text-slate-500 uppercase font-black tracking-widest block">ROOM CODE</span>
+                    <span id="host-room-code" class="text-2xl font-black text-amber-400 font-mono tracking-wider">----</span>
+                </div>
+                <div class="flex gap-2">
+                    <button id="btn-toggle-lock" onclick="toggleLock()" class="bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold px-3 py-2 rounded-xl text-xs border border-slate-700/80 transition active:scale-95 flex items-center gap-1.5">
+                        🔒 LOCK
+                    </button>
+                    <button onclick="setupHostWithCode()" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-400 px-3 py-2 rounded-xl transition text-xs font-semibold">
+                        🔑 Join Code
+                    </button>
+                </div>
+            </div>
+
+            <!-- ZONE 1: LIVE CONTROL & SCORING DECISIONS -->
+            <div class="w-full bg-slate-950/90 p-3.5 rounded-2xl border border-amber-500/30 mb-3 shadow-lg">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-[10px] font-black text-amber-400 uppercase tracking-wider">⚡ ควบคุมเกมสด & การตัดสิน (DECISION)</span>
+                    <span id="host-rule-badge" class="text-[9px] bg-slate-900 border border-slate-800 text-slate-400 px-2.5 py-0.5 rounded-full font-mono">กติกา: กดได้ทันที</span>
+                </div>
+
+                <!-- DYNAMIC MODE ACTIONS -->
+                <div id="host-mode-actions" class="space-y-2 mb-2"></div>
+
+                <!-- SCORING DECISION BUTTONS (CORRECT / WRONG) -->
+                <div class="grid grid-cols-2 gap-2 mb-2">
+                    <button onclick="judgeAnswer(true)" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-3 rounded-xl text-xs active:scale-95 shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-1.5">
+                        ✓ ถูกต้อง (+1)
+                    </button>
+                    <button onclick="judgeAnswer(false)" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-black py-3 rounded-xl text-xs active:scale-95 shadow-lg shadow-rose-600/20 flex items-center justify-center gap-1.5">
+                        ✕ ตอบผิด / ข้ามคิว (-1)
+                    </button>
+                </div>
+
+                <!-- RESET BUZZER -->
+                <button onclick="resetBuzzer()" class="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black py-3 rounded-xl text-xs transition active:scale-95 shadow-md shadow-amber-500/20 flex items-center justify-center gap-2">
+                    🔄 RESET BUZZER (เปิดให้ทุกคนกดใหม่)
+                </button>
+            </div>
+
+            <!-- ZONE 2: GAME PRESET & CUSTOM CONTENT -->
+            <div class="w-full bg-slate-950/60 p-3.5 rounded-2xl border border-slate-800/80 mb-3 transition-all">
+                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1.5">🎮 เลือกโหมด & สุ่มโจทย์</label>
+                
+                <div class="grid grid-cols-3 gap-2 mb-2.5">
+                    <select id="select-game-mode" onchange="onGameModeChange()" class="col-span-2 bg-slate-900 border border-slate-700 text-amber-300 font-bold text-xs rounded-xl px-3 py-2.5 outline-none focus:border-amber-400">
+                        <option value="song">🎵 1. ทายเพลงจาก Siri</option>
+                        <option value="hint">💡 2. ทายคำจากคำใบ้</option>
+                        <option value="speed_go">🎯 3. วัดความไวช่วง GO!</option>
+                        <option value="reverse">🔤 4. ถอดรหัสคำย้อนกลับ</option>
+                        <option value="trivia">⚡ 5. คำถามตอบไว</option>
+                        <option value="spelling">🔠 6. สะกดคำศัพท์</option>
+                    </select>
+                    <button onclick="randomPresetItem()" class="bg-amber-400/10 border border-amber-500/40 text-amber-400 hover:bg-amber-400/20 font-bold rounded-xl text-xs active:scale-95 transition flex items-center justify-center gap-1">
+                        🎲 สุ่มโจทย์
+                    </button>
+                </div>
+
+                <select id="select-preset-song" onchange="onSelectPresetChange()" class="w-full bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl p-2.5 outline-none font-medium mb-2">
+                </select>
+
+                <button onclick="toggleCustomLyricsArea()" class="w-full bg-slate-900/50 border border-dashed border-slate-800 text-slate-400 font-semibold py-2 rounded-xl text-xs transition hover:text-white hover:border-slate-700">
+                    ✏️ ป้อนโจทย์/ข้อความเอง
+                </button>
+
+                <div id="custom-lyrics-container" class="hidden mt-2 pt-2 border-t border-slate-800">
+                    <textarea id="input-host-lyrics" rows="2" placeholder="พิมพ์ข้อความ (ขึ้นบรรทัดใหม่ = ขั้นถัดไป)..." class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white focus:outline-none mb-2 font-mono"></textarea>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="sendCustomLyrics()" class="bg-slate-800 border border-slate-700 text-slate-200 font-bold py-2 rounded-xl text-xs hover:bg-slate-700 active:scale-95">
+                            🗣️ อ่านโจทย์ทันที
+                        </button>
+                        <button onclick="addNewItemToPreset()" class="bg-slate-800 border border-slate-700 text-amber-400 font-bold py-2 rounded-xl text-xs hover:bg-slate-700 active:scale-95">
+                            ➕ บันทึกเข้าคลัง
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ZONE 3: TIMERS & SCOREBOARD QUICK ACTIONS -->
+            <div class="w-full bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80 mb-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">⏱️ จับเวลาถอยหลัง</span>
+                    <div class="flex gap-1.5">
+                        <button onclick="startTimerConfigured(5)" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-amber-400 font-mono font-bold px-3 py-1 rounded-lg text-xs active:scale-95">5s</button>
+                        <button onclick="startTimerConfigured(10)" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-amber-400 font-mono font-bold px-3 py-1 rounded-lg text-xs active:scale-95">10s</button>
+                        <button onclick="startTimerConfigured(20)" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-amber-400 font-mono font-bold px-3 py-1 rounded-lg text-xs active:scale-95">20s</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-full bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80 mb-3">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">🏆 คะแนนผู้เล่น</span>
+                <div id="host-scoreboard" class="space-y-1.5 max-h-[120px] overflow-y-auto pr-1">
+                    <p class="text-xs text-slate-600 text-center py-2">ยังไม่มีผู้เล่น</p>
+                </div>
+            </div>
+
+            <button onclick="clearRoomCompletely()" class="text-slate-600 hover:text-rose-400 text-[11px] py-1 transition font-medium">
+                ⚠️ ล้างข้อมูลห้องทั้งหมด (Reset Room)
+            </button>
+        </div>
+
+        <!-- SCREEN 4: PLAYER LOGIN -->
+        <div id="view-player-login" class="w-full max-w-sm bg-slate-900/60 p-6 rounded-3xl border border-slate-800 shadow-2xl hidden backdrop-blur-2xl">
+            <h2 class="text-xl font-black text-center mb-1 text-white uppercase tracking-wider">JOIN GAME</h2>
+            <p class="text-xs text-slate-500 text-center mb-6">ใส่นามแฝงและรหัสห้องเพื่อเข้าเล่น</p>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-[10px] text-slate-500 uppercase font-bold mb-1">YOUR NAME</label>
+                    <input type="text" id="input-player-name" placeholder="ชื่อของคุณ" maxlength="12" class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-amber-400 text-center font-bold text-base transition">
+                </div>
+                <div>
+                    <label class="block text-[10px] text-slate-500 uppercase font-bold mb-1">ROOM CODE</label>
+                    <input type="text" id="input-room-code" placeholder="4 DIGITS" maxlength="6" class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-amber-400 font-mono tracking-widest focus:outline-none focus:border-amber-400 text-center font-bold text-xl uppercase transition">
+                </div>
+                <button onclick="joinRoom()" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-black py-3.5 rounded-xl shadow-lg transition active:scale-95 text-base">
+                    ENTER GAME
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN 5: PLAYER GAME BUZZER -->
+        <div id="view-player-game" class="w-full max-w-sm bg-slate-900/60 p-5 rounded-3xl border border-slate-800 hidden flex-col items-center text-center backdrop-blur-2xl">
+            <div class="w-full flex justify-between items-center mb-4 border-b border-slate-800/80 pb-3">
+                <span id="player-display-name" class="font-bold text-slate-200 text-sm">--</span>
+                <span id="player-display-score" class="text-xs bg-slate-950 text-amber-400 border border-slate-800 px-3 py-1 rounded-full font-mono font-bold">0 PTS</span>
+            </div>
+
+            <div id="player-question-box" class="w-full bg-slate-950 border border-slate-800 p-3 rounded-2xl mb-3 text-xs font-medium text-slate-400 min-h-[48px] flex items-center justify-center">
+                WAITING FOR HOST...
+            </div>
+
+            <div id="player-status-banner" class="w-full py-2 px-4 rounded-xl bg-slate-950 border border-slate-800 text-emerald-400 text-xs font-bold mb-4">
+                READY TO BUZZ
+            </div>
+
+            <button id="buzz-button" onclick="pressBuzz()" class="buzz-btn-active w-56 h-56 rounded-full bg-gradient-to-b from-rose-500 to-rose-700 border-8 border-slate-950 shadow-2xl flex flex-col items-center justify-center cursor-pointer transition transform my-2">
+                <span class="text-4xl font-black tracking-widest text-white drop-shadow-md">BUZZ</span>
+            </button>
+        </div>
 
     </main>
 
