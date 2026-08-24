@@ -3,33 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Party Buzz - Multi Mode Edition</title>
+    <title>Party Buzz - Minimal Cyber Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Kanit', sans-serif; touch-action: manipulation; }
-        .buzz-btn-active:active { transform: scale(0.94); }
-        .pulse-timer { animation: pulse 1s infinite; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+        .buzz-btn-active:active { transform: scale(0.92); }
+        .pulse-fast { animation: pulseGlow 0.8s infinite alternate; }
+        @keyframes pulseGlow { 
+            0% { box-shadow: 0 0 15px rgba(244, 63, 94, 0.2); } 
+            100% { box-shadow: 0 0 35px rgba(244, 63, 94, 0.7); } 
+        }
+        .glow-amber { box-shadow: 0 0 25px rgba(245, 158, 11, 0.25); }
+        .glow-emerald { box-shadow: 0 0 25px rgba(16, 185, 129, 0.25); }
+        .glow-cyan { box-shadow: 0 0 25px rgba(6, 182, 212, 0.25); }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-start p-3 sm:p-4 select-none">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-start p-3 sm:p-5 select-none antialiased">
 
-    <!-- TOP HEADER -->
-    <header class="w-full max-w-5xl p-3 flex justify-between items-center bg-slate-900/50 border border-slate-800/80 rounded-2xl mb-4 backdrop-blur-md">
+    <!-- HEADER NAVIGATION -->
+    <header class="w-full max-w-5xl p-3 sm:p-4 flex justify-between items-center bg-slate-900/40 border border-slate-800/80 rounded-2xl mb-4 backdrop-blur-xl">
         <div class="flex items-center gap-2 cursor-pointer" onclick="location.href=location.pathname">
-            <span class="font-black text-lg tracking-wider text-white">PARTY BUZZ <span class="text-xs bg-amber-500 text-slate-950 px-2 py-0.5 rounded-full">MULTI-MODE</span></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span>
+            <span class="font-black text-lg tracking-widest text-white">PARTY<span class="text-amber-400">BUZZ</span></span>
         </div>
         <div class="flex items-center gap-2">
-            <button id="btn-sound-toggle" onclick="toggleMute()" class="text-xs px-3 py-1.5 rounded-xl bg-slate-900 text-slate-400 border border-slate-800 hover:text-white transition">
+            <button id="btn-sound-toggle" onclick="toggleMute()" class="text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-900/80 text-slate-400 border border-slate-800 hover:text-white hover:border-slate-700 transition">
                 🔊 SOUND: ON
             </button>
-            <div id="connection-status" class="text-xs px-3 py-1.5 rounded-xl bg-slate-900 text-slate-500 border border-slate-800 flex items-center gap-2">
+            <div id="connection-status" class="text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-900/80 text-slate-500 border border-slate-800 flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-amber-500"></span> CONNECTING
             </div>
         </div>
@@ -38,79 +45,144 @@
     <main class="w-full max-w-5xl flex-1 flex flex-col items-center justify-center">
 
         <!-- SCREEN 1: ROLE SELECT -->
-        <div id="view-select" class="w-full max-w-sm bg-slate-900/60 p-6 rounded-3xl border border-slate-800 shadow-2xl text-center backdrop-blur-xl">
-            <h1 class="text-2xl font-black mb-6 text-white tracking-wide">SELECT ROLE</h1>
+        <div id="view-select" class="w-full max-w-sm bg-slate-900/50 p-6 sm:p-8 rounded-3xl border border-slate-800 shadow-2xl text-center backdrop-blur-2xl">
+            <h1 class="text-2xl font-black mb-1 text-white tracking-wide">SELECT ROLE</h1>
+            <p class="text-xs text-slate-500 mb-6 font-light">เลือกโหมดการใช้งานอุปกรณ์ของคุณ</p>
             <div class="space-y-3">
-                <button onclick="setupDisplay()" class="w-full bg-white text-slate-950 font-bold py-3.5 rounded-2xl shadow transition active:scale-95">
-                    📺 TV DISPLAY
+                <button onclick="setupDisplay()" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-black py-3.5 rounded-2xl transition active:scale-95 shadow-lg shadow-amber-400/10">
+                    📺 TV DISPLAY (จอแสดงผล)
                 </button>
-                <button onclick="setupHost()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 rounded-2xl border border-slate-700 transition active:scale-95">
-                    📱 HOST CONTROLLER
+                <button onclick="setupHost()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 rounded-2xl border border-slate-700/80 transition active:scale-95">
+                    📱 HOST CONTROLLER (ผู้ควบคุม)
                 </button>
                 <button onclick="showPlayerLogin()" class="w-full bg-slate-900 hover:bg-slate-850 text-slate-300 font-bold py-3.5 rounded-2xl border border-slate-800 transition active:scale-95">
-                    🎮 PLAYER
+                    🎮 PLAYER (ปุ่มกดผู้เล่น)
                 </button>
             </div>
         </div>
 
-        <!-- SCREEN 2: TV DISPLAY -->
-        <div id="view-display" class="w-full bg-slate-900/40 p-6 rounded-3xl border border-slate-800/80 hidden flex-col items-center backdrop-blur-xl">
-            <div class="w-full flex items-center justify-between bg-slate-950 p-4 rounded-2xl border border-slate-800/80 mb-6">
+        <!-- SCREEN 2: TV DISPLAY (HIGH EXCITEMENT MINIMAL) -->
+        <div id="view-display" class="w-full bg-slate-900/30 p-4 sm:p-6 rounded-3xl border border-slate-800/80 hidden flex-col items-center backdrop-blur-2xl transition-all">
+            
+            <!-- Room Info & Status Bar -->
+            <div class="w-full flex items-center justify-between bg-slate-950/80 p-4 rounded-2xl border border-slate-800/80 mb-4">
                 <div class="flex items-center gap-4">
-                    <div id="display-qrcode" class="p-1.5 bg-white rounded-xl"></div>
+                    <div id="display-qrcode" class="p-1.5 bg-white rounded-xl shadow-md"></div>
                     <div>
                         <span class="text-[10px] font-bold text-slate-500 tracking-widest uppercase block">ROOM CODE</span>
-                        <div id="display-room-code" class="text-4xl font-black text-amber-400 font-mono tracking-widest">----</div>
+                        <div id="display-room-code" class="text-3xl sm:text-4xl font-black text-amber-400 font-mono tracking-widest">----</div>
                     </div>
                 </div>
+
+                <div class="flex items-center gap-3">
+                    <div id="display-timer-box" class="hidden flex-col items-center bg-rose-950/40 border border-rose-500/50 px-6 py-1.5 rounded-2xl pulse-fast">
+                        <span id="display-timer-label" class="text-[9px] font-black text-rose-400 uppercase tracking-widest">TIMER</span>
+                        <span id="display-timer-val" class="text-4xl font-black text-rose-400 font-mono">00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DYNAMIC QUESTION / DISPLAY BOX -->
+            <div id="display-main-card" class="w-full bg-slate-950/90 border border-slate-800 p-8 sm:p-12 rounded-3xl mb-4 text-center transition-all duration-300 glow-amber relative overflow-hidden">
+                <div id="display-mode-badge" class="absolute top-3 left-4 text-[10px] font-bold px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-amber-400 uppercase tracking-widest">
+                    READY
+                </div>
                 
-                <div id="display-timer-box" class="hidden flex-col items-center bg-rose-950/60 border border-rose-500/50 px-8 py-1.5 rounded-2xl pulse-timer">
-                    <span id="display-timer-label" class="text-[10px] font-bold text-rose-400 uppercase tracking-widest">TIMER</span>
-                    <span id="display-timer-val" class="text-5xl font-black text-rose-400 font-mono">00</span>
+                <div id="display-question-text" class="text-2xl sm:text-4xl font-extrabold text-slate-100 min-h-[110px] flex flex-col items-center justify-center leading-relaxed tracking-wide">
+                    WAITING FOR GAME TO START...
                 </div>
             </div>
 
-            <div class="w-full bg-slate-950/80 border border-slate-800 p-8 rounded-3xl mb-6 text-center">
-                <div id="display-question-text" class="text-2xl sm:text-3xl font-bold text-slate-200 min-h-[80px] flex flex-col items-center justify-center leading-relaxed">
-                    READY FOR GAME
-                </div>
+            <!-- WINNER SPOTLIGHT BANNER (Appears when someone buzzes) -->
+            <div id="display-winner-spotlight" class="w-full hidden mb-4 p-4 rounded-2xl bg-gradient-to-r from-amber-500/20 via-rose-500/20 to-amber-500/20 border border-amber-500/50 text-center animate-bounce">
+                <span class="text-xs font-black text-amber-400 tracking-widest uppercase block mb-1">⚡ FASTEST BUZZ ⚡</span>
+                <span id="display-winner-name" class="text-3xl font-black text-white tracking-wide">--</span>
             </div>
 
-            <div class="w-full grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- LOG & SCORE GRID -->
+            <div class="w-full grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="md:col-span-2">
-                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-3">BUZZ LOG</span>
-                    <div id="display-buzz-list" class="space-y-2 max-h-[320px] overflow-y-auto">
-                        <div class="text-center py-10 text-slate-700 text-sm border border-dashed border-slate-800 rounded-2xl">
+                    <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-2">⚡ BUZZ QUEUE</span>
+                    <div id="display-buzz-list" class="space-y-2 max-h-[260px] overflow-y-auto pr-1">
+                        <div class="text-center py-8 text-slate-700 text-xs border border-dashed border-slate-800/80 rounded-2xl">
                             WAITING FOR BUZZ...
                         </div>
                     </div>
                 </div>
 
                 <div>
-                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-3">SCOREBOARD</span>
-                    <div id="display-scoreboard" class="space-y-2 max-h-[320px] overflow-y-auto bg-slate-950/50 p-3 rounded-2xl border border-slate-800">
+                    <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-2">🏆 SCOREBOARD</span>
+                    <div id="display-scoreboard" class="space-y-1.5 max-h-[260px] overflow-y-auto bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80">
                         <p class="text-xs text-slate-700 text-center py-6">NO SCORES YET</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- SCREEN 3: HOST CONTROLLER -->
-        <div id="view-host" class="w-full max-w-md bg-slate-900/70 p-4 rounded-3xl border border-slate-800 hidden flex-col items-center backdrop-blur-xl">
+        <!-- SCREEN 3: HOST CONTROLLER (DISTINCT MODE WORKFLOWS) -->
+        <div id="view-host" class="w-full max-w-md bg-slate-900/60 p-4 sm:p-5 rounded-3xl border border-slate-800 hidden flex-col items-center backdrop-blur-2xl">
             
-            <div class="w-full flex justify-between items-center mb-3 bg-slate-950 p-3 rounded-2xl border border-slate-800">
+            <!-- Room Info & Code -->
+            <div class="w-full flex justify-between items-center mb-3 bg-slate-950/80 p-3 rounded-2xl border border-slate-800">
                 <div>
-                    <span class="text-[10px] text-slate-500 uppercase font-bold block">ROOM CODE</span>
-                    <span id="host-room-code" class="text-2xl font-black text-amber-400 font-mono">----</span>
+                    <span class="text-[9px] text-slate-500 uppercase font-bold block tracking-wider">ROOM CODE</span>
+                    <span id="host-room-code" class="text-2xl font-black text-amber-400 font-mono tracking-wider">----</span>
                 </div>
-                <button onclick="setupHostWithCode()" class="text-xs bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 px-3 py-2 rounded-xl transition">
-                    🔑 ใส่ Room Code
+                <button onclick="setupHostWithCode()" class="text-xs bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 px-3 py-2 rounded-xl transition font-medium">
+                    🔑 เชื่อมด้วย Code
                 </button>
             </div>
 
-            <!-- Main Quick Actions -->
+            <!-- Mode Selector Switcher -->
+            <div class="w-full mb-3">
+                <label class="block text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-1">🎮 เลือกโหมดการเล่น (MODE)</label>
+                <select id="select-game-mode" onchange="onGameModeChange()" class="w-full bg-slate-950 border border-amber-500/40 text-amber-300 font-black text-xs rounded-xl p-3 outline-none focus:border-amber-400 shadow-lg shadow-amber-500/5">
+                    <option value="song">🎵 1. ทายเพลงจาก Siri (Song Quiz)</option>
+                    <option value="hint">💡 2. ทายคำจากคำใบ้ (Hint-by-Hint)</option>
+                    <option value="speed_go">🎯 3. วัดความไวช่วง GO! (Speed Race)</option>
+                    <option value="reverse">🔤 4. ถอดรหัสคำย้อนกลับ (Reverse Word)</option>
+                    <option value="trivia">⚡ 5. คำถามตอบไว (Flash Trivia)</option>
+                    <option value="spelling">🔠 6. สะกดคำศัพท์ (Spelling Bee)</option>
+                </select>
+            </div>
+
+            <!-- MODE SPECIFIC CONTROL CONTAINER (DYNAMIC) -->
+            <div class="w-full bg-slate-950/80 p-4 rounded-2xl border border-slate-800 mb-3 transition-all">
+                
+                <div class="flex justify-between items-center mb-2">
+                    <span id="host-mode-title" class="text-xs font-black text-white uppercase tracking-wider">🎵 คลังโจทย์ประจำโหมด</span>
+                    <button onclick="randomPresetItem()" class="text-[11px] text-amber-400 font-semibold hover:underline">🎲 สุ่มโจทย์</button>
+                </div>
+
+                <select id="select-preset-song" onchange="onSelectPresetChange()" class="w-full bg-slate-900 border border-slate-800 text-white text-xs rounded-xl p-2.5 outline-none font-semibold mb-3">
+                </select>
+
+                <!-- Dynamic Action Buttons tailored for each mode -->
+                <div id="host-mode-actions" class="space-y-2 mb-3">
+                    <!-- Injected by JavaScript -->
+                </div>
+
+                <!-- Custom Input Area -->
+                <button onclick="toggleCustomLyricsArea()" class="w-full bg-slate-900/60 border border-slate-800 text-slate-400 font-semibold py-2 rounded-xl text-xs transition hover:text-white">
+                    ✏️ ป้อนข้อความ / โจทย์เอง
+                </button>
+
+                <div id="custom-lyrics-container" class="hidden mt-2">
+                    <textarea id="input-host-lyrics" rows="3" placeholder="พิมพ์ข้อความที่นี่ (ขึ้นบรรทัดใหม่ = ขั้นถัดไป)..." class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white focus:outline-none mb-2 font-mono transition"></textarea>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="sendCustomLyrics()" class="bg-slate-900 border border-slate-800 text-slate-300 font-bold py-1.5 rounded-xl text-xs hover:bg-slate-800">
+                            🗣️ อ่านโจทย์ทันที
+                        </button>
+                        <button onclick="addNewItemToPreset()" class="bg-slate-900 border border-slate-800 text-amber-400 font-bold py-1.5 rounded-xl text-xs hover:bg-slate-800">
+                            ➕ เซฟเก็บไว้
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Primary Buzzer Controls -->
             <div class="grid grid-cols-2 gap-2 w-full mb-3">
-                <button onclick="resetBuzzer()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold py-3 rounded-2xl text-xs transition active:scale-95 shadow">
+                <button onclick="resetBuzzer()" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black py-3 rounded-2xl text-xs transition active:scale-95 shadow-md shadow-amber-400/10">
                     🔄 RESET BUZZER
                 </button>
                 <button id="btn-toggle-lock" onclick="toggleLock()" class="bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-2xl text-xs border border-slate-700 transition active:scale-95">
@@ -118,95 +190,23 @@
                 </button>
             </div>
 
-            <!-- Game Action Bar -->
-            <div class="grid grid-cols-2 gap-2 w-full mb-3">
-                <button onclick="songAnswerCorrect()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs transition active:scale-95 flex items-center justify-center gap-1">
-                    ✓ เฉลย (ให้คะแนน)
-                </button>
-                <button onclick="songAnswerWrong()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2.5 rounded-xl text-xs transition border border-slate-700 active:scale-95 flex items-center justify-center gap-1">
-                    ➡️ บรรทัด/คำใบ้ถัดไป
-                </button>
-            </div>
-
-            <!-- MODE SELECTOR & PRESETS -->
-            <div class="w-full bg-slate-950 p-3.5 rounded-2xl border border-slate-800 mb-3">
-                
-                <div class="mb-3">
-                    <label class="block text-[10px] text-slate-400 font-bold mb-1 uppercase tracking-wider">🎮 เลือกโหมดเกม (Game Mode)</label>
-                    <select id="select-game-mode" onchange="onGameModeChange()" class="w-full bg-slate-900 border border-slate-700 text-amber-400 font-extrabold text-xs rounded-xl p-2.5 outline-none mb-3">
-                        <option value="song">🎵 ทายเพลงจาก Siri (Song Quiz)</option>
-                        <option value="hint">💡 ทายคำจากคำใบ้ (Hint Quiz)</option>
-                        <option value="speed_go">🎯 วัดความไวช่วง GO! (Speed Race)</option>
-                        <option value="reverse">🔤 ถอดรหัสคำย้อนกลับ (Reverse Decoder)</option>
-                        <option value="trivia">⚡ คำถามแฟนพันธุ์แท้ (Flash Trivia)</option>
-                        <option value="spelling">🔠 สะกดคำศัพท์ (Spelling Bee)</option>
-                    </select>
-
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">📋 เลือกโจทย์ประจำโหมด</span>
-                        <button onclick="randomPresetItem()" class="text-[11px] text-amber-400 hover:underline">🎲 สุ่มข้อ</button>
-                    </div>
-                    
-                    <select id="select-preset-song" onchange="onSelectPresetChange()" class="w-full bg-slate-900 border border-slate-800 text-white text-xs rounded-xl p-2.5 outline-none font-semibold mb-2">
-                    </select>
-
-                    <div class="grid grid-cols-2 gap-2 mb-2">
-                        <button onclick="playSelectedPreset()" class="bg-white text-slate-950 font-bold py-2 rounded-xl text-xs transition active:scale-95">
-                            ▶️ เริ่มอ่านโจทย์
-                        </button>
-                        <button onclick="toggleCustomLyricsArea()" class="bg-slate-900 border border-slate-800 text-slate-300 font-semibold py-2 rounded-xl text-xs transition">
-                            ✏️ กำหนดโจทย์เอง
-                        </button>
-                    </div>
-
-                    <div id="custom-lyrics-container" class="hidden mt-2">
-                        <textarea id="input-host-lyrics" rows="3" placeholder="พิมพ์เนื้อหาที่นี่ (ขึ้นบรรทัดใหม่ = ถัดไป)..." class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white focus:outline-none mb-2 font-mono transition"></textarea>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button onclick="sendCustomLyrics()" class="bg-slate-900 border border-slate-800 text-slate-300 font-bold py-1.5 rounded-xl text-xs">
-                                🗣️ อ่านกล่องข้อความ
-                            </button>
-                            <button onclick="addNewItemToPreset()" class="bg-slate-900 border border-slate-800 text-amber-400 font-bold py-1.5 rounded-xl text-xs">
-                                ➕ เซฟเข้าคลัง
-                            </button>
-                        </div>
-                    </div>
+            <!-- Quick Timer Adjuster -->
+            <div class="w-full bg-slate-950/80 p-3 rounded-2xl border border-slate-800 mb-3">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">⏱️ จับเวลาถอยหลัง</span>
+                    <span id="host-rule-badge" class="text-[9px] bg-slate-900 border border-slate-800 text-amber-400 px-2 py-0.5 rounded-full font-mono">กติกา: กดได้ทันที</span>
                 </div>
-
-                <hr class="border-slate-800 mb-3">
-
-                <!-- Timer & Rules Control -->
-                <div>
-                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">⏱️ ตั้งค่ากติกา & เวลา</span>
-                    
-                    <div class="grid grid-cols-2 gap-2 mb-2">
-                        <div>
-                            <label class="block text-[10px] text-slate-500 mb-1">กติกาการกด:</label>
-                            <select id="select-buzz-trigger-mode" class="w-full bg-slate-900 border border-slate-800 text-white text-[11px] rounded-xl p-2 outline-none">
-                                <option value="during" selected>⚡ กดได้ทันที</option>
-                                <option value="on_zero">🎯 กดเมื่อเวลาหมด (GO!)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-[10px] text-slate-500 mb-1">จังหวะนับเวลา:</label>
-                            <select id="select-timer-mode" class="w-full bg-slate-900 border border-slate-800 text-white text-[11px] rounded-xl p-2 outline-none">
-                                <option value="after">เริ่มหลังอ่านจบ</option>
-                                <option value="during">เริ่มพร้อมการอ่าน</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-3 gap-1.5">
-                        <button onclick="startTimerConfigured(5)" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-amber-400 font-bold py-1.5 rounded-xl text-xs">⏱️ 5s</button>
-                        <button onclick="startTimerConfigured(10)" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-amber-400 font-bold py-1.5 rounded-xl text-xs">⏱️ 10s</button>
-                        <button onclick="startTimerConfigured(20)" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-amber-400 font-bold py-1.5 rounded-xl text-xs">⏱️ 20s</button>
-                    </div>
+                <div class="grid grid-cols-3 gap-1.5">
+                    <button onclick="startTimerConfigured(5)" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-amber-400 font-bold py-1.5 rounded-xl text-xs">⏱️ 5s</button>
+                    <button onclick="startTimerConfigured(10)" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-amber-400 font-bold py-1.5 rounded-xl text-xs">⏱️ 10s</button>
+                    <button onclick="startTimerConfigured(20)" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-amber-400 font-bold py-1.5 rounded-xl text-xs">⏱️ 20s</button>
                 </div>
             </div>
 
             <!-- Scoreboard Control -->
-            <div class="w-full bg-slate-950 p-3 rounded-2xl border border-slate-800 mb-3">
-                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">🏆 คะแนนผู้เล่น</span>
-                <div id="host-scoreboard" class="space-y-1.5 max-h-[120px] overflow-y-auto">
+            <div class="w-full bg-slate-950/80 p-3 rounded-2xl border border-slate-800 mb-3">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">🏆 ตารางคะแนนผู้เล่น</span>
+                <div id="host-scoreboard" class="space-y-1.5 max-h-[110px] overflow-y-auto">
                     <p class="text-xs text-slate-600 text-center py-2">ยังไม่มีผู้เล่น</p>
                 </div>
             </div>
@@ -217,48 +217,49 @@
         </div>
 
         <!-- SCREEN 4: PLAYER LOGIN -->
-        <div id="view-player-login" class="w-full max-w-sm bg-slate-900/60 p-6 rounded-3xl border border-slate-800 shadow-2xl hidden backdrop-blur-xl">
-            <h2 class="text-xl font-black text-center mb-6 text-white uppercase tracking-wider">JOIN GAME</h2>
+        <div id="view-player-login" class="w-full max-w-sm bg-slate-900/60 p-6 rounded-3xl border border-slate-800 shadow-2xl hidden backdrop-blur-2xl">
+            <h2 class="text-xl font-black text-center mb-1 text-white uppercase tracking-wider">JOIN GAME</h2>
+            <p class="text-xs text-slate-500 text-center mb-6">ใส่นามแฝงและรหัสห้องเพื่อเข้าเล่น</p>
 
             <div class="space-y-4">
                 <div>
-                    <label class="block text-xs text-slate-500 uppercase font-bold mb-1">NAME</label>
-                    <input type="text" id="input-player-name" placeholder="ชื่อของคุณ" maxlength="12" class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-amber-500 text-center font-bold text-base transition">
+                    <label class="block text-[10px] text-slate-500 uppercase font-bold mb-1">YOUR NAME</label>
+                    <input type="text" id="input-player-name" placeholder="ชื่อของคุณ" maxlength="12" class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-amber-400 text-center font-bold text-base transition">
                 </div>
                 <div>
-                    <label class="block text-xs text-slate-500 uppercase font-bold mb-1">ROOM CODE</label>
-                    <input type="text" id="input-room-code" placeholder="4 DIGITS" maxlength="6" class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-amber-400 font-mono tracking-widest focus:outline-none focus:border-amber-500 text-center font-bold text-xl uppercase transition">
+                    <label class="block text-[10px] text-slate-500 uppercase font-bold mb-1">ROOM CODE</label>
+                    <input type="text" id="input-room-code" placeholder="4 DIGITS" maxlength="6" class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-amber-400 font-mono tracking-widest focus:outline-none focus:border-amber-400 text-center font-bold text-xl uppercase transition">
                 </div>
-                <button onclick="joinRoom()" class="w-full bg-white text-slate-950 font-bold py-3.5 rounded-xl shadow transition active:scale-95 text-base">
-                    ENTER
+                <button onclick="joinRoom()" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-black py-3.5 rounded-xl shadow-lg transition active:scale-95 text-base">
+                    ENTER GAME
                 </button>
             </div>
         </div>
 
         <!-- SCREEN 5: PLAYER GAME BUZZER -->
-        <div id="view-player-game" class="w-full max-w-sm bg-slate-900/60 p-5 rounded-3xl border border-slate-800 hidden flex-col items-center text-center backdrop-blur-xl">
+        <div id="view-player-game" class="w-full max-w-sm bg-slate-900/60 p-5 rounded-3xl border border-slate-800 hidden flex-col items-center text-center backdrop-blur-2xl">
             <div class="w-full flex justify-between items-center mb-4 border-b border-slate-800/80 pb-3">
                 <span id="player-display-name" class="font-bold text-slate-200 text-sm">--</span>
                 <span id="player-display-score" class="text-xs bg-slate-950 text-amber-400 border border-slate-800 px-3 py-1 rounded-full font-mono font-bold">0 PTS</span>
             </div>
 
-            <div id="player-question-box" class="w-full bg-slate-950 border border-slate-800 p-3 rounded-2xl mb-4 text-xs font-medium text-slate-400 min-h-[48px] flex items-center justify-center">
+            <div id="player-question-box" class="w-full bg-slate-950 border border-slate-800 p-3 rounded-2xl mb-3 text-xs font-medium text-slate-400 min-h-[48px] flex items-center justify-center">
                 WAITING FOR HOST...
             </div>
 
-            <div id="player-status-banner" class="w-full py-2 px-4 rounded-xl bg-slate-950 border border-slate-800 text-emerald-400 text-xs font-bold mb-6">
-                READY
+            <div id="player-status-banner" class="w-full py-2 px-4 rounded-xl bg-slate-950 border border-slate-800 text-emerald-400 text-xs font-bold mb-4">
+                READY TO BUZZ
             </div>
 
-            <button id="buzz-button" onclick="pressBuzz()" class="buzz-btn-active w-52 h-52 rounded-full bg-rose-600 border-8 border-slate-950 shadow-2xl flex flex-col items-center justify-center cursor-pointer transition transform my-2">
-                <span class="text-3xl font-black tracking-widest text-white">BUZZ</span>
+            <button id="buzz-button" onclick="pressBuzz()" class="buzz-btn-active w-56 h-56 rounded-full bg-gradient-to-b from-rose-500 to-rose-700 border-8 border-slate-950 shadow-2xl flex flex-col items-center justify-center cursor-pointer transition transform my-2">
+                <span class="text-4xl font-black tracking-widest text-white drop-shadow-md">BUZZ</span>
             </button>
         </div>
 
     </main>
 
     <script>
-        // State Management
+        // --- State Management ---
         let mqttClient = null;
         let currentRoom = '';
         let myPlayerName = '';
@@ -277,36 +278,33 @@
         let currentBuzzTriggerMode = 'during';
         let thaiVoice = null;
 
-        // MULTI-MODE GAME PRESETS DATABASE
+        // MULTI-MODE DATABASE
         const gamePresets = {
             song: [
                 { title: 'ทรงอย่างแบด', artist: 'Paper Planes', lyrics: "ทรงอย่างแบด แซดอย่างบ่อย\nเธอทำให้ฉันต้องเจ็บช้ำ\nปล่อยให้ฉันต้องคิดถึงเธออยู่ข้างเดียว" },
                 { title: 'พิง', artist: 'NON TANONT', lyrics: "ที่ตรงนี้มีคนที่รอเธออยู่\nที่ตรงนี้มีคนที่รักเธอเกินใคร\nหากว่าเธอเหนื่อยล้าลองหันมองกลับมา" },
-                { title: 'ถ้าเราเจอกันอีก', artist: 'Tilly Birds', lyrics: "ถ้าหากว่าในวันนั้นเราไม่ได้เจอกัน\nวันนี้ฉันคงไม่ต้องเสียใจกับการจากลา" },
-                { title: 'วัดปะหล่ะ?', artist: '4EVE', lyrics: "วัดกันไหมว่าใครจะรักเธอมากกว่ากัน\nคนอย่างฉันไม่มีวันยอมแพ้เธอหรอกนะ" }
+                { title: 'ถ้าเราเจอกันอีก', artist: 'Tilly Birds', lyrics: "ถ้าหากว่าในวันนั้นเราไม่ได้เจอกัน\nวันนี้ฉันคงไม่ต้องเสียใจกับการจากลา" }
             ],
             hint: [
-                { title: 'คำใบ้: ผลไม้', artist: 'เฉลย: กล้วย', lyrics: "คำใบ้ที่ 1: เป็นผลไม้ที่มีเปลือกสีเหลือง\nคำใบ้ที่ 2: ลิงชอบกินมากที่สุด\nคำใบ้ที่ 3: เอาไปเชื่อมหรือบวดชีก็อร่อย" },
-                { title: 'คำใบ้: สถานที่', artist: 'เฉลย: สนามบินสุวรรณภูมิ', lyrics: "คำใบ้ที่ 1: เป็นสถานที่ขนาดใหญ่ในสมุทรปราการ\nคำใบ้ที่ 2: มีเครื่องบินขึ้นลงตลอดเวลา\nคำใบ้ที่ 3: มียักษ์ตนใหญ่อยู่ข้างในอาคาร" },
-                { title: 'คำใบ้: สัตว์', artist: 'เฉลย: เพนกวิน', lyrics: "คำใบ้ที่ 1: เป็นนกชนิดหนึ่งแต่บินไม่ได้\nคำใบ้ที่ 2: อาศัยอยู่ในเขตอากาศหนาวจัด\nคำใบ้ที่ 3: เดินเตาะแตะเหมือนใส่ชุดทักซิโด้" }
+                { title: 'ผลไม้สีเหลือง', artist: 'เฉลย: กล้วย', lyrics: "คำใบ้ที่ 1: เป็นผลไม้ที่มีเปลือกสีเหลือง\nคำใบ้ที่ 2: ลิงชอบกินมากที่สุด\nคำใบ้ที่ 3: นิยมนำไปเชื่อมหรือบวดชี" },
+                { title: 'สถานที่สำคัญ', artist: 'เฉลย: สนามบินสุวรรณภูมิ', lyrics: "คำใบ้ที่ 1: อยู่ในจังหวัดสมุทรปราการ\nคำใบ้ที่ 2: มีเครื่องบินขึ้นลงตลอด 24 ชั่วโมง\nคำใบ้ที่ 3: มีรูปปั้นยักษ์ขนาดใหญ่อยู่ข้างใน" }
             ],
             speed_go: [
-                { title: 'ความไว 1: นับถอยหลัง', artist: 'เฉลย: ใครไวกว่าได้แต้ม', lyrics: "เตรียมตัวให้พร้อม\nระวังให้ดี\n3\n2\n1\nGO!" },
-                { title: 'ความไว 2: ฟังสัญญาณ', artist: 'เฉลย: ใครไวกว่าได้แต้ม', lyrics: "เข้าที่\nเตรียมพร้อม\nลุยเลย!" }
+                { title: 'วัดความไว: รอบที่ 1', artist: 'เฉลย: คนกดไวที่สุดได้แต้ม', lyrics: "เตรียมมือให้พร้อมที่ปุ่มกด\nระวัง...\n3\n2\n1\nGO!" },
+                { title: 'วัดความไว: รอบที่ 2', artist: 'เฉลย: คนกดไวที่สุดได้แต้ม', lyrics: "พร้อมแล้วหรือยัง...\nนับถอยหลัง...\nกดได้เลย!" }
             ],
             reverse: [
-                { title: 'ถอดรหัสคำย้อนกลับ 1', artist: 'เฉลย: ชาบูสุกี้', lyrics: "สุก - ชา - บู" },
-                { title: 'ถอดรหัสคำย้อนกลับ 2', artist: 'เฉลย: กุ้งแม่น้ำ', lyrics: "น้ำ - แม่ - กุ้ง" },
-                { title: 'ถอดรหัสคำย้อนกลับ 3', artist: 'เฉลย: ชานมไข่มุก', lyrics: "มุก - ไข่ - นม - ชา" }
+                { title: 'คำย้อนกลับ 1', artist: 'เฉลย: ชาบูสุกี้', lyrics: "สุก - ชา - บู" },
+                { title: 'คำย้อนกลับ 2', artist: 'เฉลย: กุ้งแม่น้ำ', lyrics: "น้ำ - แม่ - กุ้ง" },
+                { title: 'คำย้อนกลับ 3', artist: 'เฉลย: ชานมไข่มุก', lyrics: "มุก - ไข่ - นม - ชา" }
             ],
             trivia: [
-                { title: 'คำถามทั่วไป 1', artist: 'เฉลย: 8 จังหวัด', lyrics: "ประเทศไทยมีกี่จังหวัดที่ขึ้นต้นด้วยคำว่า นคร ?" },
-                { title: 'คำถามการ์ตูน 1', artist: 'เฉลย: 7 ลูก', lyrics: "ดราก้อนบอลมีทั้งหมดกี่ลูก ?" },
-                { title: 'คำถามรอบตัว 2', artist: 'เฉลย: สีส้ม', lyrics: "สีแดง ผสมกับ สีเหลือง ได้สีอะไร ?" }
+                { title: 'คำถามรอบตัว 1', artist: 'เฉลย: 8 จังหวัด', lyrics: "ประเทศไทยมีกี่จังหวัดที่ขึ้นต้นด้วยคำว่า นคร ?" },
+                { title: 'คำถามรอบตัว 2', artist: 'เฉลย: สีส้ม', lyrics: "สีแดง ผสมกับ สีเหลือง ได้แม่สีอะไร ?" }
             ],
             spelling: [
-                { title: 'สะกดคำ 1 (ภาษาอังกฤษ)', artist: 'เฉลย: COMPUTER', lyrics: "C - O - M - P - U - T - E - R" },
-                { title: 'สะกดคำ 2 (ภาษาไทย)', artist: 'เฉลย: มหัศจรรย์', lyrics: "ม - ห - ั - ศ - จ - ร - ร - ย - ์" }
+                { title: 'สะกดคำอังกฤษ', artist: 'เฉลย: COMPUTER', lyrics: "C - O - M - P - U - T - E - R" },
+                { title: 'สะกดคำไทย', artist: 'เฉลย: มหัศจรรย์', lyrics: "ม - ห - ั - ศ - จ - ร - ร - ย - ์" }
             ]
         };
 
@@ -475,13 +473,13 @@
             });
 
             mqttClient.on('connect', () => {
-                statusEl.className = "text-xs px-3 py-1.5 rounded-xl bg-slate-900 text-emerald-400 border border-slate-800 flex items-center gap-2";
+                statusEl.className = "text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-900/80 text-emerald-400 border border-slate-800 flex items-center gap-2";
                 statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> ONLINE`;
                 if (callback) callback();
             });
 
             mqttClient.on('reconnect', () => {
-                statusEl.className = "text-xs px-3 py-1.5 rounded-xl bg-slate-900 text-amber-400 border border-slate-800 flex items-center gap-2";
+                statusEl.className = "text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-900/80 text-amber-400 border border-slate-800 flex items-center gap-2";
                 statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span> CONNECTING`;
             });
 
@@ -505,18 +503,76 @@
             }
         }
 
-        // MODE & PRESET CONTROLS
+        // --- DYNAMIC HOST WORKFLOW CONTROLS ---
         function onGameModeChange() {
             const mode = document.getElementById('select-game-mode').value;
-            const triggerSelect = document.getElementById('select-buzz-trigger-mode');
+            const actionBox = document.getElementById('host-mode-actions');
+            const ruleBadge = document.getElementById('host-rule-badge');
             
-            // Auto preset rules by mode
-            if (mode === 'speed_go') {
-                triggerSelect.value = 'on_zero';
-            } else {
-                triggerSelect.value = 'during';
+            let actionsHTML = '';
+            let ruleText = '';
+
+            if (mode === 'song') {
+                ruleText = "กติกา: กดได้ตลอดเวลา";
+                actionsHTML = `
+                    <button onclick="playSelectedPreset()" class="w-full bg-white hover:bg-slate-100 text-slate-950 font-black py-2.5 rounded-xl text-xs transition active:scale-95 shadow">
+                        ▶️ เริ่มอ่านเนื้อเพลงทีละบรรทัด
+                    </button>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="songAnswerWrong()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-2 rounded-xl text-xs border border-slate-700">➡️ บรรทัดถัดไป</button>
+                        <button onclick="songAnswerCorrect()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs">✓ เฉลยชื่อเพลง (+1)</button>
+                    </div>
+                `;
+            } else if (mode === 'hint') {
+                ruleText = "กติกา: กดได้ตลอดเวลา";
+                actionsHTML = `
+                    <button onclick="playSelectedPreset()" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-black py-2.5 rounded-xl text-xs transition active:scale-95 shadow">
+                        💡 เริ่มอ่านคำใบ้แรก
+                    </button>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="songAnswerWrong()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-2 rounded-xl text-xs border border-slate-700">💡 อ่านคำใบ้ถัดไป</button>
+                        <button onclick="songAnswerCorrect()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs">✓ เฉลยคำตอบ (+1)</button>
+                    </div>
+                `;
+            } else if (mode === 'speed_go') {
+                ruleText = "กติกา: ล็อกปุ่มจนกว่าจะ GO!";
+                actionsHTML = `
+                    <button onclick="playSelectedPreset('on_zero')" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-black py-3 rounded-xl text-xs transition active:scale-95 shadow-lg shadow-rose-600/20">
+                        🎯 เริ่มนับถอยหลัง GO!
+                    </button>
+                    <button onclick="songAnswerCorrect()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs">✓ ให้คะแนนคนกดเร็วสุด (+1)</button>
+                `;
+            } else if (mode === 'reverse') {
+                ruleText = "กติกา: กดได้ตลอดเวลา";
+                actionsHTML = `
+                    <button onclick="playSelectedPreset()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black py-2.5 rounded-xl text-xs transition active:scale-95 shadow">
+                        🔤 อ่านคำย้อนกลับ
+                    </button>
+                    <button onclick="songAnswerCorrect()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs">✓ เฉลยคำจริง (+1)</button>
+                `;
+            } else if (mode === 'trivia') {
+                ruleText = "กติกา: อ่านโจทย์จบเริ่มจับเวลา";
+                actionsHTML = `
+                    <button onclick="playSelectedPreset()" class="w-full bg-white hover:bg-slate-100 text-slate-950 font-black py-2.5 rounded-xl text-xs transition active:scale-95 shadow">
+                        ⚡ อ่านคำถามทันที
+                    </button>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="startTimerConfigured(10)" class="bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold py-2 rounded-xl text-xs border border-slate-700">⏱️ จับเวลา 10 วินาที</button>
+                        <button onclick="songAnswerCorrect()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs">✓ เฉลยคำตอบ (+1)</button>
+                    </div>
+                `;
+            } else if (mode === 'spelling') {
+                ruleText = "กติกา: กดได้ตลอดเวลา";
+                actionsHTML = `
+                    <button onclick="playSelectedPreset()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-black py-2.5 rounded-xl text-xs transition active:scale-95 shadow">
+                        🔠 อ่านสะกดคำทีละตัว
+                    </button>
+                    <button onclick="songAnswerCorrect()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs">✓ เฉลยคำเต็ม (+1)</button>
+                `;
             }
 
+            actionBox.innerHTML = actionsHTML;
+            if (ruleBadge) ruleBadge.innerText = ruleText;
             renderPresetDropdown();
         }
 
@@ -594,7 +650,7 @@
             const joinUrl = `${window.location.origin}${window.location.pathname}?room=${currentRoom}`;
             document.getElementById('display-qrcode').innerHTML = '';
             new QRCode(document.getElementById("display-qrcode"), {
-                text: joinUrl, width: 100, height: 100, colorDark: "#020617", colorLight: "#ffffff"
+                text: joinUrl, width: 90, height: 90, colorDark: "#020617", colorLight: "#ffffff"
             });
 
             initMQTT(() => {
@@ -627,6 +683,7 @@
             buzzList = [];
             stopSpeaking();
             stopTimer();
+            hideWinnerSpotlight();
             publishControl({ action: 'reset' });
         }
 
@@ -635,28 +692,25 @@
             publishControl({ action: isLocked ? 'lock' : 'unlock' });
             const btn = document.getElementById('btn-toggle-lock');
             btn.innerText = isLocked ? "🔓 UNLOCK BUTTONS" : "🔒 LOCK BUTTONS";
-            btn.className = isLocked ? "bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 rounded-2xl text-xs transition active:scale-95" : "bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-2xl text-xs border border-slate-700 transition active:scale-95";
+            btn.className = isLocked ? "bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 rounded-2xl text-xs transition active:scale-95 shadow-md shadow-rose-600/20" : "bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-2xl text-xs border border-slate-700 transition active:scale-95";
         }
 
-        function getHostTimerSettings() {
-            return {
-                mode: document.getElementById('select-timer-mode').value,
-                trigger: document.getElementById('select-buzz-trigger-mode').value
-            };
-        }
-
-        function playSelectedPreset() {
+        function playSelectedPreset(forceTriggerMode) {
             const list = getCurrentModePresets();
             const idx = document.getElementById('select-preset-song').value;
             const item = list[idx];
             if (!item) return;
             currentSongInfo = item;
             buzzList = [];
-            const { mode, trigger } = getHostTimerSettings();
+            hideWinnerSpotlight();
+            
+            const mode = document.getElementById('select-game-mode').value;
+            const trigger = forceTriggerMode || (mode === 'speed_go' ? 'on_zero' : 'during');
+            
             publishControl({ action: 'reset' });
             publishControl({ 
                 action: 'read_lyrics_linebyline', 
-                lyrics: item.lyrics, mode: mode, triggerMode: trigger 
+                lyrics: item.lyrics, mode: 'after', triggerMode: trigger, gameModeName: mode.toUpperCase() 
             });
         }
 
@@ -674,11 +728,12 @@
             if(!lyrics) return alert('กรุณาพิมพ์ข้อความ');
             currentSongInfo = { title: 'โจทย์กำหนดเอง', artist: 'Host' };
             buzzList = [];
-            const { mode, trigger } = getHostTimerSettings();
+            hideWinnerSpotlight();
+            
             publishControl({ action: 'reset' });
             publishControl({ 
                 action: 'read_lyrics_linebyline', 
-                lyrics: lyrics, mode: mode, triggerMode: trigger 
+                lyrics: lyrics, mode: 'after', triggerMode: 'during', gameModeName: 'CUSTOM' 
             });
         }
 
@@ -715,9 +770,9 @@
 
         function startTimerConfigured(seconds) {
             buzzList = [];
-            const trigger = document.getElementById('select-buzz-trigger-mode').value;
+            hideWinnerSpotlight();
             publishControl({ action: 'reset' });
-            publishControl({ action: 'timer', duration: seconds, triggerMode: trigger });
+            publishControl({ action: 'timer', duration: seconds, triggerMode: 'during' });
         }
 
         function addScore(name, pts) {
@@ -739,6 +794,11 @@
             if (mqttClient && currentRoom) {
                 mqttClient.publish(`partybuzz/${currentRoom}/control`, JSON.stringify(data));
             }
+        }
+
+        function hideWinnerSpotlight() {
+            const spotlight = document.getElementById('display-winner-spotlight');
+            if (spotlight) spotlight.classList.add('hidden');
         }
 
         function renderHostScoreboard() {
@@ -806,12 +866,12 @@
             if (!btn || !banner) return;
 
             if (unlocked) {
-                btn.className = "buzz-btn-active w-52 h-52 rounded-full bg-rose-600 border-8 border-slate-950 shadow-2xl flex flex-col items-center justify-center cursor-pointer transition transform my-2";
-                banner.className = "w-full py-2 px-4 rounded-xl bg-slate-950 border border-slate-800 text-emerald-400 text-xs font-bold mb-6";
+                btn.className = "buzz-btn-active w-56 h-56 rounded-full bg-gradient-to-b from-rose-500 to-rose-700 border-8 border-slate-950 shadow-2xl flex flex-col items-center justify-center cursor-pointer transition transform my-2 pulse-fast";
+                banner.className = "w-full py-2 px-4 rounded-xl bg-slate-950 border border-slate-800 text-emerald-400 text-xs font-bold mb-4";
                 banner.innerText = "READY TO BUZZ";
             } else {
-                btn.className = "w-52 h-52 rounded-full bg-slate-900 border-8 border-slate-950 flex flex-col items-center justify-center cursor-not-allowed opacity-40 my-2";
-                banner.className = "w-full py-2 px-4 rounded-xl bg-slate-950 border border-slate-800 text-rose-500 text-xs font-bold mb-6";
+                btn.className = "w-56 h-56 rounded-full bg-slate-900 border-8 border-slate-950 flex flex-col items-center justify-center cursor-not-allowed opacity-30 my-2";
+                banner.className = "w-full py-2 px-4 rounded-xl bg-slate-950 border border-slate-800 text-rose-500 text-xs font-bold mb-4";
                 banner.innerText = text || "LOCKED";
             }
         }
@@ -827,6 +887,16 @@
                     renderHostScoreboard();
                     playSound(buzzList.length === 1 ? 'correct' : 'buzz');
 
+                    // Winner Spotlight on TV Display
+                    if (buzzList.length === 1) {
+                        const spotlight = document.getElementById('display-winner-spotlight');
+                        const winnerName = document.getElementById('display-winner-name');
+                        if (spotlight && winnerName) {
+                            winnerName.innerText = payload.name;
+                            spotlight.classList.remove('hidden');
+                        }
+                    }
+
                     stopSpeaking();
                     stopTimer();
                 }
@@ -835,7 +905,7 @@
             if (topic.endsWith('/control')) {
                 if (payload.action === 'reset') {
                     buzzList = []; hasBuzzed = false; isLocked = false;
-                    stopSpeaking(); stopTimer();
+                    stopSpeaking(); stopTimer(); hideWinnerSpotlight();
                     renderTVBuzzList();
                     updatePlayerButtonUI(true);
                 } else if (payload.action === 'lock') {
@@ -846,11 +916,13 @@
                     isLocked = false; hasBuzzed = false;
                     updatePlayerButtonUI(true);
                 } else if (payload.action === 'timer') {
-                    buzzList = []; hasBuzzed = false;
+                    buzzList = []; hasBuzzed = false; hideWinnerSpotlight();
                     stopSpeaking();
                     startCountdown(payload.duration, payload.triggerMode);
                 } else if (payload.action === 'read_lyrics_linebyline') {
-                    hasBuzzed = false;
+                    hasBuzzed = false; hideWinnerSpotlight();
+                    const badge = document.getElementById('display-mode-badge');
+                    if (badge && payload.gameModeName) badge.innerText = payload.gameModeName;
                     startLineByLinePlayback(payload.lyrics, payload.mode, payload.triggerMode);
                 } else if (payload.action === 'next_line') {
                     hasBuzzed = false;
@@ -864,7 +936,11 @@
                 } else if (payload.action === 'reveal_answer') {
                     stopSpeaking(); stopTimer();
                     playSound('correct');
-                    document.getElementById('display-question-text').innerHTML = `<span class="text-amber-400 text-3xl font-black">${payload.song.title}</span><span class="text-lg text-slate-400 block mt-1">${payload.song.artist}</span>`;
+                    document.getElementById('display-question-text').innerHTML = `
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">ANSWER</span>
+                        <span class="text-amber-400 text-3xl sm:text-5xl font-black tracking-wide">${payload.song.title}</span>
+                        <span class="text-base text-slate-400 block mt-1">${payload.song.artist}</span>
+                    `;
                     const pQBox = document.getElementById('player-question-box');
                     if (pQBox) pQBox.innerText = `${payload.song.title} - ${payload.song.artist}`;
                 } else if (payload.action === 'scores' && payload.scores) {
@@ -887,21 +963,21 @@
             if (!listEl) return;
 
             if (buzzList.length === 0) {
-                listEl.innerHTML = `<div class="text-center py-10 text-slate-700 text-sm border border-dashed border-slate-800 rounded-2xl">WAITING FOR BUZZ...</div>`;
+                listEl.innerHTML = `<div class="text-center py-8 text-slate-700 text-xs border border-dashed border-slate-800/80 rounded-2xl">WAITING FOR BUZZ...</div>`;
                 return;
             }
 
             listEl.innerHTML = buzzList.map((item, index) => {
                 const isFirst = index === 0;
                 return `
-                    <div class="flex items-center justify-between p-3.5 rounded-2xl ${isFirst ? 'bg-amber-500/10 border border-amber-500/40 text-amber-300' : 'bg-slate-950 border border-slate-800 text-slate-300'} transition-all">
+                    <div class="flex items-center justify-between p-3 sm:p-4 rounded-2xl ${isFirst ? 'bg-amber-500/10 border border-amber-500/50 text-amber-300 glow-amber' : 'bg-slate-950 border border-slate-800 text-slate-300'} transition-all">
                         <div class="flex items-center gap-3">
                             <span class="w-8 h-8 rounded-xl flex items-center justify-center font-black text-sm ${isFirst ? 'bg-amber-400 text-slate-950' : 'bg-slate-800 text-slate-500'}">
                                 ${index + 1}
                             </span>
-                            <span class="font-bold text-lg">${item.name}</span>
+                            <span class="font-bold text-base sm:text-lg">${item.name}</span>
                         </div>
-                        <span class="text-xs font-mono text-slate-500 bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800">${item.timeStr}</span>
+                        <span class="text-xs font-mono text-slate-500 bg-slate-900 px-3 py-1 rounded-lg border border-slate-800">${item.timeStr}</span>
                     </div>
                 `;
             }).join('');
@@ -916,9 +992,9 @@
                 return;
             }
             el.innerHTML = entries.map(([name, score], idx) => `
-                <div class="flex justify-between items-center bg-slate-900 p-2 rounded-xl border border-slate-800/80">
-                    <span class="font-medium text-slate-400 text-xs">#${idx+1} ${name}</span>
-                    <span class="font-bold text-amber-400 font-mono text-xs">${score}</span>
+                <div class="flex justify-between items-center bg-slate-900/90 p-2.5 rounded-xl border border-slate-800/80">
+                    <span class="font-medium text-slate-300 text-xs">#${idx+1} ${name}</span>
+                    <span class="font-black text-amber-400 font-mono text-xs">${score}</span>
                 </div>
             `).join('');
         }
