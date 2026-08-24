@@ -29,9 +29,9 @@
 </head>
 <body onclick="unlockAudioEngine()" class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-start p-3 sm:p-5 select-none antialiased">
 
-    <!-- AUDIO UNLOCK BANNER (Appears until first user tap to guarantee TTS & WebAudio work on GitHub Pages / Safari / Chrome) -->
+    <!-- AUDIO UNLOCK BANNER -->
     <div id="audio-unlock-banner" onclick="unlockAudioEngine()" class="w-full max-w-5xl bg-amber-500/20 border border-amber-500/50 rounded-2xl p-3 mb-3 text-center cursor-pointer hover:bg-amber-500/30 transition flex items-center justify-center gap-2 text-amber-300 text-xs font-bold animate-pulse">
-        <span>📢 แตะตรงไหนก็ได้บนหน้าจอ 1 ครั้ง เพื่อเปิดใช้งานเสียง Siri และ Audio FX (สำหรับ GitHub Pages & Mobile)</span>
+        <span>📢 แตะตรงไหนก็ได้บนหน้าจอ 1 ครั้ง เพื่อเปิดใช้งานเสียง Siri และ Audio FX</span>
     </div>
 
     <!-- HEADER NAVIGATION -->
@@ -264,7 +264,7 @@
             </div>
 
             <div id="player-status-banner" class="w-full py-2 px-4 rounded-xl bg-slate-950 border border-slate-800 text-emerald-400 text-xs font-bold mb-4">
-                READY TO BUZZ
+                READY TO BUZZ (หรือกด SPACEBAR)
             </div>
 
             <button id="buzz-button" onclick="pressBuzz()" class="buzz-btn-active w-56 h-56 rounded-full bg-gradient-to-b from-rose-500 to-rose-700 border-8 border-slate-950 shadow-2xl flex flex-col items-center justify-center cursor-pointer transition transform my-2">
@@ -294,15 +294,21 @@
         let currentTimerSec = 10;
         let currentBuzzTriggerMode = 'during';
 
-        // --- ENHANCED SIRI / TTS SPEECH SYNTHESIS (FIXED FOR SAFARI / CHROME / GITHUB PAGES) ---
+        // --- SECURITY UTILS ---
+        function escapeHTML(str) {
+            return String(str).replace(/[&<>"']/g, function (m) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+            });
+        }
+
+        // --- ENHANCED SIRI / TTS SPEECH SYNTHESIS ---
         let audioUnlocked = false;
         let thaiVoice = null;
-        window.activeUtterance = null; // Store reference to prevent Garbage Collection on Safari/Chrome
+        window.activeUtterance = null;
 
         function populateVoices() {
             if (!('speechSynthesis' in window)) return;
             const voices = window.speechSynthesis.getVoices();
-            // Prioritize Thai voices (including Siri / Premium voices on macOS/iOS)
             thaiVoice = voices.find(v => v.lang.replace('_', '-').toLowerCase().startsWith('th')) || null;
         }
 
@@ -313,19 +319,12 @@
 
         function unlockAudioEngine() {
             if (audioUnlocked) return;
-            
-            // 1. Resume Web Audio API
             try {
                 const ctx = getAudioContext();
-                if (ctx && ctx.state === 'suspended') {
-                    ctx.resume();
-                }
+                if (ctx && ctx.state === 'suspended') ctx.resume();
             } catch(e) {}
 
-            // 2. Resume SpeechSynthesis Engine
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.resume();
-            }
+            if ('speechSynthesis' in window) window.speechSynthesis.resume();
 
             audioUnlocked = true;
             const banner = document.getElementById('audio-unlock-banner');
@@ -345,7 +344,7 @@
             ],
             speed_go: [
                 { title: 'วัดความไว: รอบที่ 1', artist: 'เฉลย: คนกดไวที่สุดได้แต้ม', lyrics: "เตรียมมือให้พร้อมที่ปุ่มกด\nระวัง...\n3\n2\n1\nGO!" },
-                { title: 'วัดความไว: รอบที่ 2', artist: 'เฉลย: คนกดไวที่สุดได้แต้ม', lyrics: "พร้อมแล้วหรือยัง...\นับถอยหลัง...\nกดได้เลย!" }
+                { title: 'วัดความไว: รอบที่ 2', artist: 'เฉลย: คนกดไวที่สุดได้แต้ม', lyrics: "พร้อมแล้วหรือยัง...\nนับถอยหลัง...\nกดได้เลย!" }
             ],
             reverse: [
                 { title: 'คำย้อนกลับ 1', artist: 'เฉลย: ชาบูสุกี้', lyrics: "สุก - ชา - บู" },
@@ -431,7 +430,6 @@
             } catch(e) {}
         }
 
-        // --- ENHANCED SIRI / TTS SPEECH SYNTHESIS ENGINE ---
         function speakThaiLine(text, onEndCallback) {
             if (isMuted || !('speechSynthesis' in window)) {
                 if (onEndCallback) onEndCallback();
@@ -439,12 +437,11 @@
             }
 
             if (!audioUnlocked) unlockAudioEngine();
-
             window.speechSynthesis.cancel();
 
             setTimeout(() => {
                 const utterance = new SpeechSynthesisUtterance(text);
-                window.activeUtterance = utterance; // Keep strong reference for GC fix
+                window.activeUtterance = utterance;
 
                 utterance.lang = 'th-TH';
                 utterance.rate = 0.95;
@@ -452,9 +449,7 @@
                 utterance.volume = 1.0;
 
                 if (!thaiVoice) populateVoices();
-                if (thaiVoice) {
-                    utterance.voice = thaiVoice;
-                }
+                if (thaiVoice) utterance.voice = thaiVoice;
 
                 let hasEnded = false;
                 let safetyTimeout = null;
@@ -474,12 +469,9 @@
                     safeOnEnd();
                 };
 
-                // Generous safety timeout to prevent premature cutoff on slow TTS engines
                 const estimatedMs = Math.max(4000, text.length * 700);
                 safetyTimeout = setTimeout(() => {
-                    if (!hasEnded) {
-                        safeOnEnd();
-                    }
+                    if (!hasEnded) safeOnEnd();
                 }, estimatedMs);
 
                 window.speechSynthesis.speak(utterance);
@@ -493,7 +485,6 @@
             }
         }
 
-        // Timer Logic
         function startCountdown(duration, triggerMode) {
             stopTimer();
             let timeLeft = duration;
@@ -532,6 +523,7 @@
 
                     if (currentBuzzTriggerMode === 'on_zero') {
                         playSound('go');
+                        if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
                         isLocked = false;
                         hasBuzzed = false;
                         if (timerLabel) timerLabel.innerText = "GO!";
@@ -539,6 +531,7 @@
                         updatePlayerButtonUI(true, "PRESS NOW!");
                     } else {
                         playSound('timeout');
+                        if (navigator.vibrate) navigator.vibrate(300);
                         isLocked = true;
                         stopSpeaking();
                         updatePlayerButtonUI(false, "TIME OUT");
@@ -650,7 +643,7 @@
 
             const list = getCurrentModePresets();
             select.innerHTML = list.map((item, idx) => `
-                <option value="${idx}">${item.title} (${item.artist})</option>
+                <option value="${idx}">${escapeHTML(item.title)} (${escapeHTML(item.artist)})</option>
             `).join('');
 
             if (list.length > 0) onSelectPresetChange();
@@ -825,7 +818,6 @@
             const currentWinner = buzzList[0].name;
 
             if (isCorrect) {
-                // Award points
                 playerScores[currentWinner] = (playerScores[currentWinner] || 0) + 1;
                 publishControl({ action: 'scores', scores: playerScores });
                 publishControl({ 
@@ -834,11 +826,8 @@
                 });
                 try { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); } catch(e){}
             } else {
-                // Wrong answer / penalty (-1 pt optional)
                 playerScores[currentWinner] = Math.max(0, (playerScores[currentWinner] || 0) - 1);
                 publishControl({ action: 'scores', scores: playerScores });
-
-                // Pass to next person in queue or unlock buzzer for remaining eligible players
                 publishControl({ action: 'answer_wrong', wrongPlayer: currentWinner });
             }
         }
@@ -890,11 +879,11 @@
             }
             el.innerHTML = entries.map(([name, score]) => `
                 <div class="flex justify-between items-center bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800 text-xs">
-                    <span class="font-bold text-slate-300">${name}</span>
+                    <span class="font-bold text-slate-300">${escapeHTML(name)}</span>
                     <div class="flex items-center gap-1">
                         <span class="font-bold text-amber-400 font-mono mr-2">${score}</span>
-                        <button onclick="addScore('${name}', 1)" class="bg-slate-800 hover:bg-slate-700 px-2 py-0.5 rounded text-emerald-400 font-bold text-[10px]">+1</button>
-                        <button onclick="addScore('${name}', -1)" class="bg-slate-800 hover:bg-slate-700 px-2 py-0.5 rounded text-rose-400 font-bold text-[10px]">-1</button>
+                        <button onclick="addScore('${escapeHTML(name)}', 1)" class="bg-slate-800 hover:bg-slate-700 px-2 py-0.5 rounded text-emerald-400 font-bold text-[10px]">+1</button>
+                        <button onclick="addScore('${escapeHTML(name)}', -1)" class="bg-slate-800 hover:bg-slate-700 px-2 py-0.5 rounded text-rose-400 font-bold text-[10px]">-1</button>
                     </div>
                 </div>
             `).join('');
@@ -930,6 +919,7 @@
             if (hasBuzzed || isLocked || disqualifiedPlayers.has(myPlayerName)) return;
             hasBuzzed = true;
             playSound('buzz');
+            if (navigator.vibrate) navigator.vibrate(80);
             updatePlayerButtonUI(false, "BUZZED!");
 
             const now = new Date();
@@ -955,7 +945,7 @@
             if (unlocked) {
                 btn.className = "buzz-btn-active w-56 h-56 rounded-full bg-gradient-to-b from-rose-500 to-rose-700 border-8 border-slate-950 shadow-2xl flex flex-col items-center justify-center cursor-pointer transition transform my-2 pulse-fast";
                 banner.className = "w-full py-2 px-4 rounded-xl bg-slate-950 border border-slate-800 text-emerald-400 text-xs font-bold mb-4";
-                banner.innerText = "READY TO BUZZ";
+                banner.innerText = "READY TO BUZZ (หรือกด SPACEBAR)";
             } else {
                 btn.className = "w-56 h-56 rounded-full bg-slate-900 border-8 border-slate-950 flex flex-col items-center justify-center cursor-not-allowed opacity-30 my-2";
                 banner.className = "w-full py-2 px-4 rounded-xl bg-slate-950 border border-slate-800 text-rose-500 text-xs font-bold mb-4";
@@ -969,7 +959,6 @@
                 const exists = buzzList.some(i => i.name === payload.name);
                 if (!exists && !isLocked && !disqualifiedPlayers.has(payload.name)) {
                     buzzList.push(payload);
-                    // Sort queue strictly by client timestamp for fairness
                     buzzList.sort((a,b) => a.timestamp - b.timestamp);
 
                     if (!(payload.name in playerScores)) playerScores[payload.name] = 0;
@@ -1028,12 +1017,10 @@
                     const wrongPlayer = payload.wrongPlayer;
                     disqualifiedPlayers.add(wrongPlayer);
                     
-                    // Remove wrong player from current queue
                     buzzList = buzzList.filter(item => item.name !== wrongPlayer);
                     renderTVBuzzList();
 
                     if (buzzList.length > 0) {
-                        // Advance spotlight to next player in queue
                         const spotlight = document.getElementById('display-winner-spotlight');
                         const winnerName = document.getElementById('display-winner-name');
                         if (spotlight && winnerName) {
@@ -1041,7 +1028,6 @@
                             spotlight.classList.remove('hidden');
                         }
                     } else {
-                        // Queue empty, automatically unlock buzzer for remaining players who haven't buzzed/been disqualified
                         hideWinnerSpotlight();
                         isLocked = false;
                         if (!disqualifiedPlayers.has(myPlayerName)) {
@@ -1054,8 +1040,8 @@
                     playSound('correct');
                     document.getElementById('display-question-text').innerHTML = `
                         <span class="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">ANSWER</span>
-                        <span class="text-amber-400 text-3xl sm:text-5xl font-black tracking-wide">${payload.song.title}</span>
-                        <span class="text-base text-slate-400 block mt-1">${payload.song.artist}</span>
+                        <span class="text-amber-400 text-3xl sm:text-5xl font-black tracking-wide">${escapeHTML(payload.song.title)}</span>
+                        <span class="text-base text-slate-400 block mt-1">${escapeHTML(payload.song.artist)}</span>
                     `;
                     const pQBox = document.getElementById('player-question-box');
                     if (pQBox) pQBox.innerText = `${payload.song.title} - ${payload.song.artist}`;
@@ -1093,9 +1079,9 @@
                             <span class="w-8 h-8 rounded-xl flex items-center justify-center font-black text-sm ${isFirst ? 'bg-amber-400 text-slate-950' : 'bg-slate-800 text-slate-500'}">
                                 ${index + 1}
                             </span>
-                            <span class="font-bold text-base sm:text-lg">${item.name}</span>
+                            <span class="font-bold text-base sm:text-lg">${escapeHTML(item.name)}</span>
                         </div>
-                        <span class="text-xs font-mono text-slate-500 bg-slate-900 px-3 py-1 rounded-lg border border-slate-800">${item.timeStr}</span>
+                        <span class="text-xs font-mono text-slate-500 bg-slate-900 px-3 py-1 rounded-lg border border-slate-800">${escapeHTML(item.timeStr)}</span>
                     </div>
                 `;
             }).join('');
@@ -1111,11 +1097,22 @@
             }
             el.innerHTML = entries.map(([name, score], idx) => `
                 <div class="flex justify-between items-center bg-slate-900/90 p-2.5 rounded-xl border border-slate-800/80">
-                    <span class="font-medium text-slate-300 text-xs">#${idx+1} ${name}</span>
+                    <span class="font-medium text-slate-300 text-xs">#${idx+1} ${escapeHTML(name)}</span>
                     <span class="font-black text-amber-400 font-mono text-xs">${score}</span>
                 </div>
             `).join('');
         }
+
+        // Global Event Listeners
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+                const gameView = document.getElementById('view-player-game');
+                if (gameView && !gameView.classList.contains('hidden')) {
+                    e.preventDefault();
+                    pressBuzz();
+                }
+            }
+        });
 
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
