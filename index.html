@@ -61,10 +61,9 @@
             </div>
         </div>
 
-        <!-- SCREEN 2: TV DISPLAY (HIGH EXCITEMENT MINIMAL) -->
+        <!-- SCREEN 2: TV DISPLAY -->
         <div id="view-display" class="w-full bg-slate-900/30 p-4 sm:p-6 rounded-3xl border border-slate-800/80 hidden flex-col items-center backdrop-blur-2xl transition-all">
             
-            <!-- Room Info & Status Bar -->
             <div class="w-full flex items-center justify-between bg-slate-950/80 p-4 rounded-2xl border border-slate-800/80 mb-4">
                 <div class="flex items-center gap-4">
                     <div id="display-qrcode" class="p-1.5 bg-white rounded-xl shadow-md"></div>
@@ -82,7 +81,6 @@
                 </div>
             </div>
 
-            <!-- DYNAMIC QUESTION / DISPLAY BOX -->
             <div id="display-main-card" class="w-full bg-slate-950/90 border border-slate-800 p-8 sm:p-12 rounded-3xl mb-4 text-center transition-all duration-300 glow-amber relative overflow-hidden">
                 <div id="display-mode-badge" class="absolute top-3 left-4 text-[10px] font-bold px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-amber-400 uppercase tracking-widest">
                     READY
@@ -93,13 +91,11 @@
                 </div>
             </div>
 
-            <!-- WINNER SPOTLIGHT BANNER (Appears when someone buzzes) -->
             <div id="display-winner-spotlight" class="w-full hidden mb-4 p-4 rounded-2xl bg-gradient-to-r from-amber-500/20 via-rose-500/20 to-amber-500/20 border border-amber-500/50 text-center animate-bounce">
                 <span class="text-xs font-black text-amber-400 tracking-widest uppercase block mb-1">⚡ FASTEST BUZZ ⚡</span>
                 <span id="display-winner-name" class="text-3xl font-black text-white tracking-wide">--</span>
             </div>
 
-            <!-- LOG & SCORE GRID -->
             <div class="w-full grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="md:col-span-2">
                     <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-2">⚡ BUZZ QUEUE</span>
@@ -119,10 +115,9 @@
             </div>
         </div>
 
-        <!-- SCREEN 3: HOST CONTROLLER (DISTINCT MODE WORKFLOWS) -->
+        <!-- SCREEN 3: HOST CONTROLLER -->
         <div id="view-host" class="w-full max-w-md bg-slate-900/60 p-4 sm:p-5 rounded-3xl border border-slate-800 hidden flex-col items-center backdrop-blur-2xl">
             
-            <!-- Room Info & Code -->
             <div class="w-full flex justify-between items-center mb-3 bg-slate-950/80 p-3 rounded-2xl border border-slate-800">
                 <div>
                     <span class="text-[9px] text-slate-500 uppercase font-bold block tracking-wider">ROOM CODE</span>
@@ -133,7 +128,6 @@
                 </button>
             </div>
 
-            <!-- Mode Selector Switcher -->
             <div class="w-full mb-3">
                 <label class="block text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-1">🎮 เลือกโหมดการเล่น (MODE)</label>
                 <select id="select-game-mode" onchange="onGameModeChange()" class="w-full bg-slate-950 border border-amber-500/40 text-amber-300 font-black text-xs rounded-xl p-3 outline-none focus:border-amber-400 shadow-lg shadow-amber-500/5">
@@ -146,9 +140,7 @@
                 </select>
             </div>
 
-            <!-- MODE SPECIFIC CONTROL CONTAINER (DYNAMIC) -->
             <div class="w-full bg-slate-950/80 p-4 rounded-2xl border border-slate-800 mb-3 transition-all">
-                
                 <div class="flex justify-between items-center mb-2">
                     <span id="host-mode-title" class="text-xs font-black text-white uppercase tracking-wider">🎵 คลังโจทย์ประจำโหมด</span>
                     <button onclick="randomPresetItem()" class="text-[11px] text-amber-400 font-semibold hover:underline">🎲 สุ่มโจทย์</button>
@@ -157,12 +149,8 @@
                 <select id="select-preset-song" onchange="onSelectPresetChange()" class="w-full bg-slate-900 border border-slate-800 text-white text-xs rounded-xl p-2.5 outline-none font-semibold mb-3">
                 </select>
 
-                <!-- Dynamic Action Buttons tailored for each mode -->
-                <div id="host-mode-actions" class="space-y-2 mb-3">
-                    <!-- Injected by JavaScript -->
-                </div>
+                <div id="host-mode-actions" class="space-y-2 mb-3"></div>
 
-                <!-- Custom Input Area -->
                 <button onclick="toggleCustomLyricsArea()" class="w-full bg-slate-900/60 border border-slate-800 text-slate-400 font-semibold py-2 rounded-xl text-xs transition hover:text-white">
                     ✏️ ป้อนข้อความ / โจทย์เอง
                 </button>
@@ -180,7 +168,6 @@
                 </div>
             </div>
 
-            <!-- Primary Buzzer Controls -->
             <div class="grid grid-cols-2 gap-2 w-full mb-3">
                 <button onclick="resetBuzzer()" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-black py-3 rounded-2xl text-xs transition active:scale-95 shadow-md shadow-amber-400/10">
                     🔄 RESET BUZZER
@@ -190,7 +177,6 @@
                 </button>
             </div>
 
-            <!-- Quick Timer Adjuster -->
             <div class="w-full bg-slate-950/80 p-3 rounded-2xl border border-slate-800 mb-3">
                 <div class="flex justify-between items-center mb-2">
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">⏱️ จับเวลาถอยหลัง</span>
@@ -203,7 +189,6 @@
                 </div>
             </div>
 
-            <!-- Scoreboard Control -->
             <div class="w-full bg-slate-950/80 p-3 rounded-2xl border border-slate-800 mb-3">
                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">🏆 ตารางคะแนนผู้เล่น</span>
                 <div id="host-scoreboard" class="space-y-1.5 max-h-[110px] overflow-y-auto">
@@ -276,7 +261,9 @@
         let currentTimerMode = 'after';
         let currentTimerSec = 10;
         let currentBuzzTriggerMode = 'during';
-        let thaiVoice = null;
+        
+        // GLOBAL SPEECH INSTANCE (PREVENT GARBAGE COLLECTION)
+        window.currentUtterance = null;
 
         // MULTI-MODE DATABASE
         const gamePresets = {
@@ -368,34 +355,43 @@
             } catch(e) {}
         }
 
-        function loadThaiVoices() {
-            if ('speechSynthesis' in window) {
-                const voices = window.speechSynthesis.getVoices();
-                thaiVoice = voices.find(v => v.lang.includes('th') || v.lang.includes('TH')) || null;
-            }
-        }
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.onvoiceschanged = loadThaiVoices;
-            loadThaiVoices();
-        }
-
+        // --- SPEECH SYNTHESIS (SIRI VOICE FIX) ---
         function speakThaiLine(text, onEndCallback) {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'th-TH';
-                if (thaiVoice) utterance.voice = thaiVoice;
-                utterance.rate = 0.9;
-                utterance.onend = () => { if (onEndCallback) onEndCallback(); };
-                utterance.onerror = () => { if (onEndCallback) onEndCallback(); };
-                window.speechSynthesis.speak(utterance);
-            } else if (onEndCallback) {
-                onEndCallback();
+            if (!('speechSynthesis' in window)) {
+                if (onEndCallback) onEndCallback();
+                return;
             }
+
+            window.speechSynthesis.cancel();
+
+            setTimeout(() => {
+                window.currentUtterance = new SpeechSynthesisUtterance(text);
+                window.currentUtterance.lang = 'th-TH';
+                window.currentUtterance.rate = 0.9;
+
+                const voices = window.speechSynthesis.getVoices();
+                const thVoice = voices.find(v => v.lang.includes('th') || v.lang.includes('TH'));
+                if (thVoice) {
+                    window.currentUtterance.voice = thVoice;
+                }
+
+                window.currentUtterance.onend = () => {
+                    if (onEndCallback) onEndCallback();
+                };
+
+                window.currentUtterance.onerror = (err) => {
+                    console.warn("Speech error:", err);
+                    if (onEndCallback) onEndCallback();
+                };
+
+                window.speechSynthesis.speak(window.currentUtterance);
+            }, 50);
         }
 
         function stopSpeaking() {
-            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
         }
 
         // Timer Logic
@@ -503,7 +499,7 @@
             }
         }
 
-        // --- DYNAMIC HOST WORKFLOW CONTROLS ---
+        // HOST WORKFLOW CONTROLS
         function onGameModeChange() {
             const mode = document.getElementById('select-game-mode').value;
             const actionBox = document.getElementById('host-mode-actions');
@@ -887,7 +883,6 @@
                     renderHostScoreboard();
                     playSound(buzzList.length === 1 ? 'correct' : 'buzz');
 
-                    // Winner Spotlight on TV Display
                     if (buzzList.length === 1) {
                         const spotlight = document.getElementById('display-winner-spotlight');
                         const winnerName = document.getElementById('display-winner-name');
