@@ -18,6 +18,9 @@
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        .giant-timer-glow {
+            text-shadow: 0 0 35px rgba(251, 191, 36, 0.6), 0 0 10px rgba(251, 191, 36, 0.4);
+        }
     </style>
 </head>
 <body onclick="unlockAudioEngine()" class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-start p-4 select-none antialiased">
@@ -56,71 +59,81 @@
 
         <!-- SCREEN 2: TV DISPLAY -->
         <div id="view-display" class="w-full hidden flex-col items-center">
-            <div class="w-full flex items-center justify-between bg-slate-900/50 p-3.5 rounded-2xl border border-slate-900 mb-4">
-                <div class="flex items-center gap-3">
-                    <div id="display-qrcode" class="p-1 bg-white rounded-lg"></div>
-                    <div>
-                        <span class="text-[9px] font-bold text-slate-500 uppercase tracking-widest block">ROOM</span>
-                        <div id="display-room-code" class="text-2xl font-black text-amber-400 font-mono tracking-widest">----</div>
-                    </div>
-                </div>
-
-                <div id="display-timer-box" class="hidden flex-col items-center px-4 py-1.5 rounded-xl bg-slate-950 border border-slate-800">
-                    <span id="display-timer-label" class="text-[8px] font-bold text-slate-500 uppercase">TIME</span>
-                    <span id="display-timer-val" class="text-2xl font-black text-amber-400 font-mono">00</span>
-                </div>
-            </div>
-
+            
             <!-- MAIN DISPLAY CARD -->
-            <div id="display-main-card" class="w-full bg-slate-900/30 border border-slate-800 p-8 rounded-3xl mb-4 text-center relative min-h-[200px] flex flex-col justify-center items-center">
-                <div id="display-mode-badge" class="absolute top-3 left-4 text-[9px] font-bold px-2.5 py-0.5 rounded-full bg-slate-900 border border-slate-800 text-amber-400 uppercase tracking-wider">
+            <div id="display-main-card" class="w-full bg-slate-900/40 border border-slate-800 p-6 sm:p-8 rounded-3xl mb-4 text-center relative min-h-[360px] flex flex-col justify-center items-center shadow-2xl">
+                
+                <div id="display-mode-badge" class="absolute top-4 left-4 text-[10px] font-extrabold px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-amber-400 uppercase tracking-widest">
                     LOBBY
                 </div>
+
+                <!-- GIANT COUNTDOWN DISPLAY OVERLAY -->
+                <div id="display-timer-box" class="hidden flex-col items-center justify-center my-4 animate-bounce">
+                    <span id="display-timer-label" class="text-xs sm:text-sm font-black text-amber-400 uppercase tracking-widest block mb-1">REMAINING TIME</span>
+                    <span id="display-timer-val" class="text-8xl sm:text-9xl font-black text-amber-400 font-mono tracking-tighter giant-timer-glow">00</span>
+                </div>
                 
-                <!-- LOBBY -->
-                <div id="display-lobby-content" class="w-full flex flex-col items-center">
-                    <span class="text-xs font-bold text-slate-500 uppercase mb-3 block">ONLINE (<span id="tv-online-count" class="text-amber-400 font-mono">0</span>)</span>
-                    <div id="display-online-players-grid" class="w-full flex flex-wrap justify-center gap-2 max-h-[140px] overflow-y-auto">
-                        <span class="text-xs text-slate-600">WAITING FOR PLAYERS...</span>
+                <!-- LOBBY DISPLAY (แสดง QR ใหญ่ + ตารางผู้เล่น/คะแนน เมื่อไม่มีโจทย์) -->
+                <div id="display-lobby-content" class="w-full flex flex-col md:flex-row items-center justify-around gap-6 py-4">
+                    
+                    <!-- QR CODE & ROOM BLOCK -->
+                    <div class="flex flex-col items-center bg-slate-950 p-6 rounded-3xl border border-amber-400/30 shadow-lg">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">สแกนเพื่อเข้าร่วมเล่น</span>
+                        <div id="display-qrcode-large" class="p-3 bg-white rounded-2xl shadow-xl"></div>
+                        <div class="mt-4 text-center">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">ROOM CODE</span>
+                            <div id="display-room-code-large" class="text-4xl font-black text-amber-400 font-mono tracking-widest">----</div>
+                        </div>
+                    </div>
+
+                    <!-- PLAYERS & SCOREBOARD LIST IN LOBBY -->
+                    <div class="w-full max-w-md flex flex-col gap-4">
+                        <div class="bg-slate-950/70 p-4 rounded-2xl border border-slate-800">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs font-extrabold text-slate-400 uppercase tracking-wider">🟢 ผู้เล่นออนไลน์ (<span id="tv-online-count" class="text-amber-400 font-mono">0</span>)</span>
+                            </div>
+                            <div id="display-online-players-grid" class="w-full flex flex-wrap gap-2 max-h-[120px] overflow-y-auto p-1">
+                                <span class="text-xs text-slate-600">กำลังรอผู้เล่นเข้าร่วม...</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-950/70 p-4 rounded-2xl border border-slate-800">
+                            <span class="text-xs font-extrabold text-amber-400 uppercase tracking-wider block mb-2">🏆 ตารางคะแนนรวม (LEADERBOARD)</span>
+                            <div id="display-scoreboard-lobby" class="space-y-1.5 max-h-[140px] overflow-y-auto">
+                                <p class="text-xs text-slate-600 text-center py-2">ยังไม่มีคะแนน</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- QUESTION -->
-                <div id="display-question-content" class="w-full hidden flex-col items-center justify-center">
-                    <div id="display-question-text" class="text-2xl sm:text-4xl font-black text-slate-100 leading-snug"></div>
+                <!-- QUESTION DISPLAY -->
+                <div id="display-question-content" class="w-full hidden flex-col items-center justify-center py-6">
+                    <div id="display-question-text" class="text-3xl sm:text-5xl font-black text-slate-100 leading-snug drop-shadow-md"></div>
                 </div>
 
-                <!-- WINNER MODAL -->
-                <div id="display-correct-celebration" class="w-full hidden flex-col items-center justify-center">
-                    <span class="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-1">CORRECT!</span>
-                    <div id="display-winner-player-name" class="text-5xl sm:text-7xl font-black text-amber-400 my-1">--</div>
-                    <div id="display-winner-answer-title" class="text-lg sm:text-2xl font-bold text-white">--</div>
-                    <div id="display-winner-answer-detail" class="text-xs text-slate-400 mt-1">--</div>
+                <!-- WINNER CELEBRATION MODAL -->
+                <div id="display-correct-celebration" class="w-full hidden flex-col items-center justify-center py-4">
+                    <span class="text-sm font-black text-emerald-400 uppercase tracking-widest mb-1">🎉 ถูกต้อง! (CORRECT)</span>
+                    <div id="display-winner-player-name" class="text-6xl sm:text-8xl font-black text-amber-400 my-2 drop-shadow-lg">--</div>
+                    <div id="display-winner-answer-title" class="text-2xl sm:text-3xl font-bold text-white">--</div>
+                    <div id="display-winner-answer-detail" class="text-sm text-slate-400 mt-1">--</div>
                 </div>
             </div>
 
             <!-- SPOTLIGHT -->
-            <div id="display-winner-spotlight" class="w-full hidden mb-4 p-4 rounded-2xl bg-slate-900 border border-amber-400/40 text-center">
-                <span id="display-winner-label" class="text-[10px] font-bold text-amber-400 uppercase tracking-widest block">FASTEST BUZZ</span>
-                <span id="display-winner-name" class="text-4xl sm:text-6xl font-black text-white">--</span>
+            <div id="display-winner-spotlight" class="w-full hidden mb-4 p-4 rounded-2xl bg-amber-400/10 border border-amber-400/50 text-center animate-pulse">
+                <span id="display-winner-label" class="text-xs font-black text-amber-400 uppercase tracking-widest block">FASTEST BUZZ</span>
+                <span id="display-winner-name" class="text-5xl sm:text-7xl font-black text-white">--</span>
             </div>
 
-            <div class="w-full grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="md:col-span-2">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">BUZZ QUEUE</span>
-                        <span id="tv-queue-count" class="text-[10px] font-mono text-amber-400">0 IN QUEUE</span>
-                    </div>
-                    <div id="display-buzz-list" class="space-y-2 max-h-[200px] overflow-y-auto">
-                        <div class="text-center py-6 text-slate-700 text-xs border border-dashed border-slate-800 rounded-xl">NO BUZZ YET</div>
-                    </div>
+            <!-- BUZZ QUEUE BOTTOM SECTION -->
+            <div class="w-full bg-slate-900/30 p-4 rounded-2xl border border-slate-900">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">⚡ ลำดับการกด (BUZZ QUEUE)</span>
+                    <span id="tv-queue-count" class="text-xs font-mono text-amber-400 font-bold">0 IN QUEUE</span>
                 </div>
-
-                <div>
-                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-2">SCORES</span>
-                    <div id="display-scoreboard" class="space-y-1.5 max-h-[200px] overflow-y-auto bg-slate-900/30 p-2.5 rounded-2xl border border-slate-900">
-                        <p class="text-xs text-slate-700 text-center py-4">NO SCORES</p>
-                    </div>
+                <div id="display-buzz-list" class="space-y-2 max-h-[180px] overflow-y-auto">
+                    <div class="text-center py-4 text-slate-700 text-xs border border-dashed border-slate-800 rounded-xl">ยังไม่มีคนกด Buzzer</div>
                 </div>
             </div>
         </div>
@@ -174,12 +187,13 @@
                         </button>
                     </div>
 
-                    <button onclick="safeAction(startTimerFromConfig)" class="w-full bg-slate-900 text-amber-400 font-bold py-2 rounded-xl text-xs border border-slate-800">
+                    <button onclick="safeAction(startTimerFromConfig)" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-black py-2.5 rounded-xl text-xs border border-amber-300 shadow">
                         ⏱️ เริ่มนับถอยหลัง
                     </button>
                 </div>
 
-                <div class="bg-slate-950 p-3 rounded-2xl border border-slate-900 space-y-2 text-xs">
+                <!-- SETTING TIMER & BUTTON PRESETS -->
+                <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-900 space-y-3 text-xs">
                     <div>
                         <label class="block text-[9px] text-slate-500 font-bold mb-1 uppercase">เงื่อนไขการกด</label>
                         <select id="select-buzz-timing" class="w-full bg-slate-900 border border-slate-800 text-amber-400 font-bold rounded-xl p-2 outline-none">
@@ -188,14 +202,23 @@
                         </select>
                     </div>
 
-                    <div class="flex items-center gap-2">
-                        <span class="text-[9px] text-slate-500 font-bold uppercase">เวลา:</span>
-                        <input type="number" id="input-custom-timer-sec" value="10" min="1" max="90" class="w-14 bg-slate-900 border border-slate-800 text-amber-400 font-bold text-center rounded-lg py-1 outline-none">
-                        <span class="text-slate-400 font-semibold">วิ</span>
-                        <div class="flex gap-1 ml-auto">
-                            <button onclick="document.getElementById('input-custom-timer-sec').value=5" class="bg-slate-900 text-slate-400 text-[10px] px-2 py-1 rounded">5s</button>
-                            <button onclick="document.getElementById('input-custom-timer-sec').value=10" class="bg-slate-900 text-slate-400 text-[10px] px-2 py-1 rounded">10s</button>
-                            <button onclick="document.getElementById('input-custom-timer-sec').value=20" class="bg-slate-900 text-slate-400 text-[10px] px-2 py-1 rounded">20s</button>
+                    <div class="space-y-2">
+                        <label class="block text-[9px] text-slate-500 font-bold uppercase">ตั้งเวลานับถอยหลัง (วินาที):</label>
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="adjustTimerSec(-1)" class="w-8 h-8 bg-slate-800 hover:bg-slate-700 active:scale-95 text-amber-400 font-black rounded-xl text-base border border-slate-700">-</button>
+                            <input type="number" id="input-custom-timer-sec" value="10" min="1" max="90" class="flex-1 bg-slate-900 border border-slate-800 text-amber-400 font-mono font-black text-center text-base rounded-xl py-1 outline-none">
+                            <button type="button" onclick="adjustTimerSec(1)" class="w-8 h-8 bg-slate-800 hover:bg-slate-700 active:scale-95 text-amber-400 font-black rounded-xl text-base border border-slate-700">+</button>
+                        </div>
+                        
+                        <!-- QUICK TIMER PRESET BUTTONS (1, 2, 3, 5, 10, 15, 20) -->
+                        <div class="grid grid-cols-7 gap-1 pt-1">
+                            <button type="button" onclick="setTimerSec(1)" class="bg-slate-900 hover:bg-amber-400 hover:text-slate-950 border border-slate-800 text-amber-400 font-mono font-bold py-1.5 rounded-lg text-[11px] transition">1s</button>
+                            <button type="button" onclick="setTimerSec(2)" class="bg-slate-900 hover:bg-amber-400 hover:text-slate-950 border border-slate-800 text-amber-400 font-mono font-bold py-1.5 rounded-lg text-[11px] transition">2s</button>
+                            <button type="button" onclick="setTimerSec(3)" class="bg-slate-900 hover:bg-amber-400 hover:text-slate-950 border border-slate-800 text-amber-400 font-mono font-bold py-1.5 rounded-lg text-[11px] transition">3s</button>
+                            <button type="button" onclick="setTimerSec(5)" class="bg-slate-900 hover:bg-amber-400 hover:text-slate-950 border border-slate-800 text-amber-400 font-mono font-bold py-1.5 rounded-lg text-[11px] transition">5s</button>
+                            <button type="button" onclick="setTimerSec(10)" class="bg-slate-900 hover:bg-amber-400 hover:text-slate-950 border border-slate-800 text-amber-400 font-mono font-bold py-1.5 rounded-lg text-[11px] transition">10s</button>
+                            <button type="button" onclick="setTimerSec(15)" class="bg-slate-900 hover:bg-amber-400 hover:text-slate-950 border border-slate-800 text-amber-400 font-mono font-bold py-1.5 rounded-lg text-[11px] transition">15s</button>
+                            <button type="button" onclick="setTimerSec(20)" class="bg-slate-900 hover:bg-amber-400 hover:text-slate-950 border border-slate-800 text-amber-400 font-mono font-bold py-1.5 rounded-lg text-[11px] transition">20s</button>
                         </div>
                     </div>
                 </div>
@@ -299,7 +322,7 @@
                 READY TO BUZZ
             </div>
 
-            <button id="buzz-button" onclick="pressBuzz()" class="buzz-btn-active w-52 h-52 rounded-full bg-rose-600 border-8 border-slate-950 flex items-center justify-center my-2">
+            <button id="buzz-button" onclick="pressBuzz()" class="buzz-btn-active w-52 h-52 rounded-full bg-rose-600 border-8 border-slate-950 flex items-center justify-center my-2 shadow-2xl">
                 <span class="text-4xl font-black tracking-widest text-white">BUZZ</span>
             </button>
         </div>
@@ -340,6 +363,20 @@
             return String(str).replace(/[&<>"']/g, function (m) {
                 return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
             });
+        }
+
+        /* TIMER HELPER FUNCTIONS */
+        function setTimerSec(val) {
+            const el = document.getElementById('input-custom-timer-sec');
+            if (el) el.value = val;
+        }
+
+        function adjustTimerSec(delta) {
+            const el = document.getElementById('input-custom-timer-sec');
+            if (el) {
+                let v = (parseInt(el.value, 10) || 10) + delta;
+                el.value = Math.max(1, Math.min(90, v));
+            }
         }
 
         function generate50Presets() {
@@ -434,40 +471,71 @@
             return audioCtx;
         }
 
+        /* UPGRADED SYNTHESIZER SOUND ENGINE */
         function playSound(type) {
             const isTV = !document.getElementById('view-display').classList.contains('hidden');
             if (!isTV || isMuted) return;
 
             try {
                 const ctx = getAudioContext();
-                const cleanOsc = (osc, gain, duration) => {
-                    osc.start(); osc.stop(ctx.currentTime + duration);
-                    setTimeout(() => { osc.disconnect(); gain.disconnect(); }, (duration + 0.1) * 1000);
-                };
+                const now = ctx.currentTime;
 
                 if (type === 'tick') {
-                    const osc = ctx.createOscillator(); const gain = ctx.createGain();
-                    osc.connect(gain); gain.connect(ctx.destination);
-                    osc.type = 'sine'; osc.frequency.setValueAtTime(800, ctx.currentTime);
-                    gain.gain.setValueAtTime(0.05, ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
-                    cleanOsc(osc, gain, 0.05);
+                    // Soft woodblock / Pop sound
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(900, now);
+                    osc.frequency.exponentialRampToValueAtTime(300, now + 0.04);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
                 } else if (type === 'buzz') {
-                    const osc = ctx.createOscillator(); const gain = ctx.createGain();
-                    osc.connect(gain); gain.connect(ctx.destination);
-                    osc.type = 'triangle'; osc.frequency.setValueAtTime(440, ctx.currentTime);
-                    gain.gain.setValueAtTime(0.2, ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
-                    cleanOsc(osc, gain, 0.15);
-                } else if (type === 'correct') {
-                    [523.25, 659.25, 783.99].forEach((freq, idx) => {
-                        const o = ctx.createOscillator(); const g = ctx.createGain();
-                        o.connect(g); g.connect(ctx.destination);
-                        o.frequency.setValueAtTime(freq, ctx.currentTime + (idx * 0.06));
-                        g.gain.setValueAtTime(0.2, ctx.currentTime + (idx * 0.06));
-                        g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + (idx * 0.06) + 0.2);
-                        cleanOsc(o, g, 0.2);
+                    // Rich Arcade Dual Buzzer
+                    [160, 164].forEach(freq => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'sawtooth';
+                        osc.frequency.setValueAtTime(freq, now);
+                        gain.gain.setValueAtTime(0.25, now);
+                        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(now);
+                        osc.stop(now + 0.26);
                     });
+                } else if (type === 'correct') {
+                    // Bright Victory Chime Arpeggio (C5 -> E5 -> G5 -> C6)
+                    const notes = [523.25, 659.25, 783.99, 1046.50];
+                    notes.forEach((freq, i) => {
+                        const startTime = now + (i * 0.07);
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(freq, startTime);
+                        gain.gain.setValueAtTime(0.2, startTime);
+                        gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.3);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(startTime);
+                        osc.stop(startTime + 0.32);
+                    });
+                } else if (type === 'wrong') {
+                    // Descending Low Error Buzz
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, now);
+                    osc.frequency.linearRampToValueAtTime(110, now + 0.3);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.31);
                 }
             } catch(e) {}
         }
@@ -534,7 +602,7 @@
                 updatePlayerButtonUI(false, "LOCKED");
             } else {
                 isLocked = false;
-                if (timerLabel) timerLabel.innerText = "TIME";
+                if (timerLabel) timerLabel.innerText = "REMAINING TIME";
                 updatePlayerButtonUI(true, "BUZZ NOW!");
             }
 
@@ -713,17 +781,19 @@
             if (countEl) countEl.innerText = onlineList.length;
 
             if (onlineList.length === 0) {
-                grid.innerHTML = `<span class="text-xs text-slate-600">WAITING FOR PLAYERS...</span>`;
+                grid.innerHTML = `<span class="text-xs text-slate-600">กำลังรอผู้เล่นเข้าร่วม...</span>`;
                 return;
             }
 
             grid.innerHTML = onlineList.map(name => `
                 <div class="flex items-center gap-2 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                     <span class="text-xs font-bold text-slate-200">${escapeHTML(name)}</span>
                     <span class="text-xs text-amber-400 font-mono font-bold">(${playerScores[name] || 0})</span>
                 </div>
             `).join('');
+
+            renderTVScoreboard();
         }
 
         function startLineByLinePlayback(lyricsText, mode, triggerMode, secDuration) {
@@ -770,12 +840,14 @@
         function setupDisplay() {
             currentRoom = Math.floor(1000 + Math.random() * 9000).toString();
             showView('view-display');
-            document.getElementById('display-room-code').innerText = currentRoom;
+            document.getElementById('display-room-code-large').innerText = currentRoom;
 
-            document.getElementById('display-qrcode').innerHTML = '';
-            new QRCode(document.getElementById("display-qrcode"), {
+            // RENDER LARGE QR CODE FOR LOBBY
+            const qrContainer = document.getElementById('display-qrcode-large');
+            qrContainer.innerHTML = '';
+            new QRCode(qrContainer, {
                 text: `${window.location.origin}${window.location.pathname}?room=${currentRoom}`,
-                width: 60, height: 60, colorDark: "#020617", colorLight: "#ffffff"
+                width: 180, height: 180, colorDark: "#020617", colorLight: "#ffffff"
             });
 
             initMQTT(() => {
@@ -971,6 +1043,7 @@
 
             if (currentBuzzTriggerMode === 'on_zero' && isLocked) {
                 disqualifiedPlayers.add(myPlayerName);
+                playSound('wrong');
                 updatePlayerButtonUI(false, "FALSE START!");
             } else if (!isLocked) {
                 hasBuzzed = true;
@@ -985,16 +1058,16 @@
             if (!btn || !banner) return;
 
             if (disqualifiedPlayers.has(myPlayerName)) {
-                btn.className = "w-52 h-52 rounded-full bg-slate-900 border-8 border-slate-950 flex items-center justify-center opacity-30 my-2";
+                btn.className = "w-52 h-52 rounded-full bg-slate-900 border-8 border-slate-950 flex items-center justify-center opacity-30 my-2 shadow-none";
                 banner.innerText = text || "DISQUALIFIED";
                 return;
             }
 
             if (unlocked) {
-                btn.className = "buzz-btn-active w-52 h-52 rounded-full bg-rose-600 border-8 border-slate-950 flex items-center justify-center cursor-pointer my-2";
+                btn.className = "buzz-btn-active w-52 h-52 rounded-full bg-rose-600 border-8 border-slate-950 flex items-center justify-center cursor-pointer my-2 shadow-2xl";
                 banner.innerText = "READY TO BUZZ";
             } else {
-                btn.className = "w-52 h-52 rounded-full bg-slate-900 border-8 border-slate-950 flex items-center justify-center opacity-30 my-2";
+                btn.className = "w-52 h-52 rounded-full bg-slate-900 border-8 border-slate-950 flex items-center justify-center opacity-30 my-2 shadow-none";
                 banner.innerText = text || "LOCKED";
             }
         }
@@ -1035,7 +1108,7 @@
                     if (payload.buzzedPlayer === myPlayerName) { hasBuzzed = true; updatePlayerButtonUI(false, "BUZZED!"); }
 
                     if (buzzList.length === 1) {
-                        playSound('correct');
+                        playSound('buzz');
                         const spotlight = document.getElementById('display-winner-spotlight');
                         if (spotlight) {
                             document.getElementById('display-winner-label').innerText = "FASTEST BUZZ";
@@ -1064,6 +1137,7 @@
                     }, 100);
                 } else if (payload.action === 'player_foul') {
                     disqualifiedPlayers.add(payload.name);
+                    playSound('wrong');
                     if (payload.name === myPlayerName) updatePlayerButtonUI(false, "FALSE START!");
                 } else if (payload.action === 'reset') {
                     buzzList = []; hasBuzzed = false; isLocked = false; disqualifiedPlayers.clear();
@@ -1084,6 +1158,7 @@
                     if (currentLineIndex < lyricLines.length) playCurrentLine();
                     else { stopTimer(); document.getElementById('display-question-text').innerText = "END OF QUESTION"; }
                 } else if (payload.action === 'answer_wrong') {
+                    playSound('wrong');
                     const wrongPlayer = payload.wrongPlayer;
                     disqualifiedPlayers.add(wrongPlayer);
                     buzzList = buzzList.filter(item => item.name !== wrongPlayer);
@@ -1140,32 +1215,32 @@
             if (queueCount) queueCount.innerText = `${buzzList.length} IN QUEUE`;
             if (!listEl) return;
 
-            if (buzzList.length === 0) return listEl.innerHTML = `<div class="text-center py-6 text-slate-700 text-xs border border-dashed border-slate-800 rounded-xl">NO BUZZ YET</div>`;
+            if (buzzList.length === 0) return listEl.innerHTML = `<div class="text-center py-4 text-slate-700 text-xs border border-dashed border-slate-800 rounded-xl">ยังไม่มีคนกด Buzzer</div>`;
 
             listEl.innerHTML = buzzList.map((item, index) => {
                 const isFirst = index === 0;
                 return `
-                    <div class="flex items-center justify-between p-3 rounded-xl ${isFirst ? 'bg-amber-400 text-slate-950 font-black' : 'bg-slate-900 text-slate-200 border border-slate-800'}">
+                    <div class="flex items-center justify-between p-3 rounded-xl ${isFirst ? 'bg-amber-400 text-slate-950 font-black shadow-md' : 'bg-slate-900 text-slate-200 border border-slate-800'}">
                         <div class="flex items-center gap-3">
                             <span class="w-6 h-6 rounded-lg flex items-center justify-center font-black text-xs ${isFirst ? 'bg-slate-950 text-amber-400' : 'bg-slate-800 text-slate-400'}">${index + 1}</span>
                             <span class="font-black text-lg">${escapeHTML(item.name)}</span>
                         </div>
-                        <span class="text-xs font-mono px-2 py-0.5 rounded ${isFirst ? 'bg-slate-950 text-amber-400' : 'bg-slate-950 text-slate-500'}">${escapeHTML(item.timeStr)}</span>
+                        <span class="text-xs font-mono px-2 py-0.5 rounded ${isFirst ? 'bg-slate-950 text-amber-400 font-bold' : 'bg-slate-950 text-slate-500'}">${escapeHTML(item.timeStr)}</span>
                     </div>
                 `;
             }).join('');
         }
 
         function renderTVScoreboard() {
-            const el = document.getElementById('display-scoreboard');
+            const el = document.getElementById('display-scoreboard-lobby');
             if (!el) return;
             const entries = Object.entries(playerScores).sort((a,b) => b[1] - a[1]);
-            if (entries.length === 0) return el.innerHTML = `<p class="text-xs text-slate-700 text-center py-4">NO SCORES</p>`;
+            if (entries.length === 0) return el.innerHTML = `<p class="text-xs text-slate-600 text-center py-2">ยังไม่มีคะแนน</p>`;
             
             el.innerHTML = entries.map(([name, score], idx) => `
-                <div class="flex justify-between items-center bg-slate-900/80 p-2 rounded-xl border border-slate-800 text-xs">
+                <div class="flex justify-between items-center bg-slate-900/90 p-2 rounded-xl border border-slate-800 text-xs">
                     <span class="font-bold text-slate-200">#${idx+1} ${escapeHTML(name)}</span>
-                    <span class="font-bold text-amber-400 font-mono">${score}</span>
+                    <span class="font-black text-amber-400 font-mono text-sm">${score} แต้ม</span>
                 </div>
             `).join('');
         }
