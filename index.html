@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Party Buzz - Ultimate Party Game</title>
-    <!-- Resource Loading -->
+    <title>Party Buzz</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/mqtt/dist/mqtt.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
@@ -13,328 +12,294 @@
     <style>
         body { font-family: 'Kanit', sans-serif; touch-action: manipulation; }
         button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
-        button:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+        button:disabled { opacity: 0.3; cursor: not-allowed; transform: none !important; }
         .buzz-btn-active:active { transform: scale(0.95); }
-        .tab-active { background-color: #f59e0b !important; color: #0f172a !important; font-weight: 700; }
+        .tab-active { background-color: #f59e0b !important; color: #090d16 !important; font-weight: 700; }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     </style>
 </head>
-<body onclick="unlockAudioEngine()" class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-start p-4 sm:p-6 select-none antialiased">
+<body onclick="unlockAudioEngine()" class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-start p-4 select-none antialiased">
 
-    <!-- HEADER NAVIGATION -->
-    <header class="w-full max-w-5xl p-4 flex justify-between items-center bg-slate-900/60 border border-slate-800 rounded-2xl mb-6">
-        <div class="flex items-center gap-2.5 cursor-pointer" onclick="location.href=location.pathname">
-            <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
-            <span class="font-bold text-lg tracking-wider text-white">PARTY<span class="text-amber-400">BUZZ</span></span>
+    <!-- HEADER -->
+    <header class="w-full max-w-4xl p-3 flex justify-between items-center border-b border-slate-900 mb-6">
+        <div class="flex items-center gap-2 cursor-pointer" onclick="location.href=location.pathname">
+            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+            <span class="font-black text-base tracking-widest text-white">PARTY<span class="text-amber-400">BUZZ</span></span>
         </div>
-        <div class="flex items-center gap-3">
-            <button id="btn-sound-toggle" onclick="toggleMute(event)" class="text-xs font-medium px-3.5 py-2 rounded-xl bg-slate-900 text-slate-400 border border-slate-800 hover:text-white transition">
+        <div class="flex items-center gap-2">
+            <button id="btn-sound-toggle" onclick="toggleMute(event)" class="text-[11px] font-semibold px-3 py-1.5 rounded-lg bg-slate-900 text-slate-400 border border-slate-800">
                 🔊 SOUND: ON
             </button>
-            <div id="connection-status" class="text-xs font-medium px-3 py-2 rounded-xl bg-slate-900 text-slate-500 border border-slate-800 flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-amber-500"></span> CONNECTING
+            <div id="connection-status" class="text-[11px] font-semibold px-3 py-1.5 rounded-lg bg-slate-900 text-slate-500 border border-slate-800 flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> CONNECTING
             </div>
         </div>
     </header>
 
-    <main class="w-full max-w-5xl flex-1 flex flex-col items-center justify-center">
+    <main class="w-full max-w-4xl flex-1 flex flex-col items-center justify-center">
 
         <!-- SCREEN 1: ROLE SELECT -->
-        <div id="view-select" class="w-full max-w-sm bg-slate-900/40 p-8 rounded-3xl border border-slate-800 text-center">
-            <h1 class="text-xl font-bold mb-1 text-white tracking-wide">SELECT ROLE</h1>
-            <p class="text-xs text-slate-500 mb-8 font-light">เลือกโหมดการใช้งานอุปกรณ์ของคุณ</p>
-            <div class="space-y-3.5">
-                <button onclick="setupDisplay()" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold py-4 rounded-2xl transition active:scale-98">
-                    📺 TV DISPLAY (จอแสดงผลหลัก)
-                </button>
-                <button onclick="setupHost()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-medium py-4 rounded-2xl border border-slate-700/60 transition active:scale-98">
-                    📱 HOST CONTROLLER (ผู้ควบคุมเกม)
-                </button>
-                <button onclick="showPlayerLogin()" class="w-full bg-slate-900 hover:bg-slate-800 text-slate-300 font-medium py-4 rounded-2xl border border-slate-800 transition active:scale-98">
-                    🎮 PLAYER (ปุ่มกดผู้เล่น)
-                </button>
-            </div>
+        <div id="view-select" class="w-full max-w-xs space-y-3 text-center">
+            <h1 class="text-sm font-bold text-slate-400 tracking-widest uppercase mb-4">SELECT MODE</h1>
+            <button onclick="setupDisplay()" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold py-3.5 rounded-2xl transition">
+                📺 TV DISPLAY
+            </button>
+            <button onclick="setupHost()" class="w-full bg-slate-900 hover:bg-slate-800 text-slate-200 font-bold py-3.5 rounded-2xl border border-slate-800 transition">
+                📱 HOST
+            </button>
+            <button onclick="showPlayerLogin()" class="w-full bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold py-3.5 rounded-2xl border border-slate-800 transition">
+                🎮 PLAYER
+            </button>
         </div>
 
         <!-- SCREEN 2: TV DISPLAY -->
-        <div id="view-display" class="w-full bg-slate-900/20 p-6 rounded-3xl border border-slate-800/60 hidden flex-col items-center transition-all">
-            <div class="w-full flex items-center justify-between bg-slate-900/80 p-4 rounded-2xl border border-slate-800 mb-6">
-                <div class="flex items-center gap-4">
-                    <div id="display-qrcode" class="p-1.5 bg-white rounded-xl"></div>
+        <div id="view-display" class="w-full hidden flex-col items-center">
+            <div class="w-full flex items-center justify-between bg-slate-900/50 p-3.5 rounded-2xl border border-slate-900 mb-4">
+                <div class="flex items-center gap-3">
+                    <div id="display-qrcode" class="p-1 bg-white rounded-lg"></div>
                     <div>
-                        <span class="text-[10px] font-semibold text-slate-500 tracking-widest uppercase block">ROOM CODE</span>
-                        <div id="display-room-code" class="text-3xl sm:text-4xl font-bold text-amber-400 font-mono tracking-widest">----</div>
+                        <span class="text-[9px] font-bold text-slate-500 uppercase tracking-widest block">ROOM</span>
+                        <div id="display-room-code" class="text-2xl font-black text-amber-400 font-mono tracking-widest">----</div>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-3">
-                    <div id="display-timer-box" class="hidden flex-col items-center bg-slate-950 border border-slate-800 px-6 py-2 rounded-2xl">
-                        <span id="display-timer-label" class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">TIMER</span>
-                        <span id="display-timer-val" class="text-3xl font-bold text-amber-400 font-mono">00</span>
-                    </div>
+                <div id="display-timer-box" class="hidden flex-col items-center px-4 py-1.5 rounded-xl bg-slate-950 border border-slate-800">
+                    <span id="display-timer-label" class="text-[8px] font-bold text-slate-500 uppercase">TIME</span>
+                    <span id="display-timer-val" class="text-2xl font-black text-amber-400 font-mono">00</span>
                 </div>
             </div>
 
-            <!-- MAIN DYNAMIC CARD -->
-            <div id="display-main-card" class="w-full bg-slate-900/40 border border-slate-800 p-8 sm:p-12 rounded-3xl mb-6 text-center relative overflow-hidden min-h-[240px] flex flex-col justify-center items-center">
-                <div id="display-mode-badge" class="absolute top-4 left-5 text-[10px] font-bold px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-amber-400 uppercase tracking-widest">
+            <!-- MAIN DISPLAY CARD -->
+            <div id="display-main-card" class="w-full bg-slate-900/30 border border-slate-800 p-8 rounded-3xl mb-4 text-center relative min-h-[200px] flex flex-col justify-center items-center">
+                <div id="display-mode-badge" class="absolute top-3 left-4 text-[9px] font-bold px-2.5 py-0.5 rounded-full bg-slate-900 border border-slate-800 text-amber-400 uppercase tracking-wider">
                     LOBBY
                 </div>
                 
-                <!-- IDLE LOBBY VIEW -->
+                <!-- LOBBY -->
                 <div id="display-lobby-content" class="w-full flex flex-col items-center">
-                    <span class="text-xs font-medium text-slate-400 uppercase tracking-wider mb-4 block">👥 ผู้เล่นที่ออนไลน์ (<span id="tv-online-count" class="text-amber-400 font-mono font-bold">0</span> คน)</span>
-                    <div id="display-online-players-grid" class="w-full flex flex-wrap justify-center gap-3 max-h-[160px] overflow-y-auto p-2">
-                        <span class="text-xs text-slate-600">กำลังรอผู้เล่นเข้าร่วม...</span>
+                    <span class="text-xs font-bold text-slate-500 uppercase mb-3 block">ONLINE (<span id="tv-online-count" class="text-amber-400 font-mono">0</span>)</span>
+                    <div id="display-online-players-grid" class="w-full flex flex-wrap justify-center gap-2 max-h-[140px] overflow-y-auto">
+                        <span class="text-xs text-slate-600">WAITING FOR PLAYERS...</span>
                     </div>
                 </div>
 
-                <!-- ACTIVE QUESTION VIEW -->
+                <!-- QUESTION -->
                 <div id="display-question-content" class="w-full hidden flex-col items-center justify-center">
-                    <div id="display-question-text" class="text-2xl sm:text-4xl font-bold text-slate-100 min-h-[90px] flex flex-col items-center justify-center leading-relaxed">
-                    </div>
+                    <div id="display-question-text" class="text-2xl sm:text-4xl font-black text-slate-100 leading-snug"></div>
                 </div>
 
-                <!-- WINNER & CORRECT ANSWER CELEBRATION MODAL -->
-                <div id="display-correct-celebration" class="w-full hidden flex-col items-center justify-center py-2">
-                    <div class="inline-block px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold text-xs uppercase tracking-widest mb-3">
-                        🎉 ตอบถูกต้อง!
-                    </div>
-                    <!-- MINIMAL: ขยายขนาดชื่อผู้เล่นตอบถูกให้ใหญ่เด่นชัด -->
-                    <div id="display-winner-player-name" class="text-5xl sm:text-7xl font-black text-amber-400 mb-3 tracking-wide">
-                        --
-                    </div>
-                    <div id="display-winner-answer-title" class="text-xl sm:text-3xl font-bold text-white">
-                        --
-                    </div>
-                    <div id="display-winner-answer-detail" class="text-sm text-slate-400 font-medium mt-1">
-                        --
-                    </div>
+                <!-- WINNER MODAL -->
+                <div id="display-correct-celebration" class="w-full hidden flex-col items-center justify-center">
+                    <span class="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-1">CORRECT!</span>
+                    <div id="display-winner-player-name" class="text-5xl sm:text-7xl font-black text-amber-400 my-1">--</div>
+                    <div id="display-winner-answer-title" class="text-lg sm:text-2xl font-bold text-white">--</div>
+                    <div id="display-winner-answer-detail" class="text-xs text-slate-400 mt-1">--</div>
                 </div>
             </div>
 
-            <!-- MINIMAL: ขยายขนาดชื่อผู้เล่น Buzz เร็วที่สุด -->
-            <div id="display-winner-spotlight" class="w-full hidden mb-6 p-6 rounded-2xl bg-slate-900 border border-amber-400/40 text-center">
-                <span id="display-winner-label" class="text-xs font-bold text-amber-400 tracking-widest uppercase block mb-1">⚡ FASTEST BUZZ ⚡</span>
-                <span id="display-winner-name" class="text-4xl sm:text-6xl font-black text-white tracking-wide">--</span>
+            <!-- SPOTLIGHT -->
+            <div id="display-winner-spotlight" class="w-full hidden mb-4 p-4 rounded-2xl bg-slate-900 border border-amber-400/40 text-center">
+                <span id="display-winner-label" class="text-[10px] font-bold text-amber-400 uppercase tracking-widest block">FASTEST BUZZ</span>
+                <span id="display-winner-name" class="text-4xl sm:text-6xl font-black text-white">--</span>
             </div>
 
-            <div class="w-full grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="w-full grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="md:col-span-2">
-                    <div class="flex justify-between items-center mb-3">
-                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">⚡ BUZZ QUEUE</span>
-                        <span id="tv-queue-count" class="text-[10px] font-mono text-amber-400 bg-slate-900 px-2.5 py-1 rounded border border-slate-800">0 IN QUEUE</span>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">BUZZ QUEUE</span>
+                        <span id="tv-queue-count" class="text-[10px] font-mono text-amber-400">0 IN QUEUE</span>
                     </div>
-                    <div id="display-buzz-list" class="space-y-2.5 max-h-[240px] overflow-y-auto pr-1">
-                        <div class="text-center py-8 text-slate-700 text-xs border border-dashed border-slate-800 rounded-2xl">
-                            WAITING FOR BUZZ...
-                        </div>
+                    <div id="display-buzz-list" class="space-y-2 max-h-[200px] overflow-y-auto">
+                        <div class="text-center py-6 text-slate-700 text-xs border border-dashed border-slate-800 rounded-xl">NO BUZZ YET</div>
                     </div>
                 </div>
 
                 <div>
-                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-3">🏆 SCOREBOARD</span>
-                    <div id="display-scoreboard" class="space-y-2 max-h-[240px] overflow-y-auto bg-slate-900/40 p-3.5 rounded-2xl border border-slate-800/80">
-                        <p class="text-xs text-slate-700 text-center py-6">NO SCORES YET</p>
+                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-2">SCORES</span>
+                    <div id="display-scoreboard" class="space-y-1.5 max-h-[200px] overflow-y-auto bg-slate-900/30 p-2.5 rounded-2xl border border-slate-900">
+                        <p class="text-xs text-slate-700 text-center py-4">NO SCORES</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- SCREEN 3: HOST CONTROLLER -->
-        <div id="view-host" class="w-full max-w-md bg-slate-900/40 p-5 rounded-3xl border border-slate-800 hidden flex-col items-center shadow-xl">
+        <!-- SCREEN 3: HOST -->
+        <div id="view-host" class="w-full max-w-sm bg-slate-900/40 p-4 rounded-3xl border border-slate-900 hidden flex-col items-center">
             
-            <!-- TOP STATUS BAR -->
-            <div class="w-full flex justify-between items-center mb-4 bg-slate-900 p-3.5 rounded-2xl border border-slate-800">
+            <div class="w-full flex justify-between items-center mb-3 bg-slate-950 p-3 rounded-2xl border border-slate-900">
                 <div>
-                    <span class="text-[9px] text-slate-500 uppercase font-bold tracking-widest block">ROOM CODE</span>
-                    <span id="host-room-code" class="text-2xl font-bold text-amber-400 font-mono tracking-wider">----</span>
+                    <span class="text-[8px] text-slate-500 font-bold uppercase block">ROOM</span>
+                    <span id="host-room-code" class="text-xl font-black text-amber-400 font-mono">----</span>
                 </div>
-                <div class="flex gap-2">
-                    <button id="btn-toggle-lock" onclick="safeAction(toggleLock)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium px-3.5 py-2 rounded-xl text-xs border border-slate-700 transition active:scale-95">
+                <div class="flex gap-1.5">
+                    <button id="btn-toggle-lock" onclick="safeAction(toggleLock)" class="bg-slate-800 text-slate-300 font-bold px-3 py-1.5 rounded-xl text-xs border border-slate-700">
                         🔒 LOCK
                     </button>
-                    <button onclick="setupHostWithCode()" class="bg-slate-950 border border-slate-800 hover:bg-slate-800 text-slate-400 px-3 py-2 rounded-xl transition text-xs font-medium">
-                        🔑 Join Code
+                    <button onclick="setupHostWithCode()" class="bg-slate-900 text-slate-400 px-2.5 py-1.5 rounded-xl text-xs font-semibold">
+                        🔑 JOIN
                     </button>
                 </div>
             </div>
 
-            <!-- HOST NAVIGATION TABS -->
-            <div class="w-full grid grid-cols-4 gap-1 p-1 bg-slate-950 rounded-2xl border border-slate-800 mb-4 text-xs">
-                <button id="tab-btn-live" onclick="switchHostTab('live')" class="py-2.5 rounded-xl font-medium text-slate-400 tab-active">🕹️ เกมสด</button>
-                <button id="tab-btn-preset" onclick="switchHostTab('preset')" class="py-2.5 rounded-xl font-medium text-slate-400">🎮 โจทย์</button>
-                <button id="tab-btn-random" onclick="switchHostTab('random')" class="py-2.5 rounded-xl font-medium text-slate-400">🎲 สุ่ม</button>
-                <button id="tab-btn-score" onclick="switchHostTab('score')" class="py-2.5 rounded-xl font-medium text-slate-400">🏆 คะแนน</button>
+            <!-- TABS -->
+            <div class="w-full grid grid-cols-4 gap-1 p-1 bg-slate-950 rounded-xl mb-3 text-xs">
+                <button id="tab-btn-live" onclick="switchHostTab('live')" class="py-2 rounded-lg font-bold text-slate-400 tab-active">🕹️ เกม</button>
+                <button id="tab-btn-preset" onclick="switchHostTab('preset')" class="py-2 rounded-lg font-bold text-slate-400">🎮 โจทย์</button>
+                <button id="tab-btn-random" onclick="switchHostTab('random')" class="py-2 rounded-lg font-bold text-slate-400">🎲 สุ่ม</button>
+                <button id="tab-btn-score" onclick="switchHostTab('score')" class="py-2 rounded-lg font-bold text-slate-400">🏆 แต้ม</button>
             </div>
 
-            <!-- TAB 1: LIVE GAME CONTROLS -->
-            <div id="host-tab-live" class="w-full space-y-4">
-                <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800">
-                    <span class="text-[10px] font-bold text-amber-400 uppercase tracking-wider block mb-3">⚡ ควบคุมเกมสด & ตัดสินคะแนน</span>
+            <!-- TAB 1: LIVE -->
+            <div id="host-tab-live" class="w-full space-y-3">
+                <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-900 space-y-2">
+                    <div id="host-mode-actions" class="space-y-2"></div>
 
-                    <div id="host-mode-actions" class="space-y-2 mb-3"></div>
-
-                    <div class="grid grid-cols-2 gap-2 mb-3">
-                        <button onclick="safeAction(() => judgeAnswer(true))" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-xs transition active:scale-95">
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="safeAction(() => judgeAnswer(true))" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs">
                             ✓ ถูกต้อง (+1)
                         </button>
-                        <button onclick="safeAction(() => judgeAnswer(false))" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 rounded-xl text-xs transition active:scale-95">
-                            ✕ ตอบผิด (-1)
+                        <button onclick="safeAction(() => judgeAnswer(false))" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-2.5 rounded-xl text-xs">
+                            ✕ ผิด (-1)
                         </button>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-2 mb-3">
-                        <button onclick="safeAction(nextQuestion)" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-medium py-2.5 rounded-xl text-xs border border-slate-700 transition active:scale-95">
-                            ⏭️ ข้อต่อไป
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="safeAction(nextQuestion)" class="w-full bg-slate-800 text-white font-semibold py-2 rounded-xl text-xs border border-slate-700">
+                            ⏭️ ข้อถัดไป
                         </button>
-                        <button onclick="safeAction(resetBuzzer)" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition active:scale-95">
-                            🔄 RESET BUZZER
+                        <button onclick="safeAction(resetBuzzer)" class="w-full bg-amber-400 text-slate-950 font-bold py-2 rounded-xl text-xs">
+                            🔄 RESET BUZZ
                         </button>
                     </div>
 
-                    <button onclick="safeAction(startTimerFromConfig)" class="w-full bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold py-2.5 rounded-xl text-xs border border-slate-700 transition active:scale-95">
+                    <button onclick="safeAction(startTimerFromConfig)" class="w-full bg-slate-900 text-amber-400 font-bold py-2 rounded-xl text-xs border border-slate-800">
                         ⏱️ เริ่มนับถอยหลัง
                     </button>
                 </div>
 
-                <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-3">⚙️ ตั้งค่าเงื่อนไขเวลา</span>
-                    <div class="mb-3">
-                        <label class="block text-[10px] text-slate-400 font-medium mb-1">เงื่อนไขการกดปุ่ม (Buzz Timing Mode):</label>
-                        <select id="select-buzz-timing" class="w-full bg-slate-950 border border-slate-800 text-amber-400 font-medium text-xs rounded-xl px-3 py-2.5 outline-none">
-                            <option value="during">⚡ กดได้ระหว่างนับถอยหลัง</option>
-                            <option value="on_zero">🛑 ล็อกปุ่ม - กดเมื่อหมดเวลา / สัญญาณ GO!</option>
+                <div class="bg-slate-950 p-3 rounded-2xl border border-slate-900 space-y-2 text-xs">
+                    <div>
+                        <label class="block text-[9px] text-slate-500 font-bold mb-1 uppercase">เงื่อนไขการกด</label>
+                        <select id="select-buzz-timing" class="w-full bg-slate-900 border border-slate-800 text-amber-400 font-bold rounded-xl p-2 outline-none">
+                            <option value="during">⚡ กดระหว่างนับถอยหลัง</option>
+                            <option value="on_zero">🛑 กดเมื่อหมดเวลา / GO!</option>
                         </select>
                     </div>
 
                     <div class="flex items-center gap-2">
-                        <span class="text-[10px] text-slate-400 font-medium">เวลานับถอยหลัง:</span>
-                        <input type="number" id="input-custom-timer-sec" value="10" min="1" max="90" class="w-16 bg-slate-950 border border-slate-800 text-amber-400 font-mono font-bold text-center rounded-xl py-1.5 text-xs outline-none">
-                        <span class="text-xs text-slate-400 font-medium">วิ</span>
+                        <span class="text-[9px] text-slate-500 font-bold uppercase">เวลา:</span>
+                        <input type="number" id="input-custom-timer-sec" value="10" min="1" max="90" class="w-14 bg-slate-900 border border-slate-800 text-amber-400 font-bold text-center rounded-lg py-1 outline-none">
+                        <span class="text-slate-400 font-semibold">วิ</span>
                         <div class="flex gap-1 ml-auto">
-                            <button onclick="document.getElementById('input-custom-timer-sec').value=5" class="bg-slate-950 border border-slate-800 text-slate-400 text-[10px] font-mono px-2 py-1 rounded-lg">5s</button>
-                            <button onclick="document.getElementById('input-custom-timer-sec').value=10" class="bg-slate-950 border border-slate-800 text-slate-400 text-[10px] font-mono px-2 py-1 rounded-lg">10s</button>
-                            <button onclick="document.getElementById('input-custom-timer-sec').value=20" class="bg-slate-950 border border-slate-800 text-slate-400 text-[10px] font-mono px-2 py-1 rounded-lg">20s</button>
+                            <button onclick="document.getElementById('input-custom-timer-sec').value=5" class="bg-slate-900 text-slate-400 text-[10px] px-2 py-1 rounded">5s</button>
+                            <button onclick="document.getElementById('input-custom-timer-sec').value=10" class="bg-slate-900 text-slate-400 text-[10px] px-2 py-1 rounded">10s</button>
+                            <button onclick="document.getElementById('input-custom-timer-sec').value=20" class="bg-slate-900 text-slate-400 text-[10px] px-2 py-1 rounded">20s</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- TAB 2: GAME PRESETS -->
-            <div id="host-tab-preset" class="w-full space-y-4 hidden">
-                <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800">
-                    <label class="block text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-3">🎮 เลือกโหมด & คลังโจทย์</label>
-                    
-                    <div class="grid grid-cols-3 gap-2 mb-3">
-                        <select id="select-game-mode" onchange="onGameModeChange()" class="col-span-2 bg-slate-950 border border-slate-800 text-amber-300 font-medium text-xs rounded-xl px-3 py-2.5 outline-none">
-                            <option value="song">🎵 1. ทายเพลงจาก Siri / เนื้อร้อง</option>
-                            <option value="emoji">🧩 2. ทายคำจาก Emoji</option>
-                            <option value="math">🧮 3. คิดเลขไว (Math Blitz)</option>
-                            <option value="hint">💡 4. ทายคำจากคำใบ้</option>
+            <!-- TAB 2: PRESETS -->
+            <div id="host-tab-preset" class="w-full space-y-3 hidden">
+                <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-900 space-y-2">
+                    <div class="grid grid-cols-3 gap-2">
+                        <select id="select-game-mode" onchange="onGameModeChange()" class="col-span-2 bg-slate-900 border border-slate-800 text-amber-300 font-bold text-xs rounded-xl p-2 outline-none">
+                            <option value="song">🎵 1. ทายเพลง</option>
+                            <option value="emoji">🧩 2. ทาย Emoji</option>
+                            <option value="math">🧮 3. คิดเลขไว</option>
+                            <option value="hint">💡 4. ทายจากคำใบ้</option>
                             <option value="speed_go">🎯 5. วัดความไวช่วง GO!</option>
-                            <option value="reverse">🔤 6. ถอดรหัสคำย้อนกลับ</option>
-                            <option value="trivia">⚡ 7. คำถามตอบไว (Trivia)</option>
-                            <option value="spelling">🔠 8. สะกดคำศัพท์</option>
+                            <option value="reverse">🔤 6. ถอดคำย้อนกลับ</option>
+                            <option value="trivia">⚡ 7. ตอบคำถาม (Trivia)</option>
+                            <option value="spelling">🔠 8. สะกดคำ</option>
                         </select>
-                        <button onclick="safeAction(randomPresetItem)" class="bg-slate-950 border border-slate-800 text-amber-400 font-medium rounded-xl text-xs active:scale-95 transition">
-                            🎲 สุ่มโจทย์
+                        <button onclick="safeAction(randomPresetItem)" class="bg-slate-900 border border-slate-800 text-amber-400 font-bold rounded-xl text-xs">
+                            🎲 สุ่ม
                         </button>
                     </div>
 
-                    <select id="select-preset-song" onchange="onSelectPresetChange()" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-2.5 outline-none font-medium mb-3">
+                    <select id="select-preset-song" onchange="onSelectPresetChange()" class="w-full bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl p-2 outline-none font-medium">
                     </select>
 
-                    <div id="youtube-search-shortcut" class="hidden mb-3">
-                        <button onclick="openYouTubeSearch()" class="w-full bg-slate-950 border border-slate-800 text-rose-400 font-medium py-2 rounded-xl text-xs hover:bg-slate-800 transition">
-                            ▶️ ค้นหาเพลงนี้บน YouTube
+                    <div id="youtube-search-shortcut" class="hidden">
+                        <button onclick="openYouTubeSearch()" class="w-full bg-slate-900 text-rose-400 font-semibold py-1.5 rounded-xl text-xs border border-slate-800">
+                            ▶️ ค้นหาบน YouTube
                         </button>
                     </div>
 
-                    <button onclick="toggleCustomLyricsArea()" class="w-full bg-slate-950 border border-slate-800 text-slate-400 font-medium py-2 rounded-xl text-xs transition">
-                        ✏️ ป้อนโจทย์ / บันทึกคลังข้อมูลเอง
+                    <button onclick="toggleCustomLyricsArea()" class="w-full bg-slate-900 text-slate-400 font-medium py-1.5 rounded-xl text-xs border border-slate-800">
+                        ✏️ พิมพ์โจทย์เอง
                     </button>
 
-                    <div id="custom-lyrics-container" class="hidden mt-3 pt-3 border-t border-slate-800">
-                        <textarea id="input-host-lyrics" rows="3" placeholder="พิมพ์ข้อความ..." class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none mb-2 font-mono"></textarea>
+                    <div id="custom-lyrics-container" class="hidden pt-2 border-t border-slate-900 space-y-2">
+                        <textarea id="input-host-lyrics" rows="2" placeholder="พิมพ์ข้อความ..." class="w-full p-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white outline-none"></textarea>
                         <div class="grid grid-cols-2 gap-2">
-                            <button onclick="safeAction(sendCustomLyrics)" class="bg-slate-800 text-slate-200 font-medium py-2 rounded-xl text-xs hover:bg-slate-700 active:scale-95">
-                                🗣️ อ่านโจทย์ทันที
+                            <button onclick="safeAction(sendCustomLyrics)" class="bg-slate-800 text-slate-200 font-bold py-1.5 rounded-xl text-xs">
+                                🗣️ อ่านโจทย์
                             </button>
-                            <button onclick="addNewItemToPreset()" class="bg-slate-800 text-amber-400 font-medium py-2 rounded-xl text-xs hover:bg-slate-700 active:scale-95">
-                                💾 บันทึกถาวร (Save)
+                            <button onclick="addNewItemToPreset()" class="bg-slate-800 text-amber-400 font-bold py-1.5 rounded-xl text-xs">
+                                💾 บันทึก
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- TAB 3: RANDOM PLAYER -->
-            <div id="host-tab-random" class="w-full space-y-4 hidden">
-                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 text-center">
-                    <span class="text-xs font-bold text-amber-400 uppercase tracking-wider block mb-1">🎲 ระบบสุ่มเลือกผู้เล่น</span>
-                    <p class="text-[11px] text-slate-400 mb-4">สุ่มผู้เล่นสำหรับบทลงโทษ / ตอบคำถามสด / แจกรางวัล</p>
-                    
-                    <button onclick="safeAction(pickRandomPlayer)" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold py-4 rounded-2xl text-sm active:scale-95 transition">
-                        🎯 สุ่มผู้เล่นดวงดี! (Random Player)
+            <!-- TAB 3: RANDOM -->
+            <div id="host-tab-random" class="w-full hidden">
+                <div class="bg-slate-950 p-4 rounded-2xl border border-slate-900 text-center space-y-3">
+                    <span class="text-xs font-bold text-amber-400 uppercase tracking-wider block">สุ่มผู้เล่น</span>
+                    <button onclick="safeAction(pickRandomPlayer)" class="w-full bg-amber-400 text-slate-950 font-black py-3.5 rounded-xl text-sm">
+                        🎯 RANDOM PLAYER
                     </button>
                 </div>
             </div>
 
-            <!-- TAB 4: SCOREBOARD -->
-            <div id="host-tab-score" class="w-full space-y-4 hidden">
-                <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-3">🏆 สกอร์บอร์ดผู้เล่นออนไลน์</span>
-                    <div id="host-scoreboard" class="space-y-2 max-h-[220px] overflow-y-auto pr-1">
-                        <p class="text-xs text-slate-600 text-center py-2">ยังไม่มีผู้เล่นในห้อง</p>
+            <!-- TAB 4: SCORE -->
+            <div id="host-tab-score" class="w-full space-y-3 hidden">
+                <div class="bg-slate-950 p-3 rounded-2xl border border-slate-900">
+                    <div id="host-scoreboard" class="space-y-1.5 max-h-[200px] overflow-y-auto">
+                        <p class="text-xs text-slate-700 text-center py-2">NO PLAYERS</p>
                     </div>
                 </div>
-
-                <button onclick="clearRoomCompletely()" class="w-full bg-slate-900 border border-slate-800 text-rose-400 hover:bg-rose-950/30 text-xs py-3 rounded-xl font-medium transition">
-                    ⚠️ ล้างข้อมูลห้องและคะแนนทั้งหมด (Reset Room)
+                <button onclick="clearRoomCompletely()" class="w-full bg-slate-950 text-rose-500 border border-slate-900 text-xs py-2.5 rounded-xl font-bold">
+                    ⚠️ RESET ROOM
                 </button>
             </div>
         </div>
 
         <!-- SCREEN 4: PLAYER LOGIN -->
-        <div id="view-player-login" class="w-full max-w-sm bg-slate-900/40 p-6 sm:p-8 rounded-3xl border border-slate-800 hidden">
-            <h2 class="text-lg font-bold text-center mb-1 text-white uppercase tracking-wider">JOIN GAME</h2>
-            <p class="text-xs text-slate-500 text-center mb-6">ใส่นามแฝงและรหัสห้องเพื่อเข้าเล่น</p>
-
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-[10px] text-slate-500 uppercase font-bold mb-1">YOUR NAME</label>
-                    <input type="text" id="input-player-name" placeholder="ชื่อของคุณ" maxlength="12" class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-amber-400 text-center font-bold text-base transition">
-                </div>
-                <div>
-                    <label class="block text-[10px] text-slate-500 uppercase font-bold mb-1">ROOM CODE</label>
-                    <input type="text" id="input-room-code" placeholder="4 DIGITS" maxlength="6" class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-amber-400 font-mono tracking-widest focus:outline-none focus:border-amber-400 text-center font-bold text-xl uppercase transition">
-                </div>
-                <button onclick="joinRoom()" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold py-3.5 rounded-xl transition active:scale-95 text-base">
-                    ENTER GAME
-                </button>
+        <div id="view-player-login" class="w-full max-w-xs bg-slate-900/40 p-6 rounded-3xl border border-slate-900 hidden space-y-3">
+            <h2 class="text-base font-black text-center text-white uppercase tracking-wider">JOIN GAME</h2>
+            <div>
+                <input type="text" id="input-player-name" placeholder="NAME" maxlength="12" class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white font-bold text-center text-sm outline-none">
             </div>
+            <div>
+                <input type="text" id="input-room-code" placeholder="ROOM CODE" maxlength="6" class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-amber-400 font-mono tracking-widest text-center font-black text-lg uppercase outline-none">
+            </div>
+            <button onclick="joinRoom()" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-black py-3 rounded-xl text-sm">
+                ENTER
+            </button>
         </div>
 
-        <!-- SCREEN 5: PLAYER GAME BUZZER -->
-        <div id="view-player-game" class="w-full max-w-sm bg-slate-900/40 p-6 rounded-3xl border border-slate-800 hidden flex-col items-center text-center">
-            <!-- MINIMAL: ขยายชื่อผู้เล่นฝั่งมือถือให้ชัดเจนขึ้น -->
-            <div class="w-full flex justify-between items-center mb-4 border-b border-slate-800/80 pb-3">
-                <span id="player-display-name" class="font-extrabold text-amber-400 text-xl sm:text-2xl truncate max-w-[200px]">--</span>
-                <span id="player-display-score" class="text-xs bg-slate-950 text-slate-300 border border-slate-800 px-3 py-1.5 rounded-full font-mono font-bold">0 PTS</span>
+        <!-- SCREEN 5: PLAYER GAME -->
+        <div id="view-player-game" class="w-full max-w-xs bg-slate-900/30 p-5 rounded-3xl border border-slate-900 hidden flex-col items-center text-center">
+            <div class="w-full flex justify-between items-center mb-3 pb-2 border-b border-slate-900">
+                <span id="player-display-name" class="font-black text-amber-400 text-lg truncate max-w-[160px]">--</span>
+                <span id="player-display-score" class="text-xs bg-slate-950 text-slate-300 px-2.5 py-1 rounded-full font-mono font-bold border border-slate-800">0 PTS</span>
             </div>
 
-            <div id="player-question-box" class="w-full bg-slate-950 border border-slate-800 p-4 rounded-2xl mb-4 text-xs font-medium text-slate-400 min-h-[52px] flex items-center justify-center">
+            <div id="player-question-box" class="w-full bg-slate-950 border border-slate-900 p-3 rounded-xl mb-3 text-xs font-bold text-slate-400 min-h-[44px] flex items-center justify-center">
                 WAITING FOR HOST...
             </div>
 
-            <div id="player-status-banner" class="w-full py-2.5 px-4 rounded-xl bg-slate-950 border border-slate-800 text-emerald-400 text-xs font-bold mb-6">
-                READY TO BUZZ (หรือกด SPACEBAR)
+            <div id="player-status-banner" class="w-full py-2 px-3 rounded-lg bg-slate-950 border border-slate-900 text-emerald-400 text-xs font-bold mb-4">
+                READY TO BUZZ
             </div>
 
-            <button id="buzz-button" onclick="pressBuzz()" class="buzz-btn-active w-56 h-56 rounded-full bg-rose-600 border-8 border-slate-950 flex flex-col items-center justify-center cursor-pointer transition transform my-2">
+            <button id="buzz-button" onclick="pressBuzz()" class="buzz-btn-active w-52 h-52 rounded-full bg-rose-600 border-8 border-slate-950 flex items-center justify-center my-2">
                 <span class="text-4xl font-black tracking-widest text-white">BUZZ</span>
             </button>
         </div>
@@ -342,7 +307,6 @@
     </main>
 
     <script>
-        // --- State Management ---
         let mqttClient = null;
         let currentRoom = '';
         let myPlayerName = '';
@@ -378,114 +342,37 @@
             });
         }
 
-        // --- PRESET GENERATOR ---
         function generate50Presets() {
-            const datasets = {
-                song: [], emoji: [], math: [], hint: [], speed_go: [], reverse: [], trivia: [], spelling: []
-            };
+            const datasets = { song: [], emoji: [], math: [], hint: [], speed_go: [], reverse: [], trivia: [], spelling: [] };
 
             const songs = [
                 ["ทรงอย่างแบด", "Paper Planes", "ทรงอย่างแบด แซดอย่างบ่อย\nเธอทำให้ฉันต้องเจ็บช้ำ"],
-                ["พิง", "NON TANONT", "ที่ตรงนี้มีคนที่รอเธออยู่\nที่ตรงนี้มีคนที่รักเธอเกินใคร"],
-                ["ถ้าเราเจอกันอีก", "Tilly Birds", "ถ้าหากว่าในวันนั้นเราไม่ได้เจอกัน\nวันนี้ฉันคงไม่ต้องเสียใจกับการจากลา"],
-                ["วัดปะหล่ะ?", "4EVE", "วัดปะหล่ะว่าใครจะรักมากกว่ากัน\nลองวัดกันดูไหม"],
-                ["เฮอร์ไมโอเน่", "ออมสิน", "ท่องคาถาไมออนนี่ ให้เธอนั้นหันมามอง"],
-                ["วาดไว้", "BOWKYLION", "พี่พาน้องกลับบ้านเรานะ\nวาดไว้ในความทรงจำ"],
-                ["ซ่อนกลิ่น", "PALMY", "คงไว้ได้แค่กลิ่นโชยมา\nเหลือไว้เพียงความทรงจำ"],
-                ["โต๊ะริม", "NONT TANONT", "เธอมาทำให้จิตใจของฉันละลาย\nนั่งมองเธอที่โต๊ะริม"]
+                ["พิง", "NONT TANONT", "ที่ตรงนี้มีคนที่รอเธออยู่\nที่ตรงนี้มีคนที่รักเธอเกินใคร"],
+                ["ถ้าเราเจอกันอีก", "Tilly Birds", "ถ้าหากว่าในวันนั้นเราไม่ได้เจอกัน\nวันนี้ฉันคงไม่ต้องเสียใจ"],
+                ["วัดปะหล่ะ?", "4EVE", "วัดปะหล่ะว่าใครจะรักมากกว่ากัน\nลองวัดกันดูไหม"]
             ];
             for(let i=0; i<50; i++) {
                 const base = songs[i % songs.length];
-                datasets.song.push({
-                    title: `${base[0]} ${i>=songs.length ? '(เวอร์ชัน '+(Math.floor(i/songs.length)+1)+')':''}`,
-                    artist: base[1],
-                    lyrics: base[2]
-                });
+                datasets.song.push({ title: `${base[0]} #${i+1}`, artist: base[1], lyrics: base[2] });
             }
 
-            const emojis = [
-                ["ช้างศึก", "เฉลย: ทีมชาติไทย", "🐘 + ⚽"],
-                ["ชานมไข่มุก", "เฉลย: เครื่องดื่มยอดฮิต", "🍵 + 🥛 + 🧋"],
-                ["รักแรกพบ", "เฉลย: ชื่อเพลงฮิต", "❤️ + 1️⃣ + 👀"],
-                ["ผัดไทยกุ้งสด", "เฉลย: อาหารไทย", "🍳 + 🍝 + 🦐"]
-            ];
+            const emojis = [["ช้างศึก", "ทีมชาติไทย", "🐘 + ⚽"], ["ชานมไข่มุก", "เครื่องดื่ม", "🍵 + 🥛 + 🧋"]];
             for(let i=0; i<50; i++) {
                 const base = emojis[i % emojis.length];
-                datasets.emoji.push({
-                    title: `Emoji Quiz #${i+1}: ${base[0]}`,
-                    artist: base[1],
-                    lyrics: `${base[2]}\n(คำใบ้: ทายคำจาก Emoji)`
-                });
+                datasets.emoji.push({ title: `Emoji #${i+1}`, artist: base[1], lyrics: `${base[2]}` });
             }
 
             for(let i=1; i<=50; i++) {
-                const a = i * 3 + 7;
-                const b = i * 2 + 5;
-                datasets.math.push({
-                    title: `โจทย์คิดเลขไว #${i}`,
-                    artist: `เฉลย: ${a + b}`,
-                    lyrics: `หาผลลัพธ์ของ: ${a} + ${b} = ?`
-                });
-            }
-
-            const hints = [
-                ["กล้วย", "ผลไม้สีเหลือง", "คำใบ้ที่ 1: เปลือกสีเหลือง\nคำใบ้ที่ 2: ลิงชอบมาก\nคำใบ้ที่ 3: นำไปบวดชีได้"],
-                ["สนามบินสุวรรณภูมิ", "สถานที่สำคัญ", "คำใบ้ที่ 1: อยู่สมุทรปราการ\nคำใบ้ที่ 2: เครื่องบินขึ้นลง 24 ชม."]
-            ];
-            for(let i=0; i<50; i++) {
-                const base = hints[i % hints.length];
-                datasets.hint.push({
-                    title: `คำใบ้ทายคำ #${i+1} (${base[1]})`,
-                    artist: `เฉลย: ${base[0]}`,
-                    lyrics: base[2]
-                });
+                const a = i * 3 + 7; const b = i * 2 + 5;
+                datasets.math.push({ title: `คิดเลข #${i}`, artist: `เฉลย: ${a + b}`, lyrics: `${a} + ${b} = ?` });
             }
 
             for(let i=1; i<=50; i++) {
-                datasets.speed_go.push({
-                    title: `วัดความไว Round #${i}`,
-                    artist: `เฉลย: คนกดไวที่สุดได้แต้ม`,
-                    lyrics: `เตรียมมือให้พร้อมที่ปุ่มกด!\nรอบที่ ${i}\n3\n2\n1\nGO!`
-                });
-            }
-
-            const reverseWords = [
-                ["ชาบูสุกี้", "สุก - ชา - บู"],
-                ["กุ้งแม่น้ำ", "น้ำ - แม่ - กุ้ง"]
-            ];
-            for(let i=0; i<50; i++) {
-                const base = reverseWords[i % reverseWords.length];
-                datasets.reverse.push({
-                    title: `คำย้อนกลับ #${i+1}`,
-                    artist: `เฉลย: ${base[0]}`,
-                    lyrics: `ถอดรหัสคำย้อนกลับ: "${base[1]}"`
-                });
-            }
-
-            const triviaItems = [
-                ["ประเทศไทยมีกี่จังหวัด?", "77 จังหวัด"],
-                ["แม่น้ำสายที่ยาวที่สุดในโลก?", "แม่น้ำไนล์"]
-            ];
-            for(let i=0; i<50; i++) {
-                const base = triviaItems[i % triviaItems.length];
-                datasets.trivia.push({
-                    title: `คำถามรอบตัว #${i+1}`,
-                    artist: `เฉลย: ${base[1]}`,
-                    lyrics: base[0]
-                });
-            }
-
-            const spellWords = [
-                ["COMPUTER", "C - O - M - P - U - T - E - R"],
-                ["THAILAND", "T - H - A - I - L - A - N - D"]
-            ];
-            for(let i=0; i<50; i++) {
-                const base = spellWords[i % spellWords.length];
-                datasets.spelling.push({
-                    title: `สะกดคำ #${i+1}: ${base[0]}`,
-                    artist: `เฉลย: ${base[0]}`,
-                    lyrics: base[1]
-                });
+                datasets.hint.push({ title: `คำใบ้ #${i}`, artist: `เฉลย: กล้วย`, lyrics: `1. เปลือกสีเหลือง\n2. ลิงชอบมาก` });
+                datasets.speed_go.push({ title: `วัดความไว #${i}`, artist: `GO!`, lyrics: `เตรียมตัว!\n3\n2\n1\nGO!` });
+                datasets.reverse.push({ title: `คำย้อนกลับ #${i}`, artist: `ชาบูสุกี้`, lyrics: `สุก - ชา - บู` });
+                datasets.trivia.push({ title: `คำถาม #${i}`, artist: `77 จังหวัด`, lyrics: `ประเทศไทยมีกี่จังหวัด?` });
+                datasets.spelling.push({ title: `สะกดคำ #${i}`, artist: `COMPUTER`, lyrics: `C - O - M - P - U - T - E - R` });
             }
 
             return datasets;
@@ -499,9 +386,7 @@
                 try {
                     const parsed = JSON.parse(saved);
                     Object.keys(parsed).forEach(key => {
-                        if (parsed[key] && parsed[key].length > 0) {
-                            gamePresets[key] = parsed[key];
-                        }
+                        if (parsed[key] && parsed[key].length > 0) gamePresets[key] = parsed[key];
                     });
                 } catch(e) {}
             }
@@ -511,7 +396,6 @@
             localStorage.setItem('pb_custom_game_presets', JSON.stringify(gamePresets));
         }
 
-        // --- AUDIO ENGINE (RESTRICTED TO TV DISPLAY ONLY) ---
         let audioUnlocked = false;
         let thaiVoice = null;
         window.activeUtterance = null;
@@ -550,7 +434,6 @@
             return audioCtx;
         }
 
-        // เสียงเอฟเฟกต์จะทำงานเมื่ออยู่บนหน้า TV Display เท่านั้น
         function playSound(type) {
             const isTV = !document.getElementById('view-display').classList.contains('hidden');
             if (!isTV || isMuted) return;
@@ -558,8 +441,7 @@
             try {
                 const ctx = getAudioContext();
                 const cleanOsc = (osc, gain, duration) => {
-                    osc.start();
-                    osc.stop(ctx.currentTime + duration);
+                    osc.start(); osc.stop(ctx.currentTime + duration);
                     setTimeout(() => { osc.disconnect(); gain.disconnect(); }, (duration + 0.1) * 1000);
                 };
 
@@ -567,56 +449,31 @@
                     const osc = ctx.createOscillator(); const gain = ctx.createGain();
                     osc.connect(gain); gain.connect(ctx.destination);
                     osc.type = 'sine'; osc.frequency.setValueAtTime(800, ctx.currentTime);
-                    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+                    gain.gain.setValueAtTime(0.05, ctx.currentTime);
                     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
                     cleanOsc(osc, gain, 0.05);
-                } else if (type === 'timeout') {
-                    const osc = ctx.createOscillator(); const gain = ctx.createGain();
-                    osc.connect(gain); gain.connect(ctx.destination);
-                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(300, ctx.currentTime);
-                    osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.3);
-                    gain.gain.setValueAtTime(0.3, ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-                    cleanOsc(osc, gain, 0.3);
                 } else if (type === 'buzz') {
                     const osc = ctx.createOscillator(); const gain = ctx.createGain();
                     osc.connect(gain); gain.connect(ctx.destination);
                     osc.type = 'triangle'; osc.frequency.setValueAtTime(440, ctx.currentTime);
-                    gain.gain.setValueAtTime(0.3, ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
-                    cleanOsc(osc, gain, 0.2);
-                } else if (type === 'wrong') {
-                    const osc = ctx.createOscillator(); const gain = ctx.createGain();
-                    osc.connect(gain); gain.connect(ctx.destination);
-                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, ctx.currentTime);
-                    osc.frequency.setValueAtTime(110, ctx.currentTime + 0.1);
-                    gain.gain.setValueAtTime(0.3, ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-                    cleanOsc(osc, gain, 0.3);
+                    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+                    cleanOsc(osc, gain, 0.15);
                 } else if (type === 'correct') {
-                    [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+                    [523.25, 659.25, 783.99].forEach((freq, idx) => {
                         const o = ctx.createOscillator(); const g = ctx.createGain();
                         o.connect(g); g.connect(ctx.destination);
-                        o.frequency.setValueAtTime(freq, ctx.currentTime + (idx * 0.08));
-                        g.gain.setValueAtTime(0.25, ctx.currentTime + (idx * 0.08));
-                        g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + (idx * 0.08) + 0.25);
-                        cleanOsc(o, g, 0.25);
+                        o.frequency.setValueAtTime(freq, ctx.currentTime + (idx * 0.06));
+                        g.gain.setValueAtTime(0.2, ctx.currentTime + (idx * 0.06));
+                        g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + (idx * 0.06) + 0.2);
+                        cleanOsc(o, g, 0.2);
                     });
-                } else if (type === 'spin') {
-                    const osc = ctx.createOscillator(); const gain = ctx.createGain();
-                    osc.connect(gain); gain.connect(ctx.destination);
-                    osc.type = 'sine'; osc.frequency.setValueAtTime(600, ctx.currentTime);
-                    gain.gain.setValueAtTime(0.1, ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.04);
-                    cleanOsc(osc, gain, 0.04);
                 }
             } catch(e) {}
         }
 
-        // เสียงอ่านข้อความ TTS จะทำงานเฉพาะหน้า TV Display เท่านั้น
         function speakThaiLine(text, onEndCallback) {
             const isTV = !document.getElementById('view-display').classList.contains('hidden');
-            
             if (!isTV || isMuted || !('speechSynthesis' in window)) {
                 if (onEndCallback) onEndCallback();
                 return;
@@ -628,21 +485,13 @@
             setTimeout(() => {
                 const utterance = new SpeechSynthesisUtterance(text);
                 window.activeUtterance = utterance;
-                utterance.lang = 'th-TH';
-                utterance.rate = 0.95;
-                utterance.pitch = 1.0;
-                utterance.volume = 1.0;
-
-                if (!thaiVoice) populateVoices();
+                utterance.lang = 'th-TH'; utterance.rate = 1.0;
                 if (thaiVoice) utterance.voice = thaiVoice;
 
                 let hasEnded = false;
-                let safetyTimeout = null;
-
                 const safeOnEnd = () => {
                     if (!hasEnded) {
                         hasEnded = true;
-                        if (safetyTimeout) clearTimeout(safetyTimeout);
                         window.activeUtterance = null;
                         if (onEndCallback) onEndCallback();
                     }
@@ -650,12 +499,6 @@
 
                 utterance.onend = safeOnEnd;
                 utterance.onerror = () => safeOnEnd();
-
-                const estimatedMs = Math.max(3000, text.length * 600);
-                safetyTimeout = setTimeout(() => {
-                    if (!hasEnded) safeOnEnd();
-                }, estimatedMs);
-
                 window.speechSynthesis.speak(utterance);
             }, 100);
         }
@@ -670,19 +513,7 @@
         function triggerFireworks() {
             const isTV = !document.getElementById('view-display').classList.contains('hidden');
             if (!isTV) return;
-
-            try {
-                const count = 180;
-                const defaults = { origin: { y: 0.6 } };
-                function fire(particleRatio, opts) {
-                    confetti(Object.assign({}, defaults, opts, {
-                        particleCount: Math.floor(count * particleRatio)
-                    }));
-                }
-                fire(0.25, { spread: 26, startVelocity: 55 });
-                fire(0.2, { spread: 60 });
-                fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
-            } catch(e) {}
+            try { confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } }); } catch(e) {}
         }
 
         function startCountdown(duration, triggerMode) {
@@ -695,19 +526,16 @@
             const timerVal = document.getElementById('display-timer-val');
             const timerLabel = document.getElementById('display-timer-label');
 
-            if (timerBox) {
-                timerBox.classList.remove('hidden');
-                timerBox.classList.add('flex');
-            }
+            if (timerBox) { timerBox.classList.remove('hidden'); timerBox.classList.add('flex'); }
 
             if (currentBuzzTriggerMode === 'on_zero') {
                 isLocked = true;
-                if (timerLabel) timerLabel.innerText = "WAITING FOR GO!";
-                updatePlayerButtonUI(false, "LOCKED (รอสัญญาณ GO)");
+                if (timerLabel) timerLabel.innerText = "WAITING FOR GO";
+                updatePlayerButtonUI(false, "LOCKED");
             } else {
                 isLocked = false;
-                if (timerLabel) timerLabel.innerText = "TIMER";
-                updatePlayerButtonUI(true, "PRESS NOW!");
+                if (timerLabel) timerLabel.innerText = "TIME";
+                updatePlayerButtonUI(true, "BUZZ NOW!");
             }
 
             if (timerVal) timerVal.innerText = timeLeft.toString().padStart(2, '0');
@@ -722,17 +550,12 @@
                 } else {
                     stopTimer();
                     if (currentBuzzTriggerMode === 'on_zero') {
-                        playSound('buzz');
-                        isLocked = false;
-                        hasBuzzed = false;
-                        roundStartTime = Date.now();
+                        playSound('buzz'); isLocked = false; hasBuzzed = false; roundStartTime = Date.now();
                         if (timerLabel) timerLabel.innerText = "GO!";
                         if (timerVal) timerVal.innerText = "GO!";
-                        updatePlayerButtonUI(true, "PRESS NOW!");
+                        updatePlayerButtonUI(true, "GO!");
                     } else {
-                        playSound('timeout');
-                        isLocked = true;
-                        stopSpeaking();
+                        isLocked = true; stopSpeaking();
                         updatePlayerButtonUI(false, "TIME OUT");
                     }
                 }
@@ -740,18 +563,11 @@
         }
 
         function stopTimer() {
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-            }
+            if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
             const timerBox = document.getElementById('display-timer-box');
-            if (timerBox) {
-                timerBox.classList.add('hidden');
-                timerBox.classList.remove('flex');
-            }
+            if (timerBox) { timerBox.classList.add('hidden'); timerBox.classList.remove('flex'); }
         }
 
-        // MQTT Engine
         function initMQTT(callback) {
             const statusEl = document.getElementById('connection-status');
             mqttClient = mqtt.connect('wss://broker.emqx.io:8084/mqtt', {
@@ -760,21 +576,13 @@
             });
 
             mqttClient.on('connect', () => {
-                statusEl.className = "text-xs font-medium px-3 py-2 rounded-xl bg-slate-900 text-emerald-400 border border-slate-800 flex items-center gap-2";
-                statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> ONLINE`;
+                statusEl.className = "text-[11px] font-semibold px-3 py-1.5 rounded-lg bg-slate-900 text-emerald-400 border border-slate-800 flex items-center gap-1.5";
+                statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> ONLINE`;
                 if (callback) callback();
             });
 
-            mqttClient.on('reconnect', () => {
-                statusEl.className = "text-xs font-medium px-3 py-2 rounded-xl bg-slate-900 text-amber-400 border border-slate-800 flex items-center gap-2";
-                statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span> CONNECTING`;
-            });
-
             mqttClient.on('message', (topic, message) => {
-                try {
-                    const payload = JSON.parse(message.toString());
-                    handleIncomingMessage(topic, payload);
-                } catch(e) {}
+                try { handleIncomingMessage(topic, JSON.parse(message.toString())); } catch(e) {}
             });
         }
 
@@ -782,15 +590,9 @@
             const now = Date.now();
             let changed = false;
             Object.keys(onlinePlayersMap).forEach(p => {
-                if (now - onlinePlayersMap[p] > 15000) {
-                    delete onlinePlayersMap[p];
-                    changed = true;
-                }
+                if (now - onlinePlayersMap[p] > 15000) { delete onlinePlayersMap[p]; changed = true; }
             });
-            if (changed) {
-                renderOnlinePlayersLobby();
-                renderHostScoreboard();
-            }
+            if (changed) { renderOnlinePlayersLobby(); renderHostScoreboard(); }
         }, 5000);
 
         function showView(viewId) {
@@ -800,9 +602,7 @@
             });
             const target = document.getElementById(viewId);
             target.classList.remove('hidden');
-            if (['view-display', 'view-host', 'view-player-game'].includes(viewId)) {
-                target.classList.add('flex');
-            }
+            if (['view-display', 'view-host', 'view-player-game'].includes(viewId)) target.classList.add('flex');
         }
 
         function switchHostTab(tabName) {
@@ -826,38 +626,19 @@
             const timingSelect = document.getElementById('select-buzz-timing');
             const ytShortcut = document.getElementById('youtube-search-shortcut');
             
-            if (timingSelect) {
-                timingSelect.value = (mode === 'speed_go') ? 'on_zero' : 'during';
-            }
-
-            if (ytShortcut) {
-                if (mode === 'song') ytShortcut.classList.remove('hidden');
-                else ytShortcut.classList.add('hidden');
-            }
+            if (timingSelect) timingSelect.value = (mode === 'speed_go') ? 'on_zero' : 'during';
+            if (ytShortcut) ytShortcut.classList.toggle('hidden', mode !== 'song');
 
             let actionsHTML = '';
             if (mode === 'song' || mode === 'hint' || mode === 'spelling') {
-                const label = mode === 'song' ? 'เนื้อเพลงบรรทัดถัดไป' : (mode === 'hint' ? 'อ่านคำใบ้ถัดไป' : 'สะกดตัวถัดไป');
                 actionsHTML = `
-                    <button onclick="safeAction(playSelectedPreset)" class="w-full bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold py-3 rounded-xl text-xs border border-slate-700 transition active:scale-95">
-                        ▶️ เริ่มอ่านโจทย์ประจำข้อ
-                    </button>
-                    <button onclick="safeAction(songNextLine)" class="w-full bg-slate-950 hover:bg-slate-800 text-slate-200 font-medium py-2.5 rounded-xl text-xs border border-slate-800 active:scale-95">
-                        ➡️ ${label}
-                    </button>
+                    <button onclick="safeAction(playSelectedPreset)" class="w-full bg-slate-800 text-amber-400 font-bold py-2.5 rounded-xl text-xs border border-slate-700">▶️ อ่านโจทย์</button>
+                    <button onclick="safeAction(songNextLine)" class="w-full bg-slate-900 text-slate-300 font-bold py-2 rounded-xl text-xs border border-slate-800">➡️ บรรทัดถัดไป</button>
                 `;
             } else if (mode === 'speed_go') {
-                actionsHTML = `
-                    <button onclick="safeAction(playSelectedPreset)" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 rounded-xl text-xs transition active:scale-95">
-                        🎯 เริ่มนับถอยหลัง GO!
-                    </button>
-                `;
+                actionsHTML = `<button onclick="safeAction(playSelectedPreset)" class="w-full bg-rose-600 text-white font-bold py-2.5 rounded-xl text-xs">🎯 เริ่ม GO!</button>`;
             } else {
-                actionsHTML = `
-                    <button onclick="safeAction(playSelectedPreset)" class="w-full bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold py-3 rounded-xl text-xs border border-slate-700 transition active:scale-95">
-                        ⚡ แสดงโจทย์ทันที
-                    </button>
-                `;
+                actionsHTML = `<button onclick="safeAction(playSelectedPreset)" class="w-full bg-slate-800 text-amber-400 font-bold py-2.5 rounded-xl text-xs border border-slate-700">⚡ แสดงโจทย์ทันที</button>`;
             }
 
             actionBox.innerHTML = actionsHTML;
@@ -865,25 +646,20 @@
         }
 
         function getCurrentModePresets() {
-            const mode = document.getElementById('select-game-mode').value;
-            return gamePresets[mode] || [];
+            return gamePresets[document.getElementById('select-game-mode').value] || [];
         }
 
         function renderPresetDropdown() {
             const select = document.getElementById('select-preset-song');
             if (!select) return;
             const list = getCurrentModePresets();
-            select.innerHTML = list.map((item, idx) => `
-                <option value="${idx}">${idx+1}. ${escapeHTML(item.title)} (${escapeHTML(item.artist)})</option>
-            `).join('');
-
+            select.innerHTML = list.map((item, idx) => `<option value="${idx}">${idx+1}. ${escapeHTML(item.title)}</option>`).join('');
             if (list.length > 0) onSelectPresetChange();
         }
 
         function onSelectPresetChange() {
             const idx = document.getElementById('select-preset-song').value;
-            const list = getCurrentModePresets();
-            const item = list[idx];
+            const item = getCurrentModePresets()[idx];
             if (item) {
                 document.getElementById('input-host-lyrics').value = item.lyrics;
                 currentSongInfo = item;
@@ -892,28 +668,23 @@
 
         function openYouTubeSearch() {
             if (!currentSongInfo) return;
-            const query = encodeURIComponent(`${currentSongInfo.title} ${currentSongInfo.artist}`);
-            window.open(`https://www.youtube.com/results?search_query=${query}`, '_blank');
+            window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(currentSongInfo.title)}`, '_blank');
         }
 
         function toggleCustomLyricsArea() {
-            const container = document.getElementById('custom-lyrics-container');
-            container.classList.toggle('hidden');
+            document.getElementById('custom-lyrics-container').classList.toggle('hidden');
         }
 
         function showTVQuestionView() {
             document.getElementById('display-lobby-content').classList.add('hidden');
             document.getElementById('display-correct-celebration').classList.add('hidden');
-            document.getElementById('display-correct-celebration').classList.remove('flex');
             document.getElementById('display-question-content').classList.remove('hidden');
             document.getElementById('display-question-content').classList.add('flex');
         }
 
         function showTVLobbyView() {
             document.getElementById('display-question-content').classList.add('hidden');
-            document.getElementById('display-question-content').classList.remove('flex');
             document.getElementById('display-correct-celebration').classList.add('hidden');
-            document.getElementById('display-correct-celebration').classList.remove('flex');
             document.getElementById('display-lobby-content').classList.remove('hidden');
             document.getElementById('display-lobby-content').classList.add('flex');
             const badge = document.getElementById('display-mode-badge');
@@ -924,18 +695,13 @@
         function showTVCorrectCelebration(winnerName, title, detail) {
             document.getElementById('display-lobby-content').classList.add('hidden');
             document.getElementById('display-question-content').classList.add('hidden');
-            document.getElementById('display-question-content').classList.remove('flex');
             
             const celeb = document.getElementById('display-correct-celebration');
-            celeb.classList.remove('hidden');
-            celeb.classList.add('flex');
+            celeb.classList.remove('hidden'); celeb.classList.add('flex');
 
             document.getElementById('display-winner-player-name').innerText = winnerName;
             document.getElementById('display-winner-answer-title').innerText = title;
             document.getElementById('display-winner-answer-detail').innerText = detail;
-
-            const card = document.getElementById('display-main-card');
-            card.className = "w-full bg-slate-900/60 border border-emerald-500/50 p-8 sm:p-12 rounded-3xl mb-6 text-center transition-all min-h-[240px] flex flex-col justify-center items-center";
         }
 
         function renderOnlinePlayersLobby() {
@@ -947,23 +713,21 @@
             if (countEl) countEl.innerText = onlineList.length;
 
             if (onlineList.length === 0) {
-                grid.innerHTML = `<span class="text-xs text-slate-600">กำลังรอผู้เล่นเข้าร่วม...</span>`;
+                grid.innerHTML = `<span class="text-xs text-slate-600">WAITING FOR PLAYERS...</span>`;
                 return;
             }
 
-            // MINIMAL: ปรับแต่งให้ชื่อผู้เล่นที่ออนไลน์เห็นชัดอ่านง่าย
             grid.innerHTML = onlineList.map(name => `
-                <div class="flex items-center gap-2 bg-slate-900 border border-slate-800 px-3.5 py-2 rounded-xl">
+                <div class="flex items-center gap-2 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl">
                     <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                    <span class="text-sm font-bold text-slate-200">${escapeHTML(name)}</span>
-                    <span class="text-xs text-amber-400 font-mono font-bold">(${playerScores[name] || 0} pts)</span>
+                    <span class="text-xs font-bold text-slate-200">${escapeHTML(name)}</span>
+                    <span class="text-xs text-amber-400 font-mono font-bold">(${playerScores[name] || 0})</span>
                 </div>
             `).join('');
         }
 
         function startLineByLinePlayback(lyricsText, mode, triggerMode, secDuration) {
-            stopSpeaking();
-            stopTimer();
+            stopSpeaking(); stopTimer();
             lyricLines = lyricsText.split('\n').map(l => l.trim()).filter(Boolean);
             if (lyricLines.length === 0) lyricLines = [lyricsText];
             currentLineIndex = 0;
@@ -975,9 +739,7 @@
 
         function playCurrentLine() {
             if (currentLineIndex >= lyricLines.length) return;
-            stopTimer();
-            stopSpeaking();
-            showTVQuestionView();
+            stopTimer(); stopSpeaking(); showTVQuestionView();
 
             const text = lyricLines[currentLineIndex];
             document.getElementById('display-question-text').innerText = text;
@@ -985,7 +747,7 @@
             if (playerQBox) playerQBox.innerText = text;
 
             isLocked = true;
-            updatePlayerButtonUI(false, "📖 กำลังอ่านโจทย์...");
+            updatePlayerButtonUI(false, "READING...");
 
             const isTV = !document.getElementById('view-display').classList.contains('hidden');
             const isHost = !document.getElementById('view-host').classList.contains('hidden');
@@ -993,11 +755,7 @@
             if (isTV || isHost) {
                 speakThaiLine(text, () => {
                     if (isTV || (isHost && buzzList.length === 0)) {
-                        publishControl({
-                            action: 'begin_timer',
-                            duration: currentTimerSec,
-                            triggerMode: currentBuzzTriggerMode
-                        });
+                        publishControl({ action: 'begin_timer', duration: currentTimerSec, triggerMode: currentBuzzTriggerMode });
                     }
                 });
             }
@@ -1005,10 +763,7 @@
 
         function pickRandomPlayer() {
             const players = Object.keys(onlinePlayersMap);
-            if (players.length === 0) {
-                alert('ยังไม่มีผู้เล่นที่ออนไลน์ในขณะนี้');
-                return;
-            }
+            if (players.length === 0) return alert('ไม่มีผู้เล่นออนไลน์');
             publishControl({ action: 'start_random_roulette', players: players });
         }
 
@@ -1017,10 +772,10 @@
             showView('view-display');
             document.getElementById('display-room-code').innerText = currentRoom;
 
-            const joinUrl = `${window.location.origin}${window.location.pathname}?room=${currentRoom}`;
             document.getElementById('display-qrcode').innerHTML = '';
             new QRCode(document.getElementById("display-qrcode"), {
-                text: joinUrl, width: 85, height: 85, colorDark: "#020617", colorLight: "#ffffff"
+                text: `${window.location.origin}${window.location.pathname}?room=${currentRoom}`,
+                width: 60, height: 60, colorDark: "#020617", colorLight: "#ffffff"
             });
 
             initMQTT(() => {
@@ -1037,7 +792,7 @@
         }
 
         function setupHostWithCode() {
-            const code = prompt("ใส่ Room Code 4 หลัก:");
+            const code = prompt("ROOM CODE:");
             if (code) { currentRoom = code.trim(); startHostSession(); }
         }
 
@@ -1053,22 +808,15 @@
         }
 
         function resetBuzzer() {
-            buzzList = [];
-            disqualifiedPlayers.clear();
-            stopSpeaking();
-            stopTimer();
-            hideWinnerSpotlight();
+            buzzList = []; disqualifiedPlayers.clear(); stopSpeaking(); stopTimer(); hideWinnerSpotlight();
             publishControl({ action: 'reset' });
         }
 
         function nextQuestion() {
             const select = document.getElementById('select-preset-song');
-            if (!select) return;
-            const totalOptions = select.options.length;
-            if (totalOptions === 0) return;
-            
+            if (!select || select.options.length === 0) return;
             let nextIdx = select.selectedIndex + 1;
-            if (nextIdx >= totalOptions) nextIdx = 0;
+            if (nextIdx >= select.options.length) nextIdx = 0;
             select.selectedIndex = nextIdx;
             onSelectPresetChange();
             playSelectedPreset();
@@ -1079,34 +827,20 @@
             publishControl({ action: isLocked ? 'lock' : 'unlock' });
             const btn = document.getElementById('btn-toggle-lock');
             btn.innerText = isLocked ? "🔓 UNLOCK" : "🔒 LOCK";
-            btn.className = isLocked ? "bg-rose-600 hover:bg-rose-500 text-white font-bold px-3.5 py-2 rounded-xl text-xs transition active:scale-95" : "bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium px-3.5 py-2 rounded-xl text-xs border border-slate-700 transition active:scale-95";
         }
 
         function playSelectedPreset() {
-            const list = getCurrentModePresets();
-            const idx = document.getElementById('select-preset-song').value;
-            const item = list[idx];
+            const item = getCurrentModePresets()[document.getElementById('select-preset-song').value];
             if (!item) return;
-            currentSongInfo = item;
-            buzzList = [];
-            disqualifiedPlayers.clear();
-            hideWinnerSpotlight();
-            
-            const mode = document.getElementById('select-game-mode').value;
+            currentSongInfo = item; buzzList = []; disqualifiedPlayers.clear(); hideWinnerSpotlight();
             const { timing, sec } = getHostSettings();
-            
             publishControl({ action: 'reset' });
-            publishControl({ 
-                action: 'read_lyrics_linebyline', 
-                lyrics: item.lyrics, mode: 'after', triggerMode: timing, duration: sec, gameModeName: mode.toUpperCase() 
-            });
+            publishControl({ action: 'read_lyrics_linebyline', lyrics: item.lyrics, mode: 'after', triggerMode: timing, duration: sec, gameModeName: document.getElementById('select-game-mode').value.toUpperCase() });
         }
 
         function startTimerFromConfig() {
             const { timing, sec } = getHostSettings();
-            buzzList = [];
-            disqualifiedPlayers.clear();
-            hideWinnerSpotlight();
+            buzzList = []; disqualifiedPlayers.clear(); hideWinnerSpotlight();
             publishControl({ action: 'reset' });
             publishControl({ action: 'begin_timer', duration: sec, triggerMode: timing });
         }
@@ -1114,8 +848,7 @@
         function randomPresetItem() {
             const list = getCurrentModePresets();
             if(list.length === 0) return;
-            const randomIdx = Math.floor(Math.random() * list.length);
-            document.getElementById('select-preset-song').value = randomIdx;
+            document.getElementById('select-preset-song').value = Math.floor(Math.random() * list.length);
             onSelectPresetChange();
             playSelectedPreset();
         }
@@ -1123,34 +856,24 @@
         function sendCustomLyrics() {
             const lyrics = document.getElementById('input-host-lyrics').value.trim();
             if(!lyrics) return alert('กรุณาพิมพ์ข้อความ');
-            currentSongInfo = { title: 'โจทย์กำหนดเอง', artist: 'Host' };
-            buzzList = [];
-            disqualifiedPlayers.clear();
-            hideWinnerSpotlight();
-            
+            currentSongInfo = { title: 'โจทย์พิเศษ', artist: 'Host' };
+            buzzList = []; disqualifiedPlayers.clear(); hideWinnerSpotlight();
             const { timing, sec } = getHostSettings();
             publishControl({ action: 'reset' });
-            publishControl({ 
-                action: 'read_lyrics_linebyline', 
-                lyrics: lyrics, mode: 'after', triggerMode: timing, duration: sec, gameModeName: 'CUSTOM' 
-            });
+            publishControl({ action: 'read_lyrics_linebyline', lyrics: lyrics, mode: 'after', triggerMode: timing, duration: sec, gameModeName: 'CUSTOM' });
         }
 
         function addNewItemToPreset() {
             const lyrics = document.getElementById('input-host-lyrics').value.trim();
-            if(!lyrics) return alert('กรุณาพิมพ์เนื้อหาโจทย์');
-            const title = prompt('ชื่อโจทย์/หัวข้อ:') || 'ข้อใหม่';
-            const artist = prompt('เฉลย/คำอธิบาย:') || 'ไม่ระบุ';
-
+            if(!lyrics) return alert('กรุณาพิมพ์ข้อความ');
+            const title = prompt('ชื่อข้อ:') || 'ข้อใหม่';
             const mode = document.getElementById('select-game-mode').value;
             if(!gamePresets[mode]) gamePresets[mode] = [];
-            gamePresets[mode].push({ title, artist, lyrics });
+            gamePresets[mode].push({ title, artist: 'Host', lyrics });
             savePresetsToStorage();
-
             renderPresetDropdown();
             document.getElementById('select-preset-song').value = gamePresets[mode].length - 1;
             onSelectPresetChange();
-            alert('บันทึกเข้าคลังข้อมูลเรียบร้อยแล้ว');
         }
 
         function judgeAnswer(isCorrect) {
@@ -1160,11 +883,7 @@
             if (isCorrect) {
                 playerScores[currentWinner] = (playerScores[currentWinner] || 0) + 1;
                 publishControl({ action: 'scores', scores: playerScores });
-                publishControl({ 
-                    action: 'reveal_answer', 
-                    winner: currentWinner,
-                    song: currentSongInfo || { title: 'เฉลย', artist: '' } 
-                });
+                publishControl({ action: 'reveal_answer', winner: currentWinner, song: currentSongInfo || { title: 'เฉลย', artist: '' } });
             } else {
                 playerScores[currentWinner] = Math.max(0, (playerScores[currentWinner] || 0) - 1);
                 publishControl({ action: 'scores', scores: playerScores });
@@ -1172,9 +891,7 @@
             }
         }
 
-        function songNextLine() {
-            publishControl({ action: 'next_line' });
-        }
+        function songNextLine() { publishControl({ action: 'next_line' }); }
 
         function addScore(name, pts) {
             playerScores[name] = Math.max(0, (playerScores[name] || 0) + pts);
@@ -1183,18 +900,15 @@
         }
 
         function clearRoomCompletely() {
-            if (confirm('ล้างข้อมูลห้องและคะแนนทั้งหมดหรือไม่?')) {
+            if (confirm('RESET ROOM?')) {
                 buzzList = []; playerScores = {}; disqualifiedPlayers.clear();
-                stopSpeaking(); stopTimer();
-                renderHostScoreboard();
+                stopSpeaking(); stopTimer(); renderHostScoreboard();
                 publishControl({ action: 'clear' });
             }
         }
 
         function publishControl(data) {
-            if (mqttClient && currentRoom) {
-                mqttClient.publish(`partybuzz/${currentRoom}/control`, JSON.stringify(data));
-            }
+            if (mqttClient && currentRoom) mqttClient.publish(`partybuzz/${currentRoom}/control`, JSON.stringify(data));
         }
 
         function hideWinnerSpotlight() {
@@ -1205,29 +919,20 @@
         function renderHostScoreboard() {
             const el = document.getElementById('host-scoreboard');
             const entries = Object.entries(playerScores);
-            if (entries.length === 0) {
-                el.innerHTML = `<p class="text-xs text-slate-600 text-center py-2">ยังไม่มีผู้เล่น</p>`;
-                return;
-            }
-            el.innerHTML = entries.map(([name, score]) => {
-                const isOnline = !!onlinePlayersMap[name];
-                return `
-                    <div class="flex justify-between items-center bg-slate-950 px-3 py-2 rounded-xl border border-slate-800 text-xs">
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-400' : 'bg-slate-700'}"></span>
-                            <span class="font-bold text-slate-200 text-sm">${escapeHTML(name)}</span>
-                        </div>
-                        <div class="flex items-center gap-1">
-                            <span class="font-bold text-amber-400 font-mono text-sm mr-2">${score}</span>
-                            <button onclick="addScore('${escapeHTML(name)}', 1)" class="bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded text-emerald-400 font-bold text-[10px]">+1</button>
-                            <button onclick="addScore('${escapeHTML(name)}', -1)" class="bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded text-rose-400 font-bold text-[10px]">-1</button>
-                        </div>
+            if (entries.length === 0) return el.innerHTML = `<p class="text-xs text-slate-700 text-center py-2">NO PLAYERS</p>`;
+            
+            el.innerHTML = entries.map(([name, score]) => `
+                <div class="flex justify-between items-center bg-slate-900 px-3 py-1.5 rounded-xl text-xs">
+                    <span class="font-bold text-slate-200">${escapeHTML(name)}</span>
+                    <div class="flex items-center gap-1">
+                        <span class="font-bold text-amber-400 font-mono mr-2">${score}</span>
+                        <button onclick="addScore('${escapeHTML(name)}', 1)" class="bg-slate-800 px-2 py-0.5 rounded text-emerald-400 font-bold">+1</button>
+                        <button onclick="addScore('${escapeHTML(name)}', -1)" class="bg-slate-800 px-2 py-0.5 rounded text-rose-400 font-bold">-1</button>
                     </div>
-                `;
-            }).join('');
+                </div>
+            `).join('');
         }
 
-        // PLAYER LOGIC
         function showPlayerLogin() { 
             const savedName = localStorage.getItem('pb_name');
             const savedRoom = localStorage.getItem('pb_room');
@@ -1239,11 +944,10 @@
         function joinRoom() {
             const name = document.getElementById('input-player-name').value.trim();
             const room = document.getElementById('input-room-code').value.trim();
-            if (!name || !room) return alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+            if (!name || !room) return alert('กรอกข้อมูลให้ครบ');
 
             myPlayerName = name; currentRoom = room;
-            localStorage.setItem('pb_name', name);
-            localStorage.setItem('pb_room', room);
+            localStorage.setItem('pb_name', name); localStorage.setItem('pb_room', room);
 
             document.getElementById('player-display-name').innerText = myPlayerName;
             showView('view-player-game');
@@ -1255,9 +959,7 @@
 
                 if (pingIntervalTimer) clearInterval(pingIntervalTimer);
                 pingIntervalTimer = setInterval(() => {
-                    if (mqttClient && currentRoom && myPlayerName) {
-                        publishControl({ action: 'player_ping', name: myPlayerName });
-                    }
+                    if (mqttClient && currentRoom && myPlayerName) publishControl({ action: 'player_ping', name: myPlayerName });
                 }, 4000);
             });
         }
@@ -1265,13 +967,11 @@
         function pressBuzz() {
             if (hasBuzzed || disqualifiedPlayers.has(myPlayerName)) return;
 
-            mqttClient.publish(`partybuzz/${currentRoom}/buzz_request`, JSON.stringify({
-                name: myPlayerName
-            }));
+            mqttClient.publish(`partybuzz/${currentRoom}/buzz_request`, JSON.stringify({ name: myPlayerName }));
 
             if (currentBuzzTriggerMode === 'on_zero' && isLocked) {
                 disqualifiedPlayers.add(myPlayerName);
-                updatePlayerButtonUI(false, "FALSE START! (ฟาวล์ - ออกตัวก่อน)");
+                updatePlayerButtonUI(false, "FALSE START!");
             } else if (!isLocked) {
                 hasBuzzed = true;
                 if (navigator.vibrate) navigator.vibrate(80);
@@ -1285,32 +985,26 @@
             if (!btn || !banner) return;
 
             if (disqualifiedPlayers.has(myPlayerName)) {
-                btn.className = "w-56 h-56 rounded-full bg-slate-900 border-8 border-slate-950 flex flex-col items-center justify-center cursor-not-allowed opacity-30 my-2";
-                banner.className = "w-full py-2.5 px-4 rounded-xl bg-slate-950 border border-slate-800 text-rose-500 text-xs font-bold mb-6";
-                banner.innerText = text || "หมดสิทธิ์ตอบในรอบนี้ (DISQUALIFIED)";
+                btn.className = "w-52 h-52 rounded-full bg-slate-900 border-8 border-slate-950 flex items-center justify-center opacity-30 my-2";
+                banner.innerText = text || "DISQUALIFIED";
                 return;
             }
 
             if (unlocked) {
-                btn.className = "buzz-btn-active w-56 h-56 rounded-full bg-rose-600 border-8 border-slate-950 flex flex-col items-center justify-center cursor-pointer transition transform my-2";
-                banner.className = "w-full py-2.5 px-4 rounded-xl bg-slate-950 border border-slate-800 text-emerald-400 text-xs font-bold mb-6";
-                banner.innerText = "READY TO BUZZ (หรือกด SPACEBAR)";
+                btn.className = "buzz-btn-active w-52 h-52 rounded-full bg-rose-600 border-8 border-slate-950 flex items-center justify-center cursor-pointer my-2";
+                banner.innerText = "READY TO BUZZ";
             } else {
-                btn.className = "w-56 h-56 rounded-full bg-slate-900 border-8 border-slate-950 flex flex-col items-center justify-center cursor-not-allowed opacity-30 my-2";
-                banner.className = "w-full py-2.5 px-4 rounded-xl bg-slate-950 border border-slate-800 text-rose-500 text-xs font-bold mb-6";
+                btn.className = "w-52 h-52 rounded-full bg-slate-900 border-8 border-slate-950 flex items-center justify-center opacity-30 my-2";
                 banner.innerText = text || "LOCKED";
             }
         }
 
-        // REALTIME MQTT MESSAGE HANDLER
         function handleIncomingMessage(topic, payload) {
-            
             if (topic.endsWith('/buzz_request')) {
                 const isTVOrHost = !document.getElementById('view-display').classList.contains('hidden') || !document.getElementById('view-host').classList.contains('hidden');
                 
                 if (isTVOrHost) {
                     const tvNow = Date.now();
-                    
                     if (currentBuzzTriggerMode === 'on_zero' && isLocked) {
                         disqualifiedPlayers.add(payload.name);
                         publishControl({ action: 'player_foul', name: payload.name });
@@ -1320,22 +1014,11 @@
                     const exists = buzzList.some(i => i.name === payload.name);
                     if (!exists && !isLocked && !disqualifiedPlayers.has(payload.name)) {
                         const elapsedSec = roundStartTime > 0 ? ((tvNow - roundStartTime) / 1000).toFixed(2) : '0.00';
-                        const formattedTime = `+${elapsedSec}s`;
-
-                        buzzList.push({
-                            name: payload.name,
-                            timeStr: formattedTime,
-                            timestamp: tvNow
-                        });
-
+                        buzzList.push({ name: payload.name, timeStr: `+${elapsedSec}s`, timestamp: tvNow });
                         buzzList.sort((a,b) => a.timestamp - b.timestamp);
                         if (!(payload.name in playerScores)) playerScores[payload.name] = 0;
 
-                        publishControl({ 
-                            action: 'sync_queue', 
-                            buzzList: buzzList,
-                            buzzedPlayer: payload.name
-                        });
+                        publishControl({ action: 'sync_queue', buzzList: buzzList, buzzedPlayer: payload.name });
                     }
                 }
             }
@@ -1344,200 +1027,130 @@
                 if (payload.action === 'player_ping') {
                     onlinePlayersMap[payload.name] = Date.now();
                     if (!(payload.name in playerScores)) playerScores[payload.name] = 0;
-                    renderOnlinePlayersLobby();
-                    renderHostScoreboard();
-                }
-                else if (payload.action === 'sync_queue') {
+                    renderOnlinePlayersLobby(); renderHostScoreboard();
+                } else if (payload.action === 'sync_queue') {
                     buzzList = payload.buzzList;
-                    renderTVBuzzList();
-                    renderHostScoreboard();
+                    renderTVBuzzList(); renderHostScoreboard();
 
-                    if (payload.buzzedPlayer === myPlayerName) {
-                        hasBuzzed = true;
-                        updatePlayerButtonUI(false, "BUZZED!");
-                    }
+                    if (payload.buzzedPlayer === myPlayerName) { hasBuzzed = true; updatePlayerButtonUI(false, "BUZZED!"); }
 
                     if (buzzList.length === 1) {
                         playSound('correct');
                         const spotlight = document.getElementById('display-winner-spotlight');
-                        const winnerName = document.getElementById('display-winner-name');
-                        const winnerLabel = document.getElementById('display-winner-label');
-                        if (spotlight && winnerName) {
-                            if (winnerLabel) winnerLabel.innerText = "⚡ FASTEST BUZZ ⚡";
-                            winnerName.innerText = buzzList[0].name;
+                        if (spotlight) {
+                            document.getElementById('display-winner-label').innerText = "FASTEST BUZZ";
+                            document.getElementById('display-winner-name').innerText = buzzList[0].name;
                             spotlight.classList.remove('hidden');
                         }
-                    } else {
-                        playSound('buzz');
-                    }
-
-                    stopSpeaking();
-                    stopTimer();
+                    } else { playSound('buzz'); }
+                    stopSpeaking(); stopTimer();
                 } else if (payload.action === 'start_random_roulette') {
                     showTVQuestionView();
                     const players = payload.players;
                     const spotlight = document.getElementById('display-winner-spotlight');
-                    const winnerName = document.getElementById('display-winner-name');
-                    const winnerLabel = document.getElementById('display-winner-label');
-                    if (!spotlight || !winnerName) return;
-
+                    if (!spotlight) return;
                     spotlight.classList.remove('hidden');
-                    if (winnerLabel) winnerLabel.innerText = "🎲 RANDOM PICKER 🎲";
+                    document.getElementById('display-winner-label').innerText = "RANDOM PICKER";
 
                     let count = 0;
-                    const totalTicks = 25;
                     const interval = setInterval(() => {
-                        const tempWinner = players[Math.floor(Math.random() * players.length)];
-                        winnerName.innerText = tempWinner;
-                        playSound('spin');
+                        document.getElementById('display-winner-name').innerText = players[Math.floor(Math.random() * players.length)];
                         count++;
-                        if (count >= totalTicks) {
+                        if (count >= 20) {
                             clearInterval(interval);
-                            const finalWinner = players[Math.floor(Math.random() * players.length)];
-                            winnerName.innerText = finalWinner;
-                            playSound('correct');
-                            triggerFireworks();
+                            document.getElementById('display-winner-name').innerText = players[Math.floor(Math.random() * players.length)];
+                            playSound('correct'); triggerFireworks();
                         }
                     }, 100);
-
                 } else if (payload.action === 'player_foul') {
                     disqualifiedPlayers.add(payload.name);
-                    if (payload.name === myPlayerName) {
-                        updatePlayerButtonUI(false, "FALSE START! (ฟาวล์ - ออกตัวก่อน)");
-                    }
+                    if (payload.name === myPlayerName) updatePlayerButtonUI(false, "FALSE START!");
                 } else if (payload.action === 'reset') {
                     buzzList = []; hasBuzzed = false; isLocked = false; disqualifiedPlayers.clear();
-                    stopSpeaking(); stopTimer(); hideWinnerSpotlight();
-                    renderTVBuzzList();
-                    updatePlayerButtonUI(true);
-                    showTVLobbyView();
+                    stopSpeaking(); stopTimer(); hideWinnerSpotlight(); renderTVBuzzList(); updatePlayerButtonUI(true); showTVLobbyView();
                 } else if (payload.action === 'lock') {
-                    isLocked = true;
-                    stopSpeaking(); stopTimer();
-                    updatePlayerButtonUI(false, "LOCKED");
+                    isLocked = true; stopSpeaking(); stopTimer(); updatePlayerButtonUI(false, "LOCKED");
                 } else if (payload.action === 'unlock') {
-                    isLocked = false;
-                    if (!disqualifiedPlayers.has(myPlayerName)) hasBuzzed = false;
-                    updatePlayerButtonUI(true);
+                    isLocked = false; if (!disqualifiedPlayers.has(myPlayerName)) hasBuzzed = false; updatePlayerButtonUI(true);
                 } else if (payload.action === 'begin_timer') {
-                    if (!hasBuzzed) {
-                        startCountdown(payload.duration, payload.triggerMode);
-                    }
+                    if (!hasBuzzed) startCountdown(payload.duration, payload.triggerMode);
                 } else if (payload.action === 'read_lyrics_linebyline') {
                     hasBuzzed = false; disqualifiedPlayers.clear(); hideWinnerSpotlight();
                     const badge = document.getElementById('display-mode-badge');
                     if (badge && payload.gameModeName) badge.innerText = payload.gameModeName;
                     startLineByLinePlayback(payload.lyrics, payload.mode, payload.triggerMode, payload.duration);
                 } else if (payload.action === 'next_line') {
-                    hasBuzzed = false;
-                    currentLineIndex++;
-                    if (currentLineIndex < lyricLines.length) {
-                        playCurrentLine();
-                    } else {
-                        stopTimer();
-                        document.getElementById('display-question-text').innerText = "END OF QUESTION";
-                    }
+                    hasBuzzed = false; currentLineIndex++;
+                    if (currentLineIndex < lyricLines.length) playCurrentLine();
+                    else { stopTimer(); document.getElementById('display-question-text').innerText = "END OF QUESTION"; }
                 } else if (payload.action === 'answer_wrong') {
-                    playSound('wrong');
                     const wrongPlayer = payload.wrongPlayer;
                     disqualifiedPlayers.add(wrongPlayer);
-                    
                     buzzList = buzzList.filter(item => item.name !== wrongPlayer);
                     renderTVBuzzList();
 
                     const spotlight = document.getElementById('display-winner-spotlight');
-                    const winnerName = document.getElementById('display-winner-name');
-                    const winnerLabel = document.getElementById('display-winner-label');
-                    
-                    if (spotlight && winnerName) {
-                        if (winnerLabel) winnerLabel.innerText = "❌ ตอบผิด! ❌";
-                        winnerName.innerText = wrongPlayer;
+                    if (spotlight) {
+                        document.getElementById('display-winner-label').innerText = "❌ WRONG!";
+                        document.getElementById('display-winner-name').innerText = wrongPlayer;
                         spotlight.classList.remove('hidden');
                     }
 
                     setTimeout(() => {
                         if (buzzList.length > 0) {
-                            if (spotlight && winnerName) {
-                                if (winnerLabel) winnerLabel.innerText = "NEXT IN QUEUE ⚡";
-                                winnerName.innerText = buzzList[0].name;
-                                spotlight.classList.remove('hidden');
+                            if (spotlight) {
+                                document.getElementById('display-winner-label').innerText = "NEXT IN QUEUE";
+                                document.getElementById('display-winner-name').innerText = buzzList[0].name;
                             }
                         } else {
-                            hideWinnerSpotlight();
-                            isLocked = false;
-                            if (!disqualifiedPlayers.has(myPlayerName)) {
-                                hasBuzzed = false;
-                                updatePlayerButtonUI(true, "TRY AGAIN!");
-                            }
+                            hideWinnerSpotlight(); isLocked = false;
+                            if (!disqualifiedPlayers.has(myPlayerName)) { hasBuzzed = false; updatePlayerButtonUI(true, "TRY AGAIN"); }
                         }
-                    }, 1500);
-
+                    }, 1200);
                 } else if (payload.action === 'reveal_answer') {
-                    stopSpeaking(); stopTimer();
-                    playSound('correct');
-                    triggerFireworks();
-
-                    const winner = payload.winner || (buzzList[0] ? buzzList[0].name : 'ผู้เล่น');
+                    stopSpeaking(); stopTimer(); playSound('correct'); triggerFireworks();
+                    const winner = payload.winner || (buzzList[0] ? buzzList[0].name : 'PLAYER');
                     showTVCorrectCelebration(winner, payload.song.title, payload.song.artist);
-
                     const pQBox = document.getElementById('player-question-box');
-                    if (pQBox) pQBox.innerText = `🎉 ${winner} ตอบถูก! (${payload.song.title})`;
+                    if (pQBox) pQBox.innerText = `🎉 ${winner} ตอบถูก!`;
                 } else if (payload.action === 'scores' && payload.scores) {
                     playerScores = payload.scores;
-                    renderTVScoreboard();
-                    renderOnlinePlayersLobby();
-                    const myScore = playerScores[myPlayerName] || 0;
+                    renderTVScoreboard(); renderOnlinePlayersLobby();
                     const pScoreEl = document.getElementById('player-display-score');
-                    if (pScoreEl) pScoreEl.innerText = `${myScore} PTS`;
+                    if (pScoreEl) pScoreEl.innerText = `${playerScores[myPlayerName] || 0} PTS`;
                 } else if (payload.action === 'clear') {
-                    localStorage.removeItem('pb_name');
-                    localStorage.removeItem('pb_room');
-                    stopSpeaking(); stopTimer();
-                    location.reload();
+                    localStorage.removeItem('pb_name'); localStorage.removeItem('pb_room');
+                    stopSpeaking(); stopTimer(); location.reload();
                 } else if (payload.action === 'request_state') {
-                    publishControl({
-                        action: 'sync_state',
-                        isLocked: isLocked,
-                        scores: playerScores
-                    });
+                    publishControl({ action: 'sync_state', isLocked: isLocked, scores: playerScores });
                 } else if (payload.action === 'sync_state') {
                     if (payload.scores) {
                         playerScores = payload.scores;
-                        const myScore = playerScores[myPlayerName] || 0;
                         const pScoreEl = document.getElementById('player-display-score');
-                        if (pScoreEl) pScoreEl.innerText = `${myScore} PTS`;
+                        if (pScoreEl) pScoreEl.innerText = `${playerScores[myPlayerName] || 0} PTS`;
                     }
-                    if (payload.isLocked !== undefined) {
-                        isLocked = payload.isLocked;
-                        updatePlayerButtonUI(!isLocked);
-                    }
+                    if (payload.isLocked !== undefined) { isLocked = payload.isLocked; updatePlayerButtonUI(!isLocked); }
                 }
             }
         }
 
-        // MINIMAL & LARGE PLAYER NAME: แสดงรายชื่อคิวกด Buzz ขนาดใหญ่
         function renderTVBuzzList() {
             const listEl = document.getElementById('display-buzz-list');
             const queueCount = document.getElementById('tv-queue-count');
             if (queueCount) queueCount.innerText = `${buzzList.length} IN QUEUE`;
             if (!listEl) return;
 
-            if (buzzList.length === 0) {
-                listEl.innerHTML = `<div class="text-center py-8 text-slate-700 text-xs border border-dashed border-slate-800 rounded-2xl">WAITING FOR BUZZ...</div>`;
-                return;
-            }
+            if (buzzList.length === 0) return listEl.innerHTML = `<div class="text-center py-6 text-slate-700 text-xs border border-dashed border-slate-800 rounded-xl">NO BUZZ YET</div>`;
 
             listEl.innerHTML = buzzList.map((item, index) => {
                 const isFirst = index === 0;
                 return `
-                    <div class="flex items-center justify-between p-4 rounded-2xl ${isFirst ? 'bg-amber-400 text-slate-950 font-extrabold' : 'bg-slate-900 border border-slate-800 text-slate-200'} transition-all">
+                    <div class="flex items-center justify-between p-3 rounded-xl ${isFirst ? 'bg-amber-400 text-slate-950 font-black' : 'bg-slate-900 text-slate-200 border border-slate-800'}">
                         <div class="flex items-center gap-3">
-                            <span class="w-8 h-8 rounded-xl flex items-center justify-center font-black text-sm ${isFirst ? 'bg-slate-950 text-amber-400' : 'bg-slate-800 text-slate-400'}">
-                                ${index + 1}
-                            </span>
-                            <span class="font-black text-xl sm:text-2xl tracking-wide">${escapeHTML(item.name)}</span>
+                            <span class="w-6 h-6 rounded-lg flex items-center justify-center font-black text-xs ${isFirst ? 'bg-slate-950 text-amber-400' : 'bg-slate-800 text-slate-400'}">${index + 1}</span>
+                            <span class="font-black text-lg">${escapeHTML(item.name)}</span>
                         </div>
-                        <span class="text-xs font-mono px-3 py-1 rounded-lg ${isFirst ? 'bg-slate-950 text-amber-400 font-bold' : 'bg-slate-950 text-slate-500 border border-slate-800'}">${escapeHTML(item.timeStr)}</span>
+                        <span class="text-xs font-mono px-2 py-0.5 rounded ${isFirst ? 'bg-slate-950 text-amber-400' : 'bg-slate-950 text-slate-500'}">${escapeHTML(item.timeStr)}</span>
                     </div>
                 `;
             }).join('');
@@ -1547,40 +1160,26 @@
             const el = document.getElementById('display-scoreboard');
             if (!el) return;
             const entries = Object.entries(playerScores).sort((a,b) => b[1] - a[1]);
-            if (entries.length === 0) {
-                el.innerHTML = `<p class="text-xs text-slate-700 text-center py-6">NO SCORES YET</p>`;
-                return;
-            }
-            el.innerHTML = entries.map(([name, score], idx) => {
-                const isOnline = !!onlinePlayersMap[name];
-                return `
-                    <div class="flex justify-between items-center bg-slate-900/80 p-3 rounded-xl border border-slate-800">
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-400' : 'bg-slate-700'}"></span>
-                            <span class="font-bold text-slate-200 text-sm">#${idx+1} ${escapeHTML(name)}</span>
-                        </div>
-                        <span class="font-bold text-amber-400 font-mono text-sm">${score}</span>
-                    </div>
-                `;
-            }).join('');
+            if (entries.length === 0) return el.innerHTML = `<p class="text-xs text-slate-700 text-center py-4">NO SCORES</p>`;
+            
+            el.innerHTML = entries.map(([name, score], idx) => `
+                <div class="flex justify-between items-center bg-slate-900/80 p-2 rounded-xl border border-slate-800 text-xs">
+                    <span class="font-bold text-slate-200">#${idx+1} ${escapeHTML(name)}</span>
+                    <span class="font-bold text-amber-400 font-mono">${score}</span>
+                </div>
+            `).join('');
         }
 
-        // Global Event Listeners
         window.addEventListener('keydown', (e) => {
             if (e.code === 'Space' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
                 const gameView = document.getElementById('view-player-game');
-                if (gameView && !gameView.classList.contains('hidden')) {
-                    e.preventDefault();
-                    pressBuzz();
-                }
+                if (gameView && !gameView.classList.contains('hidden')) { e.preventDefault(); pressBuzz(); }
             }
         });
 
         window.addEventListener('DOMContentLoaded', () => {
             loadSavedPresets();
-            const urlParams = new URLSearchParams(window.location.search);
-            const roomParam = urlParams.get('room');
-
+            const roomParam = new URLSearchParams(window.location.search).get('room');
             if (roomParam) {
                 document.getElementById('input-room-code').value = roomParam;
                 showPlayerLogin();
