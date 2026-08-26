@@ -188,8 +188,8 @@
                     <div class="mb-2">
                         <label class="block text-[10px] text-slate-400 font-bold mb-1">เงื่อนไขการกดปุ่ม (Buzz Timing Mode):</label>
                         <select id="select-buzz-timing" class="w-full bg-slate-900 border border-slate-700 text-amber-300 font-bold text-xs rounded-xl px-3 py-2 outline-none">
-                            <option value="during">⚡ กดได้ระหว่างนับถอยหลัง (Buzz During Timer)</option>
-                            <option value="on_zero">🛑 ล็อกปุ่ม - กดเมื่อหมดเวลา / สัญญาณ GO! (Buzz On GO)</option>
+                            <option value="during">⚡ กดได้ระหว่างนับถอยหลัง (อ่านจบแล้วค่อยเริ่มนับ)</option>
+                            <option value="on_zero">🛑 ล็อกปุ่ม - กดเมื่อหมดเวลา / สัญญาณ GO!</option>
                         </select>
                     </div>
 
@@ -516,7 +516,10 @@
 
         function speakThaiLine(text, onEndCallback) {
             const isTV = !document.getElementById('view-display').classList.contains('hidden');
-            if (!isTV || isMuted || !('speechSynthesis' in window)) {
+            const isHost = !document.getElementById('view-host').classList.contains('hidden');
+            
+            // อ่านเฉพาะเครื่องที่เป็น TV หรือ Host เท่านั้น
+            if ((!isTV && !isHost) || isMuted || !('speechSynthesis' in window)) {
                 if (onEndCallback) onEndCallback();
                 return;
             }
@@ -550,7 +553,7 @@
                 utterance.onend = safeOnEnd;
                 utterance.onerror = () => safeOnEnd();
 
-                const estimatedMs = Math.max(4000, text.length * 700);
+                const estimatedMs = Math.max(3000, text.length * 600);
                 safetyTimeout = setTimeout(() => {
                     if (!hasEnded) safeOnEnd();
                 }, estimatedMs);
@@ -588,7 +591,7 @@
             } else {
                 isLocked = false;
                 if (timerLabel) timerLabel.innerText = "TIMER";
-                updatePlayerButtonUI(true);
+                updatePlayerButtonUI(true, "PRESS NOW!");
             }
 
             if (timerVal) timerVal.innerText = timeLeft.toString().padStart(2, '0');
@@ -786,21 +789,33 @@
         function playCurrentLine() {
             if (currentLineIndex >= lyricLines.length) return;
             stopTimer();
+            stopSpeaking();
             const text = lyricLines[currentLineIndex];
 
             document.getElementById('display-question-text').innerText = text;
             const playerQBox = document.getElementById('player-question-box');
             if (playerQBox) playerQBox.innerText = text;
 
-            if (currentTimerMode === 'during' && !hasBuzzed) {
-                startCountdown(currentTimerSec, currentBuzzTriggerMode);
-            }
+            // ล็อกปุ่มกดผู้เล่นไว้ก่อนระหว่างที่กำลังอ่านโจทย์
+            isLocked = true;
+            updatePlayerButtonUI(false, "📖 กำลังอ่านโจทย์...");
 
-            speakThaiLine(text, () => {
-                if (currentTimerMode === 'after' && !hasBuzzed) {
-                    startCountdown(currentTimerSec, currentBuzzTriggerMode);
-                }
-            });
+            const isTV = !document.getElementById('view-display').classList.contains('hidden');
+            const isHost = !document.getElementById('view-host').classList.contains('hidden');
+
+            // ให้อุปกรณ์ที่เป็น TV หรือ Host อ่านโจทย์ และเมื่ออ่านเสร็จแล้วจึงสั่งเริ่มนับถอยหลัง
+            if (isTV || isHost) {
+                speakThaiLine(text, () => {
+                    // ส่งคำสั่งเริ่มนับถอยหลังและปลดล็อกปุ่มกดผู้เล่นพร้อมกันทุกเครื่องเมื่ออ่านจบ
+                    if (isTV || (isHost && buzzList.length === 0)) {
+                        publishControl({
+                            action: 'begin_timer',
+                            duration: currentTimerSec,
+                            triggerMode: currentBuzzTriggerMode
+                        });
+                    }
+                });
+            }
         }
 
         // RANDOM PLAYER PICKER
@@ -910,7 +925,7 @@
             disqualifiedPlayers.clear();
             hideWinnerSpotlight();
             publishControl({ action: 'reset' });
-            publishControl({ action: 'timer', duration: sec, triggerMode: timing });
+            publishControl({ action: 'begin_timer', duration: sec, triggerMode: timing });
         }
 
         function randomPresetItem() {
@@ -1202,10 +1217,10 @@
                     isLocked = false;
                     if (!disqualifiedPlayers.has(myPlayerName)) hasBuzzed = false;
                     updatePlayerButtonUI(true);
-                } else if (payload.action === 'timer') {
-                    buzzList = []; hasBuzzed = false; disqualifiedPlayers.clear(); hideWinnerSpotlight();
-                    stopSpeaking();
-                    startCountdown(payload.duration, payload.triggerMode);
+                } else if (payload.action === 'begin_timer') {
+                    if (!hasBuzzed) {
+                        startCountdown(payload.duration, payload.triggerMode);
+                    }
                 } else if (payload.action === 'read_lyrics_linebyline') {
                     hasBuzzed = false; disqualifiedPlayers.clear(); hideWinnerSpotlight();
                     const badge = document.getElementById('display-mode-badge');
