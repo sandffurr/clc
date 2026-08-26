@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Party Buzz - Enhanced Cyber Edition</title>
-    <!-- โหลด Resource แบบ defer เพื่อไม่ให้บล็อกการแสดงผลหน้าเว็บ -->
+    <title>Party Buzz - Ultimate Party Game</title>
+    <!-- Resource Loading -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/mqtt/dist/mqtt.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
@@ -22,8 +22,8 @@
         }
         .glow-amber { box-shadow: 0 0 25px rgba(245, 158, 11, 0.25); }
         .glow-emerald { box-shadow: 0 0 25px rgba(16, 185, 129, 0.25); }
-        .glow-cyan { box-shadow: 0 0 25px rgba(6, 182, 212, 0.25); }
         .glow-rose { box-shadow: 0 0 25px rgba(244, 63, 94, 0.3); }
+        .tab-active { background-color: #f59e0b !important; color: #020617 !important; font-weight: 800; }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
@@ -35,7 +35,7 @@
     <header class="w-full max-w-5xl p-3 sm:p-4 flex justify-between items-center bg-slate-900/40 border border-slate-800/80 rounded-2xl mb-4 backdrop-blur-xl">
         <div class="flex items-center gap-2 cursor-pointer" onclick="location.href=location.pathname">
             <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span>
-            <span class="font-black text-lg tracking-widest text-white">PARTY<span class="text-amber-400">BUZZ</span> <span class="text-[10px] font-normal px-2 py-0.5 rounded-full bg-amber-400/10 text-amber-400 border border-amber-400/30">PRO</span></span>
+            <span class="font-black text-lg tracking-widest text-white">PARTY<span class="text-amber-400">BUZZ</span> <span class="text-[10px] font-normal px-2 py-0.5 rounded-full bg-amber-400/10 text-amber-400 border border-amber-400/30">ULTIMATE</span></span>
         </div>
         <div class="flex items-center gap-2">
             <button id="btn-sound-toggle" onclick="toggleMute(event)" class="text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-900/80 text-slate-400 border border-slate-800 hover:text-white hover:border-slate-700 transition">
@@ -55,10 +55,10 @@
             <p class="text-xs text-slate-500 mb-6 font-light">เลือกโหมดการใช้งานอุปกรณ์ของคุณ</p>
             <div class="space-y-3">
                 <button onclick="setupDisplay()" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-black py-3.5 rounded-2xl transition active:scale-95 shadow-lg shadow-amber-400/10">
-                    📺 TV DISPLAY (จอแสดงผล & เสียง)
+                    📺 TV DISPLAY (จอแสดงผลหลัก)
                 </button>
                 <button onclick="setupHost()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 rounded-2xl border border-slate-700/80 transition active:scale-95">
-                    📱 HOST CONTROLLER (ผู้ควบคุม)
+                    📱 HOST CONTROLLER (ผู้ควบคุมเกม)
                 </button>
                 <button onclick="showPlayerLogin()" class="w-full bg-slate-900 hover:bg-slate-850 text-slate-300 font-bold py-3.5 rounded-2xl border border-slate-800 transition active:scale-95">
                     🎮 PLAYER (ปุ่มกดผู้เล่น)
@@ -123,7 +123,7 @@
         </div>
 
         <!-- SCREEN 3: HOST CONTROLLER -->
-        <div id="view-host" class="w-full max-w-md bg-slate-900/80 p-4 rounded-3xl border border-slate-800 hidden flex-col items-center backdrop-blur-2xl shadow-2xl">
+        <div id="view-host" class="w-full max-w-md bg-slate-900/90 p-4 rounded-3xl border border-slate-800 hidden flex-col items-center backdrop-blur-2xl shadow-2xl">
             
             <!-- TOP STATUS BAR -->
             <div class="w-full flex justify-between items-center mb-3 bg-slate-950 p-3 rounded-2xl border border-slate-800">
@@ -141,113 +141,144 @@
                 </div>
             </div>
 
-            <!-- SETTING: BUZZ TIMING RULE & TIMER CONFIG -->
-            <div class="w-full bg-slate-950/90 p-3.5 rounded-2xl border border-slate-800 mb-3">
-                <span class="text-[10px] font-black text-amber-400 uppercase tracking-wider block mb-2">⚙️ ตั้งค่ากติกา & เวลาการกด</span>
-                
-                <div class="mb-2">
-                    <label class="block text-[10px] text-slate-400 font-bold mb-1">เงื่อนไขการกดปุ่ม (Buzz Timing Mode):</label>
-                    <select id="select-buzz-timing" class="w-full bg-slate-900 border border-slate-700 text-amber-300 font-bold text-xs rounded-xl px-3 py-2 outline-none">
-                        <option value="during">⚡ กดได้ระหว่างนับถอยหลัง (Buzz During Timer)</option>
-                        <option value="on_zero">🛑 ล็อกปุ่ม - กดเมื่อหมดเวลา / สัญญาณ GO! (Buzz On GO)</option>
-                    </select>
+            <!-- HOST NAVIGATION TABS -->
+            <div class="w-full grid grid-cols-4 gap-1 p-1 bg-slate-950 rounded-2xl border border-slate-800 mb-3 text-[11px]">
+                <button id="tab-btn-live" onclick="switchHostTab('live')" class="py-2 rounded-xl font-bold text-slate-400 tab-active">🕹️ เกมสด</button>
+                <button id="tab-btn-preset" onclick="switchHostTab('preset')" class="py-2 rounded-xl font-bold text-slate-400">🎮 โจทย์</button>
+                <button id="tab-btn-random" onclick="switchHostTab('random')" class="py-2 rounded-xl font-bold text-slate-400">🎲 สุ่มผู้เล่น</button>
+                <button id="tab-btn-score" onclick="switchHostTab('score')" class="py-2 rounded-xl font-bold text-slate-400">🏆 คะแนน</button>
+            </div>
+
+            <!-- TAB 1: LIVE GAME CONTROLS -->
+            <div id="host-tab-live" class="w-full space-y-3">
+                <div class="bg-slate-950/90 p-3.5 rounded-2xl border border-amber-500/30 shadow-lg">
+                    <span class="text-[10px] font-black text-amber-400 uppercase tracking-wider block mb-2">⚡ ควบคุมเกมสด & ตัดสินคะแนน</span>
+
+                    <!-- DYNAMIC MODE ACTIONS -->
+                    <div id="host-mode-actions" class="space-y-2 mb-2"></div>
+
+                    <!-- SCORING DECISION BUTTONS -->
+                    <div class="grid grid-cols-2 gap-2 mb-2">
+                        <button onclick="safeAction(() => judgeAnswer(true))" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-3 rounded-xl text-xs active:scale-95 shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-1.5">
+                            ✓ ถูกต้อง (+1)
+                        </button>
+                        <button onclick="safeAction(() => judgeAnswer(false))" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-black py-3 rounded-xl text-xs active:scale-95 shadow-lg shadow-rose-600/20 flex items-center justify-center gap-1.5">
+                            ✕ ตอบผิด (-1)
+                        </button>
+                    </div>
+
+                    <!-- QUICK CONTROL ACTIONS -->
+                    <div class="grid grid-cols-2 gap-2 mb-2">
+                        <button onclick="safeAction(nextQuestion)" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-black py-2.5 rounded-xl text-xs transition active:scale-95 shadow-md shadow-cyan-600/20 flex items-center justify-center gap-1">
+                            ⏭️ ข้อต่อไป (Next)
+                        </button>
+                        <button onclick="safeAction(resetBuzzer)" class="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black py-2.5 rounded-xl text-xs transition active:scale-95 shadow-md shadow-amber-500/20 flex items-center justify-center gap-1">
+                            🔄 RESET BUZZER
+                        </button>
+                    </div>
+
+                    <button onclick="safeAction(startTimerFromConfig)" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-2.5 rounded-xl text-xs transition active:scale-95 shadow">
+                        ⏱️ เริ่มนับถอยหลัง
+                    </button>
                 </div>
 
-                <div class="flex items-center gap-2">
-                    <span class="text-[10px] text-slate-400 font-bold">เวลานับถอยหลัง:</span>
-                    <input type="number" id="input-custom-timer-sec" value="10" min="1" max="90" class="w-16 bg-slate-900 border border-slate-700 text-amber-400 font-mono font-bold text-center rounded-xl py-1 text-xs outline-none">
-                    <span class="text-xs text-slate-400 font-bold">วิ</span>
-                    <div class="flex gap-1 ml-auto">
-                        <button onclick="document.getElementById('input-custom-timer-sec').value=5" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 text-[10px] font-mono px-2 py-1 rounded-lg">5s</button>
-                        <button onclick="document.getElementById('input-custom-timer-sec').value=10" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 text-[10px] font-mono px-2 py-1 rounded-lg">10s</button>
-                        <button onclick="document.getElementById('input-custom-timer-sec').value=20" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 text-[10px] font-mono px-2 py-1 rounded-lg">20s</button>
+                <!-- SETTING: BUZZ TIMING RULE & TIMER CONFIG -->
+                <div class="bg-slate-950/90 p-3.5 rounded-2xl border border-slate-800">
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-2">⚙️ ตั้งค่าเงื่อนไขเวลา</span>
+                    <div class="mb-2">
+                        <label class="block text-[10px] text-slate-400 font-bold mb-1">เงื่อนไขการกดปุ่ม (Buzz Timing Mode):</label>
+                        <select id="select-buzz-timing" class="w-full bg-slate-900 border border-slate-700 text-amber-300 font-bold text-xs rounded-xl px-3 py-2 outline-none">
+                            <option value="during">⚡ กดได้ระหว่างนับถอยหลัง (Buzz During Timer)</option>
+                            <option value="on_zero">🛑 ล็อกปุ่ม - กดเมื่อหมดเวลา / สัญญาณ GO! (Buzz On GO)</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] text-slate-400 font-bold">เวลานับถอยหลัง:</span>
+                        <input type="number" id="input-custom-timer-sec" value="10" min="1" max="90" class="w-16 bg-slate-900 border border-slate-700 text-amber-400 font-mono font-bold text-center rounded-xl py-1 text-xs outline-none">
+                        <span class="text-xs text-slate-400 font-bold">วิ</span>
+                        <div class="flex gap-1 ml-auto">
+                            <button onclick="document.getElementById('input-custom-timer-sec').value=5" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 text-[10px] font-mono px-2 py-1 rounded-lg">5s</button>
+                            <button onclick="document.getElementById('input-custom-timer-sec').value=10" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 text-[10px] font-mono px-2 py-1 rounded-lg">10s</button>
+                            <button onclick="document.getElementById('input-custom-timer-sec').value=20" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 text-[10px] font-mono px-2 py-1 rounded-lg">20s</button>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- ZONE 1: LIVE CONTROL & SCORING DECISIONS -->
-            <div class="w-full bg-slate-950/90 p-3.5 rounded-2xl border border-amber-500/30 mb-3 shadow-lg">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-[10px] font-black text-amber-400 uppercase tracking-wider">⚡ ควบคุมเกมสด & การตัดสิน</span>
-                </div>
+            <!-- TAB 2: GAME PRESETS & CUSTOM CONTENT -->
+            <div id="host-tab-preset" class="w-full space-y-3 hidden">
+                <div class="bg-slate-950/90 p-3.5 rounded-2xl border border-slate-800">
+                    <label class="block text-[10px] font-black text-amber-400 uppercase tracking-wider mb-2">🎮 เลือกโหมด & คลังโจทย์</label>
+                    
+                    <div class="grid grid-cols-3 gap-2 mb-2.5">
+                        <select id="select-game-mode" onchange="onGameModeChange()" class="col-span-2 bg-slate-900 border border-slate-700 text-amber-300 font-bold text-xs rounded-xl px-3 py-2.5 outline-none focus:border-amber-400">
+                            <option value="song">🎵 1. ทายเพลงจาก Siri / คำใบ้</option>
+                            <option value="emoji">🧩 2. ทายคำจาก Emoji</option>
+                            <option value="math">🧮 3. คิดเลขไว (Math Blitz)</option>
+                            <option value="hint">💡 4. ทายคำจากคำใบ้</option>
+                            <option value="speed_go">🎯 5. วัดความไวช่วง GO!</option>
+                            <option value="reverse">🔤 6. ถอดรหัสคำย้อนกลับ</option>
+                            <option value="trivia">⚡ 7. คำถามตอบไว</option>
+                            <option value="spelling">🔠 8. สะกดคำศัพท์</option>
+                        </select>
+                        <button onclick="safeAction(randomPresetItem)" class="bg-amber-400/10 border border-amber-500/40 text-amber-400 hover:bg-amber-400/20 font-bold rounded-xl text-xs active:scale-95 transition flex items-center justify-center gap-1">
+                            🎲 สุ่มโจทย์
+                        </button>
+                    </div>
 
-                <!-- DYNAMIC MODE ACTIONS -->
-                <div id="host-mode-actions" class="space-y-2 mb-2"></div>
-
-                <!-- SCORING DECISION BUTTONS (CORRECT / WRONG) -->
-                <div class="grid grid-cols-2 gap-2 mb-2">
-                    <button onclick="safeAction(() => judgeAnswer(true))" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-3 rounded-xl text-xs active:scale-95 shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-1.5">
-                        ✓ ถูกต้อง (+1)
-                    </button>
-                    <button onclick="safeAction(() => judgeAnswer(false))" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-black py-3 rounded-xl text-xs active:scale-95 shadow-lg shadow-rose-600/20 flex items-center justify-center gap-1.5">
-                        ✕ ตอบผิด (-1)
-                    </button>
-                </div>
-
-                <!-- QUICK ACTIONS -->
-                <div class="grid grid-cols-2 gap-2 mb-2">
-                    <button onclick="safeAction(nextQuestion)" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-black py-2.5 rounded-xl text-xs transition active:scale-95 shadow-md shadow-cyan-600/20 flex items-center justify-center gap-1">
-                        ⏭️ ข้อต่อไป (Next)
-                    </button>
-                    <button onclick="safeAction(resetBuzzer)" class="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black py-2.5 rounded-xl text-xs transition active:scale-95 shadow-md shadow-amber-500/20 flex items-center justify-center gap-1">
-                        🔄 RESET BUZZER
-                    </button>
-                </div>
-
-                <button onclick="safeAction(startTimerFromConfig)" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-2.5 rounded-xl text-xs transition active:scale-95 shadow">
-                    ⏱️ เริ่มนับถอยหลังตามที่ตั้งค่าไว้
-                </button>
-            </div>
-
-            <!-- ZONE 2: GAME PRESET & CUSTOM CONTENT -->
-            <div class="w-full bg-slate-950/60 p-3.5 rounded-2xl border border-slate-800/80 mb-3 transition-all">
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1.5">🎮 เลือกโหมด & สุ่มโจทย์</label>
-                
-                <div class="grid grid-cols-3 gap-2 mb-2.5">
-                    <select id="select-game-mode" onchange="onGameModeChange()" class="col-span-2 bg-slate-900 border border-slate-700 text-amber-300 font-bold text-xs rounded-xl px-3 py-2.5 outline-none focus:border-amber-400">
-                        <option value="song">🎵 1. ทายเพลงจาก Siri</option>
-                        <option value="hint">💡 2. ทายคำจากคำใบ้</option>
-                        <option value="speed_go">🎯 3. วัดความไวช่วง GO!</option>
-                        <option value="reverse">🔤 4. ถอดรหัสคำย้อนกลับ</option>
-                        <option value="trivia">⚡ 5. คำถามตอบไว</option>
-                        <option value="spelling">🔠 6. สะกดคำศัพท์</option>
+                    <select id="select-preset-song" onchange="onSelectPresetChange()" class="w-full bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl p-2.5 outline-none font-medium mb-2">
                     </select>
-                    <button onclick="safeAction(randomPresetItem)" class="bg-amber-400/10 border border-amber-500/40 text-amber-400 hover:bg-amber-400/20 font-bold rounded-xl text-xs active:scale-95 transition flex items-center justify-center gap-1">
-                        🎲 สุ่มโจทย์
+
+                    <div id="youtube-search-shortcut" class="hidden mb-2">
+                        <button onclick="openYouTubeSearch()" class="w-full bg-red-600/20 border border-red-500/40 text-red-400 font-bold py-2 rounded-xl text-xs hover:bg-red-600/30 transition flex items-center justify-center gap-1">
+                            ▶️ ค้นหาเพลงนี้บน YouTube
+                        </button>
+                    </div>
+
+                    <button onclick="toggleCustomLyricsArea()" class="w-full bg-slate-900/50 border border-dashed border-slate-800 text-slate-400 font-semibold py-2 rounded-xl text-xs transition hover:text-white hover:border-slate-700">
+                        ✏️ ป้อนโจทย์ / บันทึกคลังข้อมูลเอง
                     </button>
-                </div>
 
-                <select id="select-preset-song" onchange="onSelectPresetChange()" class="w-full bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl p-2.5 outline-none font-medium mb-2">
-                </select>
-
-                <button onclick="toggleCustomLyricsArea()" class="w-full bg-slate-900/50 border border-dashed border-slate-800 text-slate-400 font-semibold py-2 rounded-xl text-xs transition hover:text-white hover:border-slate-700">
-                    ✏️ ป้อนโจทย์/ข้อความเอง
-                </button>
-
-                <div id="custom-lyrics-container" class="hidden mt-2 pt-2 border-t border-slate-800">
-                    <textarea id="input-host-lyrics" rows="2" placeholder="พิมพ์ข้อความ (ขึ้นบรรทัดใหม่ = ขั้นถัดไป)..." class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white focus:outline-none mb-2 font-mono"></textarea>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button onclick="safeAction(sendCustomLyrics)" class="bg-slate-800 border border-slate-700 text-slate-200 font-bold py-2 rounded-xl text-xs hover:bg-slate-700 active:scale-95">
-                            🗣️ อ่านโจทย์ทันที
-                        </button>
-                        <button onclick="addNewItemToPreset()" class="bg-slate-800 border border-slate-700 text-amber-400 font-bold py-2 rounded-xl text-xs hover:bg-slate-700 active:scale-95">
-                            ➕ บันทึกเข้าคลัง
-                        </button>
+                    <div id="custom-lyrics-container" class="hidden mt-2 pt-2 border-t border-slate-800">
+                        <textarea id="input-host-lyrics" rows="3" placeholder="พิมพ์ข้อความ (ขึ้นบรรทัดใหม่ = ขั้นถัดไป)..." class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white focus:outline-none mb-2 font-mono"></textarea>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="safeAction(sendCustomLyrics)" class="bg-slate-800 border border-slate-700 text-slate-200 font-bold py-2 rounded-xl text-xs hover:bg-slate-700 active:scale-95">
+                                🗣️ อ่านโจทย์ทันที
+                            </button>
+                            <button onclick="addNewItemToPreset()" class="bg-slate-800 border border-slate-700 text-amber-400 font-bold py-2 rounded-xl text-xs hover:bg-slate-700 active:scale-95">
+                                💾 บันทึกถาวร (Save)
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- ZONE 3: SCOREBOARD QUICK ACTIONS -->
-            <div class="w-full bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80 mb-3">
-                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">🏆 คะแนนผู้เล่น</span>
-                <div id="host-scoreboard" class="space-y-1.5 max-h-[120px] overflow-y-auto pr-1">
-                    <p class="text-xs text-slate-600 text-center py-2">ยังไม่มีผู้เล่น</p>
+            <!-- TAB 3: RANDOM PLAYER PICKER SYSTEM -->
+            <div id="host-tab-random" class="w-full space-y-3 hidden">
+                <div class="bg-slate-950/90 p-4 rounded-2xl border border-amber-500/30 text-center">
+                    <span class="text-xs font-black text-amber-400 uppercase tracking-wider block mb-1">🎲 ระบบสุ่มเลือกผู้เล่น</span>
+                    <p class="text-[11px] text-slate-400 mb-3">สุ่มผู้เล่นสำหรับบทลงโทษ / ตอบคำถามสด / แจกรางวัล</p>
+                    
+                    <button onclick="safeAction(pickRandomPlayer)" class="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black py-4 rounded-2xl text-base shadow-lg shadow-amber-500/20 active:scale-95 transition flex items-center justify-center gap-2">
+                        🎯 สุ่มผู้เล่นดวงดี! (Random Player)
+                    </button>
                 </div>
             </div>
 
-            <button onclick="clearRoomCompletely()" class="text-slate-600 hover:text-rose-400 text-[11px] py-1 transition font-medium">
-                ⚠️ ล้างข้อมูลห้องทั้งหมด (Reset Room)
-            </button>
+            <!-- TAB 4: SCOREBOARD & ROOM RESET -->
+            <div id="host-tab-score" class="w-full space-y-3 hidden">
+                <div class="bg-slate-950/90 p-3.5 rounded-2xl border border-slate-800">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">🏆 สกอร์บอร์ดผู้เล่น</span>
+                    <div id="host-scoreboard" class="space-y-1.5 max-h-[220px] overflow-y-auto pr-1">
+                        <p class="text-xs text-slate-600 text-center py-2">ยังไม่มีผู้เล่นในห้อง</p>
+                    </div>
+                </div>
+
+                <button onclick="clearRoomCompletely()" class="w-full bg-rose-950/40 border border-rose-800/60 text-rose-400 hover:bg-rose-900/40 text-xs py-2.5 rounded-xl font-bold transition">
+                    ⚠️ ล้างข้อมูลห้องและคะแนนทั้งหมด (Reset Room)
+                </button>
+            </div>
         </div>
 
         <!-- SCREEN 4: PLAYER LOGIN -->
@@ -311,8 +342,7 @@
         let currentTimerMode = 'after';
         let currentTimerSec = 10;
         let currentBuzzTriggerMode = 'during';
-        let roundStartTime = 0; // TV Master Timestamp
-        
+        let roundStartTime = 0;
         let isActionDebounced = false;
 
         // --- DEBOUNCE UTILITY ---
@@ -323,14 +353,69 @@
             setTimeout(() => { isActionDebounced = false; }, delay);
         }
 
-        // --- SECURITY UTILS ---
         function escapeHTML(str) {
             return String(str).replace(/[&<>"']/g, function (m) {
                 return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
             });
         }
 
-        // --- SILENT AUDIO UNLOCK & SPEECH SYNTHESIS ---
+        // --- PERSISTENCE: LOCALSTORAGE PRESETS ---
+        const defaultGamePresets = {
+            song: [
+                { title: 'ทรงอย่างแบด', artist: 'Paper Planes', lyrics: "ทรงอย่างแบด แซดอย่างบ่อย\nเธอทำให้ฉันต้องเจ็บช้ำ\nปล่อยให้ฉันต้องคิดถึงเธออยู่ข้างเดียว" },
+                { title: 'พิง', artist: 'NON TANONT', lyrics: "ที่ตรงนี้มีคนที่รอเธออยู่\nที่ตรงนี้มีคนที่รักเธอเกินใคร\nหากว่าเธอเหนื่อยล้าลองหันมองกลับมา" },
+                { title: 'ถ้าเราเจอกันอีก', artist: 'Tilly Birds', lyrics: "ถ้าหากว่าในวันนั้นเราไม่ได้เจอกัน\nวันนี้ฉันคงไม่ต้องเสียใจกับการจากลา" }
+            ],
+            emoji: [
+                { title: 'ช้างศึก', artist: 'เฉลย: ทีมชาติไทย', lyrics: "🐘 + ⚽" },
+                { title: 'ชานมไข่มุก', artist: 'เฉลย: เครื่องดื่มยอดฮิต', lyrics: "🍵 + 🥛 + 🧋" },
+                { title: 'รักแรกพบ', artist: 'เฉลย: ชื่อเพลงฮิต', lyrics: "❤️ + 1️⃣ + 👀" }
+            ],
+            math: [
+                { title: 'โจทย์คิดเลขไว 1', artist: 'เฉลย: 45', lyrics: "15 + 30 = ?" },
+                { title: 'โจทย์คิดเลขไว 2', artist: 'เฉลย: 64', lyrics: "8 x 8 = ?" },
+                { title: 'โจทย์คิดเลขไว 3', artist: 'เฉลย: 25', lyrics: "100 ÷ 4 = ?" }
+            ],
+            hint: [
+                { title: 'ผลไม้สีเหลือง', artist: 'เฉลย: กล้วย', lyrics: "คำใบ้ที่ 1: เป็นผลไม้ที่มีเปลือกสีเหลือง\nคำใบ้ที่ 2: ลิงชอบกินมากที่สุด\nคำใบ้ที่ 3: นิยมนำไปเชื่อมหรือบวดชี" },
+                { title: 'สถานที่สำคัญ', artist: 'เฉลย: สนามบินสุวรรณภูมิ', lyrics: "คำใบ้ที่ 1: อยู่ในจังหวัดสมุทรปราการ\nคำใบ้ที่ 2: มีเครื่องบินขึ้นลงตลอด 24 ชั่วโมง\nคำใบ้ที่ 3: มีรูปปั้นยักษ์ขนาดใหญ่อยู่ข้างใน" }
+            ],
+            speed_go: [
+                { title: 'วัดความไว: รอบที่ 1', artist: 'เฉลย: คนกดไวที่สุดได้แต้ม', lyrics: "เตรียมมือให้พร้อมที่ปุ่มกด\nระวัง...\n3\n2\n1\nGO!" }
+            ],
+            reverse: [
+                { title: 'คำย้อนกลับ 1', artist: 'เฉลย: ชาบูสุกี้', lyrics: "สุก - ชา - บู" },
+                { title: 'คำย้อนกลับ 2', artist: 'เฉลย: กุ้งแม่น้ำ', lyrics: "น้ำ - แม่ - กุ้ง" }
+            ],
+            trivia: [
+                { title: 'คำถามรอบตัว 1', artist: 'เฉลย: 8 จังหวัด', lyrics: "ประเทศไทยมีกี่จังหวัดที่ขึ้นต้นด้วยคำว่า นคร ?" },
+                { title: 'คำถามรอบตัว 2', artist: 'เฉลย: สีส้ม', lyrics: "สีแดง ผสมกับ สีเหลือง ได้แม่สีอะไร ?" }
+            ],
+            spelling: [
+                { title: 'สะกดคำอังกฤษ', artist: 'เฉลย: COMPUTER', lyrics: "C - O - M - P - U - T - E - R" },
+                { title: 'สะกดคำไทย', artist: 'เฉลย: มหัศจรรย์', lyrics: "ม - ห - ั - ศ - จ - ร - ร - ย - ์" }
+            ]
+        };
+
+        let gamePresets = JSON.parse(JSON.stringify(defaultGamePresets));
+
+        function loadSavedPresets() {
+            const saved = localStorage.getItem('pb_custom_game_presets');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    Object.keys(parsed).forEach(key => {
+                        gamePresets[key] = parsed[key];
+                    });
+                } catch(e) {}
+            }
+        }
+
+        function savePresetsToStorage() {
+            localStorage.setItem('pb_custom_game_presets', JSON.stringify(gamePresets));
+        }
+
+        // --- AUDIO ENGINE ---
         let audioUnlocked = false;
         let thaiVoice = null;
         window.activeUtterance = null;
@@ -352,40 +437,9 @@
                 const ctx = getAudioContext();
                 if (ctx && ctx.state === 'suspended') ctx.resume();
             } catch(e) {}
-
             if ('speechSynthesis' in window) window.speechSynthesis.resume();
             audioUnlocked = true;
         }
-
-        // MULTI-MODE DATABASE
-        const gamePresets = {
-            song: [
-                { title: 'ทรงอย่างแบด', artist: 'Paper Planes', lyrics: "ทรงอย่างแบด แซดอย่างบ่อย\nเธอทำให้ฉันต้องเจ็บช้ำ\nปล่อยให้ฉันต้องคิดถึงเธออยู่ข้างเดียว" },
-                { title: 'พิง', artist: 'NON TANONT', lyrics: "ที่ตรงนี้มีคนที่รอเธออยู่\nที่ตรงนี้มีคนที่รักเธอเกินใคร\nหากว่าเธอเหนื่อยล้าลองหันมองกลับมา" },
-                { title: 'ถ้าเราเจอกันอีก', artist: 'Tilly Birds', lyrics: "ถ้าหากว่าในวันนั้นเราไม่ได้เจอกัน\nวันนี้ฉันคงไม่ต้องเสียใจกับการจากลา" }
-            ],
-            hint: [
-                { title: 'ผลไม้สีเหลือง', artist: 'เฉลย: กล้วย', lyrics: "คำใบ้ที่ 1: เป็นผลไม้ที่มีเปลือกสีเหลือง\nคำใบ้ที่ 2: ลิงชอบกินมากที่สุด\nคำใบ้ที่ 3: นิยมนำไปเชื่อมหรือบวดชี" },
-                { title: 'สถานที่สำคัญ', artist: 'เฉลย: สนามบินสุวรรณภูมิ', lyrics: "คำใบ้ที่ 1: อยู่ในจังหวัดสมุทรปราการ\nคำใบ้ที่ 2: มีเครื่องบินขึ้นลงตลอด 24 ชั่วโมง\nคำใบ้ที่ 3: มีรูปปั้นยักษ์ขนาดใหญ่อยู่ข้างใน" }
-            ],
-            speed_go: [
-                { title: 'วัดความไว: รอบที่ 1', artist: 'เฉลย: คนกดไวที่สุดได้แต้ม', lyrics: "เตรียมมือให้พร้อมที่ปุ่มกด\nระวัง...\n3\n2\n1\nGO!" },
-                { title: 'วัดความไว: รอบที่ 2', artist: 'เฉลย: คนกดไวที่สุดได้แต้ม', lyrics: "พร้อมแล้วหรือยัง...\nนับถอยหลัง...\nกดได้เลย!" }
-            ],
-            reverse: [
-                { title: 'คำย้อนกลับ 1', artist: 'เฉลย: ชาบูสุกี้', lyrics: "สุก - ชา - บู" },
-                { title: 'คำย้อนกลับ 2', artist: 'เฉลย: กุ้งแม่น้ำ', lyrics: "น้ำ - แม่ - กุ้ง" },
-                { title: 'คำย้อนกลับ 3', artist: 'เฉลย: ชานมไข่มุก', lyrics: "มุก - ไข่ - นม - ชา" }
-            ],
-            trivia: [
-                { title: 'คำถามรอบตัว 1', artist: 'เฉลย: 8 จังหวัด', lyrics: "ประเทศไทยมีกี่จังหวัดที่ขึ้นต้นด้วยคำว่า นคร ?" },
-                { title: 'คำถามรอบตัว 2', artist: 'เฉลย: สีส้ม', lyrics: "สีแดง ผสมกับ สีเหลือง ได้แม่สีอะไร ?" }
-            ],
-            spelling: [
-                { title: 'สะกดคำอังกฤษ', artist: 'เฉลย: COMPUTER', lyrics: "C - O - M - P - U - T - E - R" },
-                { title: 'สะกดคำไทย', artist: 'เฉลย: มหัศจรรย์', lyrics: "ม - ห - ั - ศ - จ - ร - ร - ย - ์" }
-            ]
-        };
 
         function toggleMute(e) {
             if (e) e.stopPropagation();
@@ -449,20 +503,17 @@
                         g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + (idx * 0.08) + 0.18);
                         cleanOsc(o, g, 0.18);
                     });
-                } else if (type === 'go') {
-                    [523.25, 1046.50].forEach((freq, idx) => {
-                        const o = ctx.createOscillator(); const g = ctx.createGain();
-                        o.connect(g); g.connect(ctx.destination);
-                        o.type = 'sine'; o.frequency.setValueAtTime(freq, ctx.currentTime + (idx * 0.06));
-                        g.gain.setValueAtTime(0.35, ctx.currentTime + (idx * 0.06));
-                        g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + (idx * 0.06) + 0.15);
-                        cleanOsc(o, g, 0.15);
-                    });
+                } else if (type === 'spin') {
+                    const osc = ctx.createOscillator(); const gain = ctx.createGain();
+                    osc.connect(gain); gain.connect(ctx.destination);
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(600, ctx.currentTime);
+                    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.04);
+                    cleanOsc(osc, gain, 0.04);
                 }
             } catch(e) {}
         }
 
-        // อ่านเสียงอ่านโจทย์เฉพาะเครื่องที่เป็น TV Display เท่านั้น
         function speakThaiLine(text, onEndCallback) {
             const isTV = !document.getElementById('view-display').classList.contains('hidden');
             if (!isTV || isMuted || !('speechSynthesis' in window)) {
@@ -476,7 +527,6 @@
             setTimeout(() => {
                 const utterance = new SpeechSynthesisUtterance(text);
                 window.activeUtterance = utterance;
-
                 utterance.lang = 'th-TH';
                 utterance.rate = 0.95;
                 utterance.pitch = 1.0;
@@ -552,13 +602,12 @@
                     playSound('tick');
                 } else {
                     stopTimer();
-
                     if (currentBuzzTriggerMode === 'on_zero') {
                         playSound('go');
                         if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
                         isLocked = false;
                         hasBuzzed = false;
-                        roundStartTime = Date.now(); // อัปเดตเวลาอ้างอิง ณ สัญญาณ GO!
+                        roundStartTime = Date.now();
                         if (timerLabel) timerLabel.innerText = "GO!";
                         if (timerVal) timerVal.innerText = "GO!";
                         updatePlayerButtonUI(true, "PRESS NOW!");
@@ -624,6 +673,16 @@
             }
         }
 
+        // HOST TAB NAVIGATION
+        function switchHostTab(tabName) {
+            ['live', 'preset', 'random', 'score'].forEach(t => {
+                document.getElementById(`host-tab-${t}`).classList.add('hidden');
+                document.getElementById(`tab-btn-${t}`).classList.remove('tab-active');
+            });
+            document.getElementById(`host-tab-${tabName}`).classList.remove('hidden');
+            document.getElementById(`tab-btn-${tabName}`).classList.add('tab-active');
+        }
+
         // HOST CONTROLS & DYNAMIC UI
         function getHostSettings() {
             const timing = document.getElementById('select-buzz-timing') ? document.getElementById('select-buzz-timing').value : 'during';
@@ -635,9 +694,15 @@
             const mode = document.getElementById('select-game-mode').value;
             const actionBox = document.getElementById('host-mode-actions');
             const timingSelect = document.getElementById('select-buzz-timing');
+            const ytShortcut = document.getElementById('youtube-search-shortcut');
             
             if (timingSelect) {
                 timingSelect.value = (mode === 'speed_go') ? 'on_zero' : 'during';
+            }
+
+            if (ytShortcut) {
+                if (mode === 'song') ytShortcut.classList.remove('hidden');
+                else ytShortcut.classList.add('hidden');
             }
 
             let actionsHTML = '';
@@ -657,10 +722,10 @@
                         🎯 เริ่มนับถอยหลัง GO!
                     </button>
                 `;
-            } else if (mode === 'reverse' || mode === 'trivia') {
+            } else {
                 actionsHTML = `
                     <button onclick="safeAction(playSelectedPreset)" class="w-full bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 font-black py-3 rounded-xl text-xs transition active:scale-95 shadow">
-                        ⚡ อ่านคำถาม/คำย้อนกลับ
+                        ⚡ แสดงโจทย์ทันที
                     </button>
                 `;
             }
@@ -677,7 +742,6 @@
         function renderPresetDropdown() {
             const select = document.getElementById('select-preset-song');
             if (!select) return;
-
             const list = getCurrentModePresets();
             select.innerHTML = list.map((item, idx) => `
                 <option value="${idx}">${escapeHTML(item.title)} (${escapeHTML(item.artist)})</option>
@@ -694,6 +758,12 @@
                 document.getElementById('input-host-lyrics').value = item.lyrics;
                 currentSongInfo = item;
             }
+        }
+
+        function openYouTubeSearch() {
+            if (!currentSongInfo) return;
+            const query = encodeURIComponent(`${currentSongInfo.title} ${currentSongInfo.artist}`);
+            window.open(`https://www.youtube.com/results?search_query=${query}`, '_blank');
         }
 
         function toggleCustomLyricsArea() {
@@ -715,7 +785,6 @@
 
         function playCurrentLine() {
             if (currentLineIndex >= lyricLines.length) return;
-
             stopTimer();
             const text = lyricLines[currentLineIndex];
 
@@ -732,6 +801,17 @@
                     startCountdown(currentTimerSec, currentBuzzTriggerMode);
                 }
             });
+        }
+
+        // RANDOM PLAYER PICKER
+        function pickRandomPlayer() {
+            const players = Object.keys(playerScores);
+            if (players.length === 0) {
+                alert('ยังไม่มีผู้เล่นในห้อง');
+                return;
+            }
+
+            publishControl({ action: 'start_random_roulette', players: players });
         }
 
         // DISPLAY SETUP
@@ -766,6 +846,7 @@
         function startHostSession() {
             showView('view-host');
             document.getElementById('host-room-code').innerText = currentRoom;
+            loadSavedPresets();
             onGameModeChange();
             initMQTT(() => {
                 mqttClient.subscribe(`partybuzz/${currentRoom}/buzz_request`);
@@ -850,7 +931,6 @@
             hideWinnerSpotlight();
             
             const { timing, sec } = getHostSettings();
-
             publishControl({ action: 'reset' });
             publishControl({ 
                 action: 'read_lyrics_linebyline', 
@@ -860,23 +940,24 @@
 
         function addNewItemToPreset() {
             const lyrics = document.getElementById('input-host-lyrics').value.trim();
-            if(!lyrics) return;
+            if(!lyrics) return alert('กรุณาพิมพ์เนื้อหาโจทย์');
             const title = prompt('ชื่อโจทย์/หัวข้อ:') || 'ข้อใหม่';
             const artist = prompt('เฉลย/คำอธิบาย:') || 'ไม่ระบุ';
 
             const mode = document.getElementById('select-game-mode').value;
             if(!gamePresets[mode]) gamePresets[mode] = [];
             gamePresets[mode].push({ title, artist, lyrics });
+            savePresetsToStorage();
 
             renderPresetDropdown();
             document.getElementById('select-preset-song').value = gamePresets[mode].length - 1;
             onSelectPresetChange();
+            alert('บันทึกเข้าคลังข้อมูลเรียบร้อยแล้ว');
         }
 
-        // JUDGING LOGIC (CORRECT / WRONG)
+        // JUDGING LOGIC
         function judgeAnswer(isCorrect) {
             if (buzzList.length === 0) return;
-
             const currentWinner = buzzList[0].name;
 
             if (isCorrect) {
@@ -905,7 +986,7 @@
         }
 
         function clearRoomCompletely() {
-            if (confirm('ล้างข้อมูลห้องทั้งหมดหรือไม่?')) {
+            if (confirm('ล้างข้อมูลห้องและคะแนนทั้งหมดหรือไม่?')) {
                 buzzList = []; playerScores = {}; disqualifiedPlayers.clear();
                 stopSpeaking(); stopTimer();
                 renderHostScoreboard();
@@ -973,12 +1054,10 @@
         function pressBuzz() {
             if (hasBuzzed || disqualifiedPlayers.has(myPlayerName)) return;
 
-            // ส่งสัญญาณไปยัง Master (TV/Host) เพื่อให้อิงเวลาจากส่วนกลาง
             mqttClient.publish(`partybuzz/${currentRoom}/buzz_request`, JSON.stringify({
                 name: myPlayerName
             }));
 
-            // อัปเดต UI ฝั่งตัวเองชั่วคราว
             if (currentBuzzTriggerMode === 'on_zero' && isLocked) {
                 disqualifiedPlayers.add(myPlayerName);
                 playSound('wrong');
@@ -1017,7 +1096,6 @@
         // REALTIME MQTT HANDLER
         function handleIncomingMessage(topic, payload) {
             
-            // จอ TV / Host รับคำขอ Buzz แล้วประทับเวลา (Timestamp) ของ TV เพื่อความเที่ยงตรง
             if (topic.endsWith('/buzz_request')) {
                 const isTVOrHost = !document.getElementById('view-display').classList.contains('hidden') || !document.getElementById('view-host').classList.contains('hidden');
                 
@@ -1044,7 +1122,6 @@
                         buzzList.sort((a,b) => a.timestamp - b.timestamp);
                         if (!(payload.name in playerScores)) playerScores[payload.name] = 0;
 
-                        // กระจาย คิวที่จัดเรียงเวลาโดย TV ให้กับทุกเครื่อง
                         publishControl({ 
                             action: 'sync_queue', 
                             buzzList: buzzList,
@@ -1081,6 +1158,32 @@
 
                     stopSpeaking();
                     stopTimer();
+                } else if (payload.action === 'start_random_roulette') {
+                    const players = payload.players;
+                    const spotlight = document.getElementById('display-winner-spotlight');
+                    const winnerName = document.getElementById('display-winner-name');
+                    const winnerLabel = document.getElementById('display-winner-label');
+                    if (!spotlight || !winnerName) return;
+
+                    spotlight.classList.remove('hidden');
+                    if (winnerLabel) winnerLabel.innerText = "🎲 RANDOM PICKER 🎲";
+
+                    let count = 0;
+                    const totalTicks = 25;
+                    const interval = setInterval(() => {
+                        const tempWinner = players[Math.floor(Math.random() * players.length)];
+                        winnerName.innerText = tempWinner;
+                        playSound('spin');
+                        count++;
+                        if (count >= totalTicks) {
+                            clearInterval(interval);
+                            const finalWinner = players[Math.floor(Math.random() * players.length)];
+                            winnerName.innerText = finalWinner;
+                            playSound('correct');
+                            try { confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } }); } catch(e){}
+                        }
+                    }, 100);
+
                 } else if (payload.action === 'player_foul') {
                     disqualifiedPlayers.add(payload.name);
                     if (payload.name === myPlayerName) {
@@ -1249,6 +1352,7 @@
         });
 
         window.addEventListener('DOMContentLoaded', () => {
+            loadSavedPresets();
             const urlParams = new URLSearchParams(window.location.search);
             const roomParam = urlParams.get('room');
 
