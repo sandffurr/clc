@@ -60,7 +60,6 @@
         <!-- SCREEN 2: TV DISPLAY -->
         <div id="view-display" class="w-full hidden flex-col items-center">
             
-            <!-- MAIN DISPLAY CARD -->
             <div id="display-main-card" class="w-full bg-slate-900/40 border border-slate-800 p-6 sm:p-8 rounded-3xl mb-4 text-center relative min-h-[360px] flex flex-col justify-center items-center shadow-2xl">
                 
                 <div id="display-mode-badge" class="absolute top-4 left-4 text-[10px] font-extrabold px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-amber-400 uppercase tracking-widest">
@@ -73,10 +72,8 @@
                     <span id="display-timer-val" class="text-8xl sm:text-9xl font-black text-amber-400 font-mono tracking-tighter giant-timer-glow">00</span>
                 </div>
                 
-                <!-- LOBBY DISPLAY (แสดง QR ใหญ่ + ตารางผู้เล่น/คะแนน เมื่อไม่มีโจทย์) -->
+                <!-- LOBBY DISPLAY -->
                 <div id="display-lobby-content" class="w-full flex flex-col md:flex-row items-center justify-around gap-6 py-4">
-                    
-                    <!-- QR CODE & ROOM BLOCK -->
                     <div class="flex flex-col items-center bg-slate-950 p-6 rounded-3xl border border-amber-400/30 shadow-lg">
                         <span class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">สแกนเพื่อเข้าร่วมเล่น</span>
                         <div id="display-qrcode-large" class="p-3 bg-white rounded-2xl shadow-xl"></div>
@@ -86,7 +83,6 @@
                         </div>
                     </div>
 
-                    <!-- PLAYERS & SCOREBOARD LIST IN LOBBY -->
                     <div class="w-full max-w-md flex flex-col gap-4">
                         <div class="bg-slate-950/70 p-4 rounded-2xl border border-slate-800">
                             <div class="flex justify-between items-center mb-2">
@@ -140,7 +136,6 @@
 
         <!-- SCREEN 3: HOST -->
         <div id="view-host" class="w-full max-w-sm bg-slate-900/40 p-4 rounded-3xl border border-slate-900 hidden flex-col items-center">
-            
             <div class="w-full flex justify-between items-center mb-3 bg-slate-950 p-3 rounded-2xl border border-slate-900">
                 <div>
                     <span class="text-[8px] text-slate-500 font-bold uppercase block">ROOM</span>
@@ -192,7 +187,6 @@
                     </button>
                 </div>
 
-                <!-- SETTING TIMER & BUTTON PRESETS -->
                 <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-900 space-y-3 text-xs">
                     <div>
                         <label class="block text-[9px] text-slate-500 font-bold mb-1 uppercase">เงื่อนไขการกด</label>
@@ -210,7 +204,6 @@
                             <button type="button" onclick="adjustTimerSec(1)" class="w-8 h-8 bg-slate-800 hover:bg-slate-700 active:scale-95 text-amber-400 font-black rounded-xl text-base border border-slate-700">+</button>
                         </div>
                         
-                        <!-- QUICK TIMER PRESET BUTTONS (1, 2, 3, 5, 10, 15, 20) -->
                         <div class="grid grid-cols-7 gap-1 pt-1">
                             <button type="button" onclick="setTimerSec(1)" class="bg-slate-900 hover:bg-amber-400 hover:text-slate-950 border border-slate-800 text-amber-400 font-mono font-bold py-1.5 rounded-lg text-[11px] transition">1s</button>
                             <button type="button" onclick="setTimerSec(2)" class="bg-slate-900 hover:bg-amber-400 hover:text-slate-950 border border-slate-800 text-amber-400 font-mono font-bold py-1.5 rounded-lg text-[11px] transition">2s</button>
@@ -365,7 +358,6 @@
             });
         }
 
-        /* TIMER HELPER FUNCTIONS */
         function setTimerSec(val) {
             const el = document.getElementById('input-custom-timer-sec');
             if (el) el.value = val;
@@ -471,7 +463,6 @@
             return audioCtx;
         }
 
-        /* UPGRADED SYNTHESIZER SOUND ENGINE */
         function playSound(type) {
             const isTV = !document.getElementById('view-display').classList.contains('hidden');
             if (!isTV || isMuted) return;
@@ -481,7 +472,6 @@
                 const now = ctx.currentTime;
 
                 if (type === 'tick') {
-                    // Soft woodblock / Pop sound
                     const osc = ctx.createOscillator();
                     const gain = ctx.createGain();
                     osc.type = 'sine';
@@ -494,7 +484,6 @@
                     osc.start(now);
                     osc.stop(now + 0.05);
                 } else if (type === 'buzz') {
-                    // Rich Arcade Dual Buzzer
                     [160, 164].forEach(freq => {
                         const osc = ctx.createOscillator();
                         const gain = ctx.createGain();
@@ -508,7 +497,6 @@
                         osc.stop(now + 0.26);
                     });
                 } else if (type === 'correct') {
-                    // Bright Victory Chime Arpeggio (C5 -> E5 -> G5 -> C6)
                     const notes = [523.25, 659.25, 783.99, 1046.50];
                     notes.forEach((freq, i) => {
                         const startTime = now + (i * 0.07);
@@ -524,7 +512,6 @@
                         osc.stop(startTime + 0.32);
                     });
                 } else if (type === 'wrong') {
-                    // Descending Low Error Buzz
                     const osc = ctx.createOscillator();
                     const gain = ctx.createGain();
                     osc.type = 'sawtooth';
@@ -540,10 +527,11 @@
             } catch(e) {}
         }
 
+        /* SPEAK THAI WITH ESTIMATED DELAY IF MUTED (PREVENTS INSTANT TIMER RESET) */
         function speakThaiLine(text, onEndCallback) {
-            const isTV = !document.getElementById('view-display').classList.contains('hidden');
-            if (!isTV || isMuted || !('speechSynthesis' in window)) {
-                if (onEndCallback) onEndCallback();
+            if (isMuted || !('speechSynthesis' in window)) {
+                const estimatedMs = Math.max(1500, text.length * 120);
+                setTimeout(() => { if (onEndCallback) onEndCallback(); }, estimatedMs);
                 return;
             }
 
@@ -807,28 +795,28 @@
             playCurrentLine();
         }
 
+        /* ONLY HOST TRIGGERS BEGIN_TIMER AFTER TTS READING COMPLETES */
         function playCurrentLine() {
             if (currentLineIndex >= lyricLines.length) return;
             stopTimer(); stopSpeaking(); showTVQuestionView();
 
             const text = lyricLines[currentLineIndex];
-            document.getElementById('display-question-text').innerText = text;
+            const displayQText = document.getElementById('display-question-text');
+            if (displayQText) displayQText.innerText = text;
+
             const playerQBox = document.getElementById('player-question-box');
             if (playerQBox) playerQBox.innerText = text;
 
             isLocked = true;
             updatePlayerButtonUI(false, "READING...");
 
-            const isTV = !document.getElementById('view-display').classList.contains('hidden');
             const isHost = !document.getElementById('view-host').classList.contains('hidden');
 
-            if (isTV || isHost) {
-                speakThaiLine(text, () => {
-                    if (isTV || (isHost && buzzList.length === 0)) {
-                        publishControl({ action: 'begin_timer', duration: currentTimerSec, triggerMode: currentBuzzTriggerMode });
-                    }
-                });
-            }
+            speakThaiLine(text, () => {
+                if (isHost && buzzList.length === 0) {
+                    publishControl({ action: 'begin_timer', duration: currentTimerSec, triggerMode: currentBuzzTriggerMode });
+                }
+            });
         }
 
         function pickRandomPlayer() {
@@ -842,7 +830,6 @@
             showView('view-display');
             document.getElementById('display-room-code-large').innerText = currentRoom;
 
-            // RENDER LARGE QR CODE FOR LOBBY
             const qrContainer = document.getElementById('display-qrcode-large');
             qrContainer.innerHTML = '';
             new QRCode(qrContainer, {
