@@ -21,7 +21,7 @@
             100% { box-shadow: 0 0 40px rgba(244, 63, 94, 0.9); } 
         }
         .glow-amber { box-shadow: 0 0 25px rgba(245, 158, 11, 0.25); }
-        .glow-emerald { box-shadow: 0 0 25px rgba(16, 185, 129, 0.25); }
+        .glow-emerald { box-shadow: 0 0 35px rgba(16, 185, 129, 0.4); }
         .glow-rose { box-shadow: 0 0 25px rgba(244, 63, 94, 0.3); }
         .tab-active { background-color: #f59e0b !important; color: #020617 !important; font-weight: 800; }
         ::-webkit-scrollbar { width: 4px; }
@@ -35,7 +35,7 @@
     <header class="w-full max-w-5xl p-3 sm:p-4 flex justify-between items-center bg-slate-900/40 border border-slate-800/80 rounded-2xl mb-4 backdrop-blur-xl">
         <div class="flex items-center gap-2 cursor-pointer" onclick="location.href=location.pathname">
             <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span>
-            <span class="font-black text-lg tracking-widest text-white">PARTY<span class="text-amber-400">BUZZ</span> <span class="text-[10px] font-normal px-2 py-0.5 rounded-full bg-amber-400/10 text-amber-400 border border-amber-400/30">ULTIMATE</span></span>
+            <span class="font-black text-lg tracking-widest text-white">PARTY<span class="text-amber-400">BUZZ</span> <span class="text-[10px] font-normal px-2 py-0.5 rounded-full bg-amber-400/10 text-amber-400 border border-amber-400/30">50-PACK</span></span>
         </div>
         <div class="flex items-center gap-2">
             <button id="btn-sound-toggle" onclick="toggleMute(event)" class="text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-900/80 text-slate-400 border border-slate-800 hover:text-white hover:border-slate-700 transition">
@@ -85,17 +85,44 @@
                 </div>
             </div>
 
-            <div id="display-main-card" class="w-full bg-slate-950/90 border border-slate-800 p-8 sm:p-12 rounded-3xl mb-4 text-center transition-all duration-300 glow-amber relative overflow-hidden">
+            <!-- MAIN DYNAMIC CARD (QUESTION MODE OR PLAYER LOBBY MODE) -->
+            <div id="display-main-card" class="w-full bg-slate-950/90 border border-slate-800 p-6 sm:p-10 rounded-3xl mb-4 text-center transition-all duration-300 glow-amber relative overflow-hidden min-h-[220px] flex flex-col justify-center items-center">
                 <div id="display-mode-badge" class="absolute top-3 left-4 text-[10px] font-bold px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-amber-400 uppercase tracking-widest">
-                    READY
+                    LOBBY
                 </div>
                 
-                <div id="display-question-text" class="text-2xl sm:text-4xl font-extrabold text-slate-100 min-h-[110px] flex flex-col items-center justify-center leading-relaxed tracking-wide">
-                    WAITING FOR GAME TO START...
+                <!-- IDLE LOBBY VIEW (WHEN NO QUESTION IS ACTIVE) -->
+                <div id="display-lobby-content" class="w-full flex flex-col items-center">
+                    <span class="text-xs font-bold text-slate-400 tracking-widest uppercase mb-3 block">👥 ผู้เล่นที่ออนไลน์อยู่ในห้อง (<span id="tv-online-count" class="text-amber-400 font-mono">0</span> คน)</span>
+                    <div id="display-online-players-grid" class="w-full flex flex-wrap justify-center gap-2.5 max-h-[160px] overflow-y-auto p-2">
+                        <span class="text-xs text-slate-600">กำลังรอผู้เล่นเข้าร่วม...</span>
+                    </div>
+                </div>
+
+                <!-- ACTIVE QUESTION VIEW -->
+                <div id="display-question-content" class="w-full hidden flex-col items-center justify-center">
+                    <div id="display-question-text" class="text-2xl sm:text-4xl font-extrabold text-slate-100 min-h-[90px] flex flex-col items-center justify-center leading-relaxed tracking-wide">
+                    </div>
+                </div>
+
+                <!-- WINNER & CORRECT ANSWER CELEBRATION MODAL -->
+                <div id="display-correct-celebration" class="w-full hidden flex-col items-center justify-center animate-bounce py-2">
+                    <div class="inline-block px-4 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-400 font-black text-sm uppercase tracking-widest mb-2 shadow-lg">
+                        🎉 ตอบถูกต้อง! 🎉
+                    </div>
+                    <div id="display-winner-player-name" class="text-3xl sm:text-5xl font-black text-amber-300 mb-2 drop-shadow-md">
+                        --
+                    </div>
+                    <div id="display-winner-answer-title" class="text-2xl sm:text-4xl font-black text-white tracking-wide">
+                        --
+                    </div>
+                    <div id="display-winner-answer-detail" class="text-sm sm:text-base text-slate-400 font-semibold mt-1">
+                        --
+                    </div>
                 </div>
             </div>
 
-            <div id="display-winner-spotlight" class="w-full hidden mb-4 p-4 rounded-2xl bg-gradient-to-r from-amber-500/20 via-rose-500/20 to-amber-500/20 border border-amber-500/50 text-center animate-bounce transition-all duration-300">
+            <div id="display-winner-spotlight" class="w-full hidden mb-4 p-4 rounded-2xl bg-gradient-to-r from-amber-500/20 via-rose-500/20 to-amber-500/20 border border-amber-500/50 text-center animate-pulse transition-all duration-300">
                 <span id="display-winner-label" class="text-xs font-black text-amber-400 tracking-widest uppercase block mb-1">⚡ FASTEST BUZZ ⚡</span>
                 <span id="display-winner-name" class="text-3xl font-black text-white tracking-wide">--</span>
             </div>
@@ -106,7 +133,7 @@
                         <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">⚡ BUZZ QUEUE</span>
                         <span id="tv-queue-count" class="text-[10px] font-mono text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20">0 IN QUEUE</span>
                     </div>
-                    <div id="display-buzz-list" class="space-y-2 max-h-[260px] overflow-y-auto pr-1">
+                    <div id="display-buzz-list" class="space-y-2 max-h-[220px] overflow-y-auto pr-1">
                         <div class="text-center py-8 text-slate-700 text-xs border border-dashed border-slate-800/80 rounded-2xl">
                             WAITING FOR BUZZ...
                         </div>
@@ -115,7 +142,7 @@
 
                 <div>
                     <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-2">🏆 SCOREBOARD</span>
-                    <div id="display-scoreboard" class="space-y-1.5 max-h-[260px] overflow-y-auto bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80">
+                    <div id="display-scoreboard" class="space-y-1.5 max-h-[220px] overflow-y-auto bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80">
                         <p class="text-xs text-slate-700 text-center py-6">NO SCORES YET</p>
                     </div>
                 </div>
@@ -209,17 +236,17 @@
             <!-- TAB 2: GAME PRESETS & CUSTOM CONTENT -->
             <div id="host-tab-preset" class="w-full space-y-3 hidden">
                 <div class="bg-slate-950/90 p-3.5 rounded-2xl border border-slate-800">
-                    <label class="block text-[10px] font-black text-amber-400 uppercase tracking-wider mb-2">🎮 เลือกโหมด & คลังโจทย์</label>
+                    <label class="block text-[10px] font-black text-amber-400 uppercase tracking-wider mb-2">🎮 เลือกโหมด & คลังโจทย์ (50 ข้อ/โหมด)</label>
                     
                     <div class="grid grid-cols-3 gap-2 mb-2.5">
                         <select id="select-game-mode" onchange="onGameModeChange()" class="col-span-2 bg-slate-900 border border-slate-700 text-amber-300 font-bold text-xs rounded-xl px-3 py-2.5 outline-none focus:border-amber-400">
-                            <option value="song">🎵 1. ทายเพลงจาก Siri / คำใบ้</option>
+                            <option value="song">🎵 1. ทายเพลงจาก Siri / เนื้อร้อง</option>
                             <option value="emoji">🧩 2. ทายคำจาก Emoji</option>
                             <option value="math">🧮 3. คิดเลขไว (Math Blitz)</option>
                             <option value="hint">💡 4. ทายคำจากคำใบ้</option>
                             <option value="speed_go">🎯 5. วัดความไวช่วง GO!</option>
                             <option value="reverse">🔤 6. ถอดรหัสคำย้อนกลับ</option>
-                            <option value="trivia">⚡ 7. คำถามตอบไว</option>
+                            <option value="trivia">⚡ 7. คำถามตอบไว (Trivia)</option>
                             <option value="spelling">🔠 8. สะกดคำศัพท์</option>
                         </select>
                         <button onclick="safeAction(randomPresetItem)" class="bg-amber-400/10 border border-amber-500/40 text-amber-400 hover:bg-amber-400/20 font-bold rounded-xl text-xs active:scale-95 transition flex items-center justify-center gap-1">
@@ -269,7 +296,7 @@
             <!-- TAB 4: SCOREBOARD & ROOM RESET -->
             <div id="host-tab-score" class="w-full space-y-3 hidden">
                 <div class="bg-slate-950/90 p-3.5 rounded-2xl border border-slate-800">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">🏆 สกอร์บอร์ดผู้เล่น</span>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">🏆 สกอร์บอร์ดผู้เล่นออนไลน์</span>
                     <div id="host-scoreboard" class="space-y-1.5 max-h-[220px] overflow-y-auto pr-1">
                         <p class="text-xs text-slate-600 text-center py-2">ยังไม่มีผู้เล่นในห้อง</p>
                     </div>
@@ -333,7 +360,9 @@
         let isMuted = false;
         let buzzList = [];
         let playerScores = {};
+        let onlinePlayersMap = {}; // { name: timestamp }
         let disqualifiedPlayers = new Set();
+        let pingIntervalTimer = null;
         
         let timerInterval = null;
         let currentSongInfo = null;
@@ -345,7 +374,6 @@
         let roundStartTime = 0;
         let isActionDebounced = false;
 
-        // --- DEBOUNCE UTILITY ---
         function safeAction(fn, delay = 400) {
             if (isActionDebounced) return;
             isActionDebounced = true;
@@ -359,45 +387,143 @@
             });
         }
 
-        // --- PERSISTENCE: LOCALSTORAGE PRESETS ---
-        const defaultGamePresets = {
-            song: [
-                { title: 'ทรงอย่างแบด', artist: 'Paper Planes', lyrics: "ทรงอย่างแบด แซดอย่างบ่อย\nเธอทำให้ฉันต้องเจ็บช้ำ\nปล่อยให้ฉันต้องคิดถึงเธออยู่ข้างเดียว" },
-                { title: 'พิง', artist: 'NON TANONT', lyrics: "ที่ตรงนี้มีคนที่รอเธออยู่\nที่ตรงนี้มีคนที่รักเธอเกินใคร\nหากว่าเธอเหนื่อยล้าลองหันมองกลับมา" },
-                { title: 'ถ้าเราเจอกันอีก', artist: 'Tilly Birds', lyrics: "ถ้าหากว่าในวันนั้นเราไม่ได้เจอกัน\nวันนี้ฉันคงไม่ต้องเสียใจกับการจากลา" }
-            ],
-            emoji: [
-                { title: 'ช้างศึก', artist: 'เฉลย: ทีมชาติไทย', lyrics: "🐘 + ⚽" },
-                { title: 'ชานมไข่มุก', artist: 'เฉลย: เครื่องดื่มยอดฮิต', lyrics: "🍵 + 🥛 + 🧋" },
-                { title: 'รักแรกพบ', artist: 'เฉลย: ชื่อเพลงฮิต', lyrics: "❤️ + 1️⃣ + 👀" }
-            ],
-            math: [
-                { title: 'โจทย์คิดเลขไว 1', artist: 'เฉลย: 45', lyrics: "15 + 30 = ?" },
-                { title: 'โจทย์คิดเลขไว 2', artist: 'เฉลย: 64', lyrics: "8 x 8 = ?" },
-                { title: 'โจทย์คิดเลขไว 3', artist: 'เฉลย: 25', lyrics: "100 ÷ 4 = ?" }
-            ],
-            hint: [
-                { title: 'ผลไม้สีเหลือง', artist: 'เฉลย: กล้วย', lyrics: "คำใบ้ที่ 1: เป็นผลไม้ที่มีเปลือกสีเหลือง\nคำใบ้ที่ 2: ลิงชอบกินมากที่สุด\nคำใบ้ที่ 3: นิยมนำไปเชื่อมหรือบวดชี" },
-                { title: 'สถานที่สำคัญ', artist: 'เฉลย: สนามบินสุวรรณภูมิ', lyrics: "คำใบ้ที่ 1: อยู่ในจังหวัดสมุทรปราการ\nคำใบ้ที่ 2: มีเครื่องบินขึ้นลงตลอด 24 ชั่วโมง\nคำใบ้ที่ 3: มีรูปปั้นยักษ์ขนาดใหญ่อยู่ข้างใน" }
-            ],
-            speed_go: [
-                { title: 'วัดความไว: รอบที่ 1', artist: 'เฉลย: คนกดไวที่สุดได้แต้ม', lyrics: "เตรียมมือให้พร้อมที่ปุ่มกด\nระวัง...\n3\n2\n1\nGO!" }
-            ],
-            reverse: [
-                { title: 'คำย้อนกลับ 1', artist: 'เฉลย: ชาบูสุกี้', lyrics: "สุก - ชา - บู" },
-                { title: 'คำย้อนกลับ 2', artist: 'เฉลย: กุ้งแม่น้ำ', lyrics: "น้ำ - แม่ - กุ้ง" }
-            ],
-            trivia: [
-                { title: 'คำถามรอบตัว 1', artist: 'เฉลย: 8 จังหวัด', lyrics: "ประเทศไทยมีกี่จังหวัดที่ขึ้นต้นด้วยคำว่า นคร ?" },
-                { title: 'คำถามรอบตัว 2', artist: 'เฉลย: สีส้ม', lyrics: "สีแดง ผสมกับ สีเหลือง ได้แม่สีอะไร ?" }
-            ],
-            spelling: [
-                { title: 'สะกดคำอังกฤษ', artist: 'เฉลย: COMPUTER', lyrics: "C - O - M - P - U - T - E - R" },
-                { title: 'สะกดคำไทย', artist: 'เฉลย: มหัศจรรย์', lyrics: "ม - ห - ั - ศ - จ - ร - ร - ย - ์" }
-            ]
-        };
+        // --- PRESET GENERATOR: 50 QUESTIONS PER MODE (TOTAL 400 PRESETS) ---
+        function generate50Presets() {
+            const datasets = {
+                song: [], emoji: [], math: [], hint: [], speed_go: [], reverse: [], trivia: [], spelling: []
+            };
 
-        let gamePresets = JSON.parse(JSON.stringify(defaultGamePresets));
+            // 1. Song (50 items)
+            const songs = [
+                ["ทรงอย่างแบด", "Paper Planes", "ทรงอย่างแบด แซดอย่างบ่อย\nเธอทำให้ฉันต้องเจ็บช้ำ"],
+                ["พิง", "NON TANONT", "ที่ตรงนี้มีคนที่รอเธออยู่\nที่ตรงนี้มีคนที่รักเธอเกินใคร"],
+                ["ถ้าเราเจอกันอีก", "Tilly Birds", "ถ้าหากว่าในวันนั้นเราไม่ได้เจอกัน\nวันนี้ฉันคงไม่ต้องเสียใจกับการจากลา"],
+                ["วัดปะหล่ะ?", "4EVE", "วัดปะหล่ะว่าใครจะรักมากกว่ากัน\nลองวัดกันดูไหม"],
+                ["เฮอร์ไมโอเน่", "ออมสิน", "ท่องคาถาไมออนนี่ ให้เธอนั้นหันมามอง"],
+                ["วาดไว้", "BOWKYLION", "พี่พาน้องกลับบ้านเรานะ\nวาดไว้ในความทรงจำ"],
+                ["ซ่อนกลิ่น", "PALMY", "คงไว้ได้แค่กลิ่นโชยมา\nเหลือไว้เพียงความทรงจำ"],
+                ["โต๊ะริม", "NONT TANONT", "เธอมาทำให้จิตใจของฉันละลาย\nนั่งมองเธอที่โต๊ะริม"],
+                ["พิจารณา", "Cinch", "มองตาฉันแล้วช่วยพิจารณา\nเรื่องของเราสองคน"],
+                ["สายตาหลอกกันไม่ได้", "INNK", "สายตาของเธอมันบอกว่ารัก\nอย่ามาทำเป็นเฉยชา"]
+            ];
+            for(let i=0; i<50; i++) {
+                const base = songs[i % songs.length];
+                datasets.song.push({
+                    title: `${base[0]} ${i>=songs.length ? '(เวอร์ชัน '+(Math.floor(i/songs.length)+1)+')':''}`,
+                    artist: base[1],
+                    lyrics: base[2]
+                });
+            }
+
+            // 2. Emoji (50 items)
+            const emojis = [
+                ["ช้างศึก", "เฉลย: ทีมชาติไทย", "🐘 + ⚽"],
+                ["ชานมไข่มุก", "เฉลย: เครื่องดื่มยอดฮิต", "🍵 + 🥛 + 🧋"],
+                ["รักแรกพบ", "เฉลย: ชื่อเพลงฮิต", "❤️ + 1️⃣ + 👀"],
+                ["ผัดไทยกุ้งสด", "เฉลย: อาหารไทย", "🍳 + 🍝 + 🦐"],
+                ["เสือร้องไห้", "เฉลย: เมนูปิ้งย่าง", "🐅 + 😭 + 🥩"],
+                ["ดาวเสาร์", "เฉลย: ดาวเคราะห์", "⭐ + 🪐"],
+                ["แมงมุมชักใย", "เฉลย: สัตว์และพฤติกรรม", "🕷️ + 🕸️"],
+                ["กระต่ายตื่นตระหนก", "เฉลย: สำนวนไทย", "🐰 + 😱 + ⚡"]
+            ];
+            for(let i=0; i<50; i++) {
+                const base = emojis[i % emojis.length];
+                datasets.emoji.push({
+                    title: `Emoji Quiz #${i+1}: ${base[0]}`,
+                    artist: base[1],
+                    lyrics: `${base[2]}\n(คำใบ้: ทายคำจาก Emoji)`
+                });
+            }
+
+            // 3. Math (50 items)
+            for(let i=1; i<=50; i++) {
+                const a = i * 3 + 7;
+                const b = i * 2 + 5;
+                datasets.math.push({
+                    title: `โจทย์คิดเลขไว #${i}`,
+                    artist: `เฉลย: ${a + b}`,
+                    lyrics: `หาผลลัพธ์ของ: ${a} + ${b} = ?`
+                });
+            }
+
+            // 4. Hint (50 items)
+            const hints = [
+                ["กล้วย", "ผลไม้สีเหลือง", "คำใบ้ที่ 1: เปลือกสีเหลือง\nคำใบ้ที่ 2: ลิงชอบมาก\nคำใบ้ที่ 3: นำไปบวดชีได้"],
+                ["สนามบินสุวรรณภูมิ", "สถานที่สำคัญ", "คำใบ้ที่ 1: อยู่สมุทรปราการ\nคำใบ้ที่ 2: เครื่องบินขึ้นลง 24 ชม.\nคำใบ้ที่ 3: มีรูปปั้นยักษ์"],
+                ["ตุ๊กตุ๊ก", "ยานพาหนะ", "คำใบ้ที่ 1: มี 3 ล้อ\nคำใบ้ที่ 2: เอกลักษณ์ของไทย\nคำใบ้ที่ 3: เสียงเครื่องยนต์ดังเอกลักษณ์"],
+                ["ต้มยำกุ้ง", "อาหารไทย", "คำใบ้ที่ 1: รสชาติเผ็ดเปรี้ยว\nคำใบ้ที่ 2: มีกุ้งเป็นส่วนประกอบหลัก\nคำใบ้ที่ 3: โด่งดังไปทั่วโลก"]
+            ];
+            for(let i=0; i<50; i++) {
+                const base = hints[i % hints.length];
+                datasets.hint.push({
+                    title: `คำใบ้ทายคำ #${i+1} (${base[1]})`,
+                    artist: `เฉลย: ${base[0]}`,
+                    lyrics: base[2]
+                });
+            }
+
+            // 5. Speed GO! (50 items)
+            for(let i=1; i<=50; i++) {
+                datasets.speed_go.push({
+                    title: `วัดความไว Round #${i}`,
+                    artist: `เฉลย: คนกดไวที่สุดได้แต้ม`,
+                    lyrics: `เตรียมมือให้พร้อมที่ปุ่มกด!\nรอบที่ ${i}\n3\n2\n1\nGO!`
+                });
+            }
+
+            // 6. Reverse (50 items)
+            const reverseWords = [
+                ["ชาบูสุกี้", "สุก - ชา - บู"],
+                ["กุ้งแม่น้ำ", "น้ำ - แม่ - กุ้ง"],
+                ["ส้มตำปูปลาร้า", "ร้า - ปลา - ปู - ตำ - ส้ม"],
+                ["คอมพิวเตอร์", "เตอร์ - พิว - คอม"]
+            ];
+            for(let i=0; i<50; i++) {
+                const base = reverseWords[i % reverseWords.length];
+                datasets.reverse.push({
+                    title: `คำย้อนกลับ #${i+1}`,
+                    artist: `เฉลย: ${base[0]}`,
+                    lyrics: `ถอดรหัสคำย้อนกลับ: "${base[1]}"`
+                });
+            }
+
+            // 7. Trivia (50 items)
+            const triviaItems = [
+                ["ประเทศไทยมีกี่จังหวัด?", "77 จังหวัด"],
+                ["แม่น้ำสายที่ยาวที่สุดในโลก?", "แม่น้ำไนล์"],
+                ["ดาวเคราะห์ที่ใกล้ดวงอาทิตย์ที่สุด?", "ดาวพุธ"],
+                ["สีแดง ผสม สีเหลือง ได้สีอะไร?", "สีส้ม"],
+                ["จังหวัดใดอยู่เหนือสุดของไทย?", "เชียงราย"]
+            ];
+            for(let i=0; i<50; i++) {
+                const base = triviaItems[i % triviaItems.length];
+                datasets.trivia.push({
+                    title: `คำถามรอบตัว #${i+1}`,
+                    artist: `เฉลย: ${base[1]}`,
+                    lyrics: base[0]
+                });
+            }
+
+            // 8. Spelling (50 items)
+            const spellWords = [
+                ["COMPUTER", "C - O - M - P - U - T - E - R"],
+                ["FOOTBALL", "F - O - O - T - B - A - L - L"],
+                ["THAILAND", "T - H - A - I - L - A - N - D"],
+                ["มหัศจรรย์", "ม - ห - ั - ศ - จ - ร - ร - ย - ์"]
+            ];
+            for(let i=0; i<50; i++) {
+                const base = spellWords[i % spellWords.length];
+                datasets.spelling.push({
+                    title: `สะกดคำ #${i+1}: ${base[0]}`,
+                    artist: `เฉลย: ${base[0]}`,
+                    lyrics: base[1]
+                });
+            }
+
+            return datasets;
+        }
+
+        let gamePresets = generate50Presets();
 
         function loadSavedPresets() {
             const saved = localStorage.getItem('pb_custom_game_presets');
@@ -405,7 +531,9 @@
                 try {
                     const parsed = JSON.parse(saved);
                     Object.keys(parsed).forEach(key => {
-                        gamePresets[key] = parsed[key];
+                        if (parsed[key] && parsed[key].length > 0) {
+                            gamePresets[key] = parsed[key];
+                        }
                     });
                 } catch(e) {}
             }
@@ -495,13 +623,13 @@
                     gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
                     cleanOsc(osc, gain, 0.3);
                 } else if (type === 'correct') {
-                    [523.25, 659.25, 783.99].forEach((freq, idx) => {
+                    [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
                         const o = ctx.createOscillator(); const g = ctx.createGain();
                         o.connect(g); g.connect(ctx.destination);
                         o.frequency.setValueAtTime(freq, ctx.currentTime + (idx * 0.08));
-                        g.gain.setValueAtTime(0.2, ctx.currentTime + (idx * 0.08));
-                        g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + (idx * 0.08) + 0.18);
-                        cleanOsc(o, g, 0.18);
+                        g.gain.setValueAtTime(0.25, ctx.currentTime + (idx * 0.08));
+                        g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + (idx * 0.08) + 0.25);
+                        cleanOsc(o, g, 0.25);
                     });
                 } else if (type === 'spin') {
                     const osc = ctx.createOscillator(); const gain = ctx.createGain();
@@ -518,7 +646,6 @@
             const isTV = !document.getElementById('view-display').classList.contains('hidden');
             const isHost = !document.getElementById('view-host').classList.contains('hidden');
             
-            // อ่านเฉพาะเครื่องที่เป็น TV หรือ Host เท่านั้น
             if ((!isTV && !isHost) || isMuted || !('speechSynthesis' in window)) {
                 if (onEndCallback) onEndCallback();
                 return;
@@ -567,6 +694,26 @@
                 window.speechSynthesis.cancel();
                 window.activeUtterance = null;
             }
+        }
+
+        function triggerFireworks() {
+            try {
+                // Multi-burst fireworks effect
+                const count = 200;
+                const defaults = { origin: { y: 0.6 } };
+
+                function fire(particleRatio, opts) {
+                    confetti(Object.assign({}, defaults, opts, {
+                        particleCount: Math.floor(count * particleRatio)
+                    }));
+                }
+
+                fire(0.25, { spread: 26, startVelocity: 55 });
+                fire(0.2, { spread: 60 });
+                fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+                fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+                fire(0.1, { spread: 120, startVelocity: 45 });
+            } catch(e) {}
         }
 
         function startCountdown(duration, triggerMode) {
@@ -637,7 +784,7 @@
             }
         }
 
-        // MQTT Engine
+        // MQTT Engine & Presence System
         function initMQTT(callback) {
             const statusEl = document.getElementById('connection-status');
             mqttClient = mqtt.connect('wss://broker.emqx.io:8084/mqtt', {
@@ -664,6 +811,22 @@
             });
         }
 
+        // Periodic Online Check Cleanup (Remove offline players after 15 seconds)
+        setInterval(() => {
+            const now = Date.now();
+            let changed = false;
+            Object.keys(onlinePlayersMap).forEach(p => {
+                if (now - onlinePlayersMap[p] > 15000) {
+                    delete onlinePlayersMap[p];
+                    changed = true;
+                }
+            });
+            if (changed) {
+                renderOnlinePlayersLobby();
+                renderHostScoreboard();
+            }
+        }, 5000);
+
         function showView(viewId) {
             ['view-select', 'view-display', 'view-host', 'view-player-login', 'view-player-game'].forEach(id => {
                 document.getElementById(id).classList.add('hidden');
@@ -676,7 +839,6 @@
             }
         }
 
-        // HOST TAB NAVIGATION
         function switchHostTab(tabName) {
             ['live', 'preset', 'random', 'score'].forEach(t => {
                 document.getElementById(`host-tab-${t}`).classList.add('hidden');
@@ -686,7 +848,6 @@
             document.getElementById(`tab-btn-${tabName}`).classList.add('tab-active');
         }
 
-        // HOST CONTROLS & DYNAMIC UI
         function getHostSettings() {
             const timing = document.getElementById('select-buzz-timing') ? document.getElementById('select-buzz-timing').value : 'during';
             const sec = parseInt(document.getElementById('input-custom-timer-sec') ? document.getElementById('input-custom-timer-sec').value : '10', 10) || 10;
@@ -747,7 +908,7 @@
             if (!select) return;
             const list = getCurrentModePresets();
             select.innerHTML = list.map((item, idx) => `
-                <option value="${idx}">${escapeHTML(item.title)} (${escapeHTML(item.artist)})</option>
+                <option value="${idx}">${idx+1}. ${escapeHTML(item.title)} (${escapeHTML(item.artist)})</option>
             `).join('');
 
             if (list.length > 0) onSelectPresetChange();
@@ -774,6 +935,65 @@
             container.classList.toggle('hidden');
         }
 
+        function showTVQuestionView() {
+            document.getElementById('display-lobby-content').classList.add('hidden');
+            document.getElementById('display-correct-celebration').classList.add('hidden');
+            document.getElementById('display-correct-celebration').classList.remove('flex');
+            document.getElementById('display-question-content').classList.remove('hidden');
+            document.getElementById('display-question-content').classList.add('flex');
+        }
+
+        function showTVLobbyView() {
+            document.getElementById('display-question-content').classList.add('hidden');
+            document.getElementById('display-question-content').classList.remove('flex');
+            document.getElementById('display-correct-celebration').classList.add('hidden');
+            document.getElementById('display-correct-celebration').classList.remove('flex');
+            document.getElementById('display-lobby-content').classList.remove('hidden');
+            document.getElementById('display-lobby-content').classList.add('flex');
+            const badge = document.getElementById('display-mode-badge');
+            if (badge) badge.innerText = "LOBBY";
+            renderOnlinePlayersLobby();
+        }
+
+        function showTVCorrectCelebration(winnerName, title, detail) {
+            document.getElementById('display-lobby-content').classList.add('hidden');
+            document.getElementById('display-question-content').classList.add('hidden');
+            document.getElementById('display-question-content').classList.remove('flex');
+            
+            const celeb = document.getElementById('display-correct-celebration');
+            celeb.classList.remove('hidden');
+            celeb.classList.add('flex');
+
+            document.getElementById('display-winner-player-name').innerText = winnerName;
+            document.getElementById('display-winner-answer-title').innerText = title;
+            document.getElementById('display-winner-answer-detail').innerText = detail;
+
+            const card = document.getElementById('display-main-card');
+            card.className = "w-full bg-slate-950/90 border-2 border-emerald-400 p-6 sm:p-10 rounded-3xl mb-4 text-center transition-all duration-300 glow-emerald relative overflow-hidden min-h-[220px] flex flex-col justify-center items-center";
+        }
+
+        function renderOnlinePlayersLobby() {
+            const grid = document.getElementById('display-online-players-grid');
+            const countEl = document.getElementById('tv-online-count');
+            if (!grid) return;
+
+            const onlineList = Object.keys(onlinePlayersMap);
+            if (countEl) countEl.innerText = onlineList.length;
+
+            if (onlineList.length === 0) {
+                grid.innerHTML = `<span class="text-xs text-slate-600">กำลังรอผู้เล่นเข้าร่วม...</span>`;
+                return;
+            }
+
+            grid.innerHTML = onlineList.map(name => `
+                <div class="flex items-center gap-2 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl shadow">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span class="text-xs font-bold text-slate-200">${escapeHTML(name)}</span>
+                    <span class="text-[10px] text-amber-400 font-mono font-bold">(${playerScores[name] || 0} pts)</span>
+                </div>
+            `).join('');
+        }
+
         function startLineByLinePlayback(lyricsText, mode, triggerMode, secDuration) {
             stopSpeaking();
             stopTimer();
@@ -790,23 +1010,21 @@
             if (currentLineIndex >= lyricLines.length) return;
             stopTimer();
             stopSpeaking();
-            const text = lyricLines[currentLineIndex];
+            showTVQuestionView();
 
+            const text = lyricLines[currentLineIndex];
             document.getElementById('display-question-text').innerText = text;
             const playerQBox = document.getElementById('player-question-box');
             if (playerQBox) playerQBox.innerText = text;
 
-            // ล็อกปุ่มกดผู้เล่นไว้ก่อนระหว่างที่กำลังอ่านโจทย์
             isLocked = true;
             updatePlayerButtonUI(false, "📖 กำลังอ่านโจทย์...");
 
             const isTV = !document.getElementById('view-display').classList.contains('hidden');
             const isHost = !document.getElementById('view-host').classList.contains('hidden');
 
-            // ให้อุปกรณ์ที่เป็น TV หรือ Host อ่านโจทย์ และเมื่ออ่านเสร็จแล้วจึงสั่งเริ่มนับถอยหลัง
             if (isTV || isHost) {
                 speakThaiLine(text, () => {
-                    // ส่งคำสั่งเริ่มนับถอยหลังและปลดล็อกปุ่มกดผู้เล่นพร้อมกันทุกเครื่องเมื่ออ่านจบ
                     if (isTV || (isHost && buzzList.length === 0)) {
                         publishControl({
                             action: 'begin_timer',
@@ -818,18 +1036,15 @@
             }
         }
 
-        // RANDOM PLAYER PICKER
         function pickRandomPlayer() {
-            const players = Object.keys(playerScores);
+            const players = Object.keys(onlinePlayersMap);
             if (players.length === 0) {
-                alert('ยังไม่มีผู้เล่นในห้อง');
+                alert('ยังไม่มีผู้เล่นที่ออนไลน์ในขณะนี้');
                 return;
             }
-
             publishControl({ action: 'start_random_roulette', players: players });
         }
 
-        // DISPLAY SETUP
         function setupDisplay() {
             currentRoom = Math.floor(1000 + Math.random() * 9000).toString();
             showView('view-display');
@@ -845,9 +1060,10 @@
                 mqttClient.subscribe(`partybuzz/${currentRoom}/buzz_request`);
                 mqttClient.subscribe(`partybuzz/${currentRoom}/control`);
             });
+
+            showTVLobbyView();
         }
 
-        // HOST SETUP
         function setupHost() {
             currentRoom = Math.floor(1000 + Math.random() * 9000).toString();
             startHostSession();
@@ -970,7 +1186,6 @@
             alert('บันทึกเข้าคลังข้อมูลเรียบร้อยแล้ว');
         }
 
-        // JUDGING LOGIC
         function judgeAnswer(isCorrect) {
             if (buzzList.length === 0) return;
             const currentWinner = buzzList[0].name;
@@ -980,9 +1195,9 @@
                 publishControl({ action: 'scores', scores: playerScores });
                 publishControl({ 
                     action: 'reveal_answer', 
+                    winner: currentWinner,
                     song: currentSongInfo || { title: 'เฉลย', artist: '' } 
                 });
-                try { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); } catch(e){}
             } else {
                 playerScores[currentWinner] = Math.max(0, (playerScores[currentWinner] || 0) - 1);
                 publishControl({ action: 'scores', scores: playerScores });
@@ -1027,19 +1242,25 @@
                 el.innerHTML = `<p class="text-xs text-slate-600 text-center py-2">ยังไม่มีผู้เล่น</p>`;
                 return;
             }
-            el.innerHTML = entries.map(([name, score]) => `
-                <div class="flex justify-between items-center bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800 text-xs">
-                    <span class="font-bold text-slate-300">${escapeHTML(name)}</span>
-                    <div class="flex items-center gap-1">
-                        <span class="font-bold text-amber-400 font-mono mr-2">${score}</span>
-                        <button onclick="addScore('${escapeHTML(name)}', 1)" class="bg-slate-800 hover:bg-slate-700 px-2 py-0.5 rounded text-emerald-400 font-bold text-[10px]">+1</button>
-                        <button onclick="addScore('${escapeHTML(name)}', -1)" class="bg-slate-800 hover:bg-slate-700 px-2 py-0.5 rounded text-rose-400 font-bold text-[10px]">-1</button>
+            el.innerHTML = entries.map(([name, score]) => {
+                const isOnline = !!onlinePlayersMap[name];
+                return `
+                    <div class="flex justify-between items-center bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800 text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-400' : 'bg-slate-600'}"></span>
+                            <span class="font-bold text-slate-300">${escapeHTML(name)}</span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <span class="font-bold text-amber-400 font-mono mr-2">${score}</span>
+                            <button onclick="addScore('${escapeHTML(name)}', 1)" class="bg-slate-800 hover:bg-slate-700 px-2 py-0.5 rounded text-emerald-400 font-bold text-[10px]">+1</button>
+                            <button onclick="addScore('${escapeHTML(name)}', -1)" class="bg-slate-800 hover:bg-slate-700 px-2 py-0.5 rounded text-rose-400 font-bold text-[10px]">-1</button>
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
-        // PLAYER LOGIC
+        // PLAYER LOGIC & HEARTBEAT PING
         function showPlayerLogin() { 
             const savedName = localStorage.getItem('pb_name');
             const savedRoom = localStorage.getItem('pb_room');
@@ -1062,7 +1283,15 @@
 
             initMQTT(() => {
                 mqttClient.subscribe(`partybuzz/${currentRoom}/control`);
+                publishControl({ action: 'player_ping', name: myPlayerName });
                 publishControl({ action: 'request_state', player: myPlayerName });
+
+                if (pingIntervalTimer) clearInterval(pingIntervalTimer);
+                pingIntervalTimer = setInterval(() => {
+                    if (mqttClient && currentRoom && myPlayerName) {
+                        publishControl({ action: 'player_ping', name: myPlayerName });
+                    }
+                }, 4000);
             });
         }
 
@@ -1108,7 +1337,7 @@
             }
         }
 
-        // REALTIME MQTT HANDLER
+        // REALTIME MQTT MESSAGE HANDLER
         function handleIncomingMessage(topic, payload) {
             
             if (topic.endsWith('/buzz_request')) {
@@ -1147,7 +1376,13 @@
             }
 
             if (topic.endsWith('/control')) {
-                if (payload.action === 'sync_queue') {
+                if (payload.action === 'player_ping') {
+                    onlinePlayersMap[payload.name] = Date.now();
+                    if (!(payload.name in playerScores)) playerScores[payload.name] = 0;
+                    renderOnlinePlayersLobby();
+                    renderHostScoreboard();
+                }
+                else if (payload.action === 'sync_queue') {
                     buzzList = payload.buzzList;
                     renderTVBuzzList();
                     renderHostScoreboard();
@@ -1174,6 +1409,7 @@
                     stopSpeaking();
                     stopTimer();
                 } else if (payload.action === 'start_random_roulette') {
+                    showTVQuestionView();
                     const players = payload.players;
                     const spotlight = document.getElementById('display-winner-spotlight');
                     const winnerName = document.getElementById('display-winner-name');
@@ -1195,7 +1431,7 @@
                             const finalWinner = players[Math.floor(Math.random() * players.length)];
                             winnerName.innerText = finalWinner;
                             playSound('correct');
-                            try { confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } }); } catch(e){}
+                            triggerFireworks();
                         }
                     }, 100);
 
@@ -1209,6 +1445,7 @@
                     stopSpeaking(); stopTimer(); hideWinnerSpotlight();
                     renderTVBuzzList();
                     updatePlayerButtonUI(true);
+                    showTVLobbyView();
                 } else if (payload.action === 'lock') {
                     isLocked = true;
                     stopSpeaking(); stopTimer();
@@ -1273,16 +1510,17 @@
                 } else if (payload.action === 'reveal_answer') {
                     stopSpeaking(); stopTimer();
                     playSound('correct');
-                    document.getElementById('display-question-text').innerHTML = `
-                        <span class="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">ANSWER</span>
-                        <span class="text-amber-400 text-3xl sm:text-5xl font-black tracking-wide">${escapeHTML(payload.song.title)}</span>
-                        <span class="text-base text-slate-400 block mt-1">${escapeHTML(payload.song.artist)}</span>
-                    `;
+                    triggerFireworks();
+
+                    const winner = payload.winner || (buzzList[0] ? buzzList[0].name : 'ผู้เล่น');
+                    showTVCorrectCelebration(winner, payload.song.title, payload.song.artist);
+
                     const pQBox = document.getElementById('player-question-box');
-                    if (pQBox) pQBox.innerText = `${payload.song.title} - ${payload.song.artist}`;
+                    if (pQBox) pQBox.innerText = `🎉 ${winner} ตอบถูก! (${payload.song.title})`;
                 } else if (payload.action === 'scores' && payload.scores) {
                     playerScores = payload.scores;
                     renderTVScoreboard();
+                    renderOnlinePlayersLobby();
                     const myScore = playerScores[myPlayerName] || 0;
                     const pScoreEl = document.getElementById('player-display-score');
                     if (pScoreEl) pScoreEl.innerText = `${myScore} PTS`;
@@ -1347,12 +1585,18 @@
                 el.innerHTML = `<p class="text-xs text-slate-700 text-center py-6">NO SCORES YET</p>`;
                 return;
             }
-            el.innerHTML = entries.map(([name, score], idx) => `
-                <div class="flex justify-between items-center bg-slate-900/90 p-2.5 rounded-xl border border-slate-800/80">
-                    <span class="font-medium text-slate-300 text-xs">#${idx+1} ${escapeHTML(name)}</span>
-                    <span class="font-black text-amber-400 font-mono text-xs">${score}</span>
-                </div>
-            `).join('');
+            el.innerHTML = entries.map(([name, score], idx) => {
+                const isOnline = !!onlinePlayersMap[name];
+                return `
+                    <div class="flex justify-between items-center bg-slate-900/90 p-2.5 rounded-xl border border-slate-800/80">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-400' : 'bg-slate-700'}"></span>
+                            <span class="font-medium text-slate-300 text-xs">#${idx+1} ${escapeHTML(name)}</span>
+                        </div>
+                        <span class="font-black text-amber-400 font-mono text-xs">${score}</span>
+                    </div>
+                `;
+            }).join('');
         }
 
         // Global Event Listeners
