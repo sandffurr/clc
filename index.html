@@ -527,41 +527,48 @@
             } catch(e) {}
         }
 
-        /* SPEAK THAI WITH ESTIMATED DELAY IF MUTED (PREVENTS INSTANT TIMER RESET) */
+        /* GUARANTEED TTS SPEAKING WITH FALLBACK TIMER */
         function speakThaiLine(text, onEndCallback) {
+            let hasEnded = false;
+            const safeOnEnd = () => {
+                if (!hasEnded) {
+                    hasEnded = true;
+                    window.activeUtterance = null;
+                    if (onEndCallback) onEndCallback();
+                }
+            };
+
+            const estimatedMs = Math.max(1500, text.length * 140);
+            const fallbackTimer = setTimeout(safeOnEnd, estimatedMs + 500);
+
             if (isMuted || !('speechSynthesis' in window)) {
-                const estimatedMs = Math.max(1500, text.length * 120);
-                setTimeout(() => { if (onEndCallback) onEndCallback(); }, estimatedMs);
-                return;
+                return; // Fallback timer will trigger safeOnEnd
             }
 
             if (!audioUnlocked) unlockAudioEngine();
-            window.speechSynthesis.cancel();
+            try { window.speechSynthesis.cancel(); } catch(e){}
 
             setTimeout(() => {
-                const utterance = new SpeechSynthesisUtterance(text);
-                window.activeUtterance = utterance;
-                utterance.lang = 'th-TH'; utterance.rate = 1.0;
-                if (thaiVoice) utterance.voice = thaiVoice;
+                try {
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    window.activeUtterance = utterance;
+                    utterance.lang = 'th-TH'; 
+                    utterance.rate = 1.0;
+                    if (thaiVoice) utterance.voice = thaiVoice;
 
-                let hasEnded = false;
-                const safeOnEnd = () => {
-                    if (!hasEnded) {
-                        hasEnded = true;
-                        window.activeUtterance = null;
-                        if (onEndCallback) onEndCallback();
-                    }
-                };
-
-                utterance.onend = safeOnEnd;
-                utterance.onerror = () => safeOnEnd();
-                window.speechSynthesis.speak(utterance);
+                    utterance.onend = () => { clearTimeout(fallbackTimer); safeOnEnd(); };
+                    utterance.onerror = () => { clearTimeout(fallbackTimer); safeOnEnd(); };
+                    window.speechSynthesis.speak(utterance);
+                } catch(e) {
+                    clearTimeout(fallbackTimer);
+                    safeOnEnd();
+                }
             }, 100);
         }
 
         function stopSpeaking() {
             if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
+                try { window.speechSynthesis.cancel(); } catch(e){}
                 window.activeUtterance = null;
             }
         }
@@ -795,7 +802,6 @@
             playCurrentLine();
         }
 
-        /* ONLY HOST TRIGGERS BEGIN_TIMER AFTER TTS READING COMPLETES */
         function playCurrentLine() {
             if (currentLineIndex >= lyricLines.length) return;
             stopTimer(); stopSpeaking(); showTVQuestionView();
