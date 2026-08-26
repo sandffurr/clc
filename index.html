@@ -13,35 +13,27 @@
     <style>
         body { font-family: 'Kanit', sans-serif; touch-action: manipulation; }
         button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
-        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
-        .buzz-btn-active:active { transform: scale(0.92); }
-        .pulse-fast { animation: pulseGlow 0.8s infinite alternate; }
-        @keyframes pulseGlow { 
-            0% { box-shadow: 0 0 15px rgba(244, 63, 94, 0.3); } 
-            100% { box-shadow: 0 0 40px rgba(244, 63, 94, 0.9); } 
-        }
-        .glow-amber { box-shadow: 0 0 25px rgba(245, 158, 11, 0.25); }
-        .glow-emerald { box-shadow: 0 0 35px rgba(16, 185, 129, 0.4); }
-        .glow-rose { box-shadow: 0 0 25px rgba(244, 63, 94, 0.3); }
-        .tab-active { background-color: #f59e0b !important; color: #020617 !important; font-weight: 800; }
+        button:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+        .buzz-btn-active:active { transform: scale(0.95); }
+        .tab-active { background-color: #f59e0b !important; color: #0f172a !important; font-weight: 700; }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     </style>
 </head>
-<body onclick="unlockAudioEngine()" class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-start p-3 sm:p-5 select-none antialiased">
+<body onclick="unlockAudioEngine()" class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-start p-4 sm:p-6 select-none antialiased">
 
     <!-- HEADER NAVIGATION -->
-    <header class="w-full max-w-5xl p-3 sm:p-4 flex justify-between items-center bg-slate-900/40 border border-slate-800/80 rounded-2xl mb-4 backdrop-blur-xl">
-        <div class="flex items-center gap-2 cursor-pointer" onclick="location.href=location.pathname">
-            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span>
-            <span class="font-black text-lg tracking-widest text-white">PARTY<span class="text-amber-400">BUZZ</span> <span class="text-[10px] font-normal px-2 py-0.5 rounded-full bg-amber-400/10 text-amber-400 border border-amber-400/30">50-PACK</span></span>
+    <header class="w-full max-w-5xl p-4 flex justify-between items-center bg-slate-900/60 border border-slate-800 rounded-2xl mb-6">
+        <div class="flex items-center gap-2.5 cursor-pointer" onclick="location.href=location.pathname">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+            <span class="font-bold text-lg tracking-wider text-white">PARTY<span class="text-amber-400">BUZZ</span></span>
         </div>
-        <div class="flex items-center gap-2">
-            <button id="btn-sound-toggle" onclick="toggleMute(event)" class="text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-900/80 text-slate-400 border border-slate-800 hover:text-white hover:border-slate-700 transition">
+        <div class="flex items-center gap-3">
+            <button id="btn-sound-toggle" onclick="toggleMute(event)" class="text-xs font-medium px-3.5 py-2 rounded-xl bg-slate-900 text-slate-400 border border-slate-800 hover:text-white transition">
                 🔊 SOUND: ON
             </button>
-            <div id="connection-status" class="text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-900/80 text-slate-500 border border-slate-800 flex items-center gap-2">
+            <div id="connection-status" class="text-xs font-medium px-3 py-2 rounded-xl bg-slate-900 text-slate-500 border border-slate-800 flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-amber-500"></span> CONNECTING
             </div>
         </div>
@@ -50,99 +42,101 @@
     <main class="w-full max-w-5xl flex-1 flex flex-col items-center justify-center">
 
         <!-- SCREEN 1: ROLE SELECT -->
-        <div id="view-select" class="w-full max-w-sm bg-slate-900/50 p-6 sm:p-8 rounded-3xl border border-slate-800 shadow-2xl text-center backdrop-blur-2xl">
-            <h1 class="text-2xl font-black mb-1 text-white tracking-wide">SELECT ROLE</h1>
-            <p class="text-xs text-slate-500 mb-6 font-light">เลือกโหมดการใช้งานอุปกรณ์ของคุณ</p>
-            <div class="space-y-3">
-                <button onclick="setupDisplay()" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-black py-3.5 rounded-2xl transition active:scale-95 shadow-lg shadow-amber-400/10">
+        <div id="view-select" class="w-full max-w-sm bg-slate-900/40 p-8 rounded-3xl border border-slate-800 text-center">
+            <h1 class="text-xl font-bold mb-1 text-white tracking-wide">SELECT ROLE</h1>
+            <p class="text-xs text-slate-500 mb-8 font-light">เลือกโหมดการใช้งานอุปกรณ์ของคุณ</p>
+            <div class="space-y-3.5">
+                <button onclick="setupDisplay()" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold py-4 rounded-2xl transition active:scale-98">
                     📺 TV DISPLAY (จอแสดงผลหลัก)
                 </button>
-                <button onclick="setupHost()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 rounded-2xl border border-slate-700/80 transition active:scale-95">
+                <button onclick="setupHost()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-medium py-4 rounded-2xl border border-slate-700/60 transition active:scale-98">
                     📱 HOST CONTROLLER (ผู้ควบคุมเกม)
                 </button>
-                <button onclick="showPlayerLogin()" class="w-full bg-slate-900 hover:bg-slate-850 text-slate-300 font-bold py-3.5 rounded-2xl border border-slate-800 transition active:scale-95">
+                <button onclick="showPlayerLogin()" class="w-full bg-slate-900 hover:bg-slate-800 text-slate-300 font-medium py-4 rounded-2xl border border-slate-800 transition active:scale-98">
                     🎮 PLAYER (ปุ่มกดผู้เล่น)
                 </button>
             </div>
         </div>
 
         <!-- SCREEN 2: TV DISPLAY -->
-        <div id="view-display" class="w-full bg-slate-900/30 p-4 sm:p-6 rounded-3xl border border-slate-800/80 hidden flex-col items-center backdrop-blur-2xl transition-all">
-            <div class="w-full flex items-center justify-between bg-slate-950/80 p-4 rounded-2xl border border-slate-800/80 mb-4">
+        <div id="view-display" class="w-full bg-slate-900/20 p-6 rounded-3xl border border-slate-800/60 hidden flex-col items-center transition-all">
+            <div class="w-full flex items-center justify-between bg-slate-900/80 p-4 rounded-2xl border border-slate-800 mb-6">
                 <div class="flex items-center gap-4">
-                    <div id="display-qrcode" class="p-1.5 bg-white rounded-xl shadow-md"></div>
+                    <div id="display-qrcode" class="p-1.5 bg-white rounded-xl"></div>
                     <div>
-                        <span class="text-[10px] font-bold text-slate-500 tracking-widest uppercase block">ROOM CODE</span>
-                        <div id="display-room-code" class="text-3xl sm:text-4xl font-black text-amber-400 font-mono tracking-widest">----</div>
+                        <span class="text-[10px] font-semibold text-slate-500 tracking-widest uppercase block">ROOM CODE</span>
+                        <div id="display-room-code" class="text-3xl sm:text-4xl font-bold text-amber-400 font-mono tracking-widest">----</div>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <div id="display-timer-box" class="hidden flex-col items-center bg-rose-950/40 border border-rose-500/50 px-6 py-1.5 rounded-2xl pulse-fast">
-                        <span id="display-timer-label" class="text-[9px] font-black text-rose-400 uppercase tracking-widest">TIMER</span>
-                        <span id="display-timer-val" class="text-4xl font-black text-rose-400 font-mono">00</span>
+                    <div id="display-timer-box" class="hidden flex-col items-center bg-slate-950 border border-slate-800 px-6 py-2 rounded-2xl">
+                        <span id="display-timer-label" class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">TIMER</span>
+                        <span id="display-timer-val" class="text-3xl font-bold text-amber-400 font-mono">00</span>
                     </div>
                 </div>
             </div>
 
-            <!-- MAIN DYNAMIC CARD (QUESTION MODE OR PLAYER LOBBY MODE) -->
-            <div id="display-main-card" class="w-full bg-slate-950/90 border border-slate-800 p-6 sm:p-10 rounded-3xl mb-4 text-center transition-all duration-300 glow-amber relative overflow-hidden min-h-[220px] flex flex-col justify-center items-center">
-                <div id="display-mode-badge" class="absolute top-3 left-4 text-[10px] font-bold px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-amber-400 uppercase tracking-widest">
+            <!-- MAIN DYNAMIC CARD -->
+            <div id="display-main-card" class="w-full bg-slate-900/40 border border-slate-800 p-8 sm:p-12 rounded-3xl mb-6 text-center relative overflow-hidden min-h-[240px] flex flex-col justify-center items-center">
+                <div id="display-mode-badge" class="absolute top-4 left-5 text-[10px] font-bold px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-amber-400 uppercase tracking-widest">
                     LOBBY
                 </div>
                 
-                <!-- IDLE LOBBY VIEW (WHEN NO QUESTION IS ACTIVE) -->
+                <!-- IDLE LOBBY VIEW -->
                 <div id="display-lobby-content" class="w-full flex flex-col items-center">
-                    <span class="text-xs font-bold text-slate-400 tracking-widest uppercase mb-3 block">👥 ผู้เล่นที่ออนไลน์อยู่ในห้อง (<span id="tv-online-count" class="text-amber-400 font-mono">0</span> คน)</span>
-                    <div id="display-online-players-grid" class="w-full flex flex-wrap justify-center gap-2.5 max-h-[160px] overflow-y-auto p-2">
+                    <span class="text-xs font-medium text-slate-400 uppercase tracking-wider mb-4 block">👥 ผู้เล่นที่ออนไลน์ (<span id="tv-online-count" class="text-amber-400 font-mono font-bold">0</span> คน)</span>
+                    <div id="display-online-players-grid" class="w-full flex flex-wrap justify-center gap-3 max-h-[160px] overflow-y-auto p-2">
                         <span class="text-xs text-slate-600">กำลังรอผู้เล่นเข้าร่วม...</span>
                     </div>
                 </div>
 
                 <!-- ACTIVE QUESTION VIEW -->
                 <div id="display-question-content" class="w-full hidden flex-col items-center justify-center">
-                    <div id="display-question-text" class="text-2xl sm:text-4xl font-extrabold text-slate-100 min-h-[90px] flex flex-col items-center justify-center leading-relaxed tracking-wide">
+                    <div id="display-question-text" class="text-2xl sm:text-4xl font-bold text-slate-100 min-h-[90px] flex flex-col items-center justify-center leading-relaxed">
                     </div>
                 </div>
 
                 <!-- WINNER & CORRECT ANSWER CELEBRATION MODAL -->
-                <div id="display-correct-celebration" class="w-full hidden flex-col items-center justify-center animate-bounce py-2">
-                    <div class="inline-block px-4 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-400 font-black text-sm uppercase tracking-widest mb-2 shadow-lg">
-                        🎉 ตอบถูกต้อง! 🎉
+                <div id="display-correct-celebration" class="w-full hidden flex-col items-center justify-center py-2">
+                    <div class="inline-block px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold text-xs uppercase tracking-widest mb-3">
+                        🎉 ตอบถูกต้อง!
                     </div>
-                    <div id="display-winner-player-name" class="text-3xl sm:text-5xl font-black text-amber-300 mb-2 drop-shadow-md">
+                    <!-- MINIMAL: ขยายขนาดชื่อผู้เล่นตอบถูกให้ใหญ่เด่นชัด -->
+                    <div id="display-winner-player-name" class="text-5xl sm:text-7xl font-black text-amber-400 mb-3 tracking-wide">
                         --
                     </div>
-                    <div id="display-winner-answer-title" class="text-2xl sm:text-4xl font-black text-white tracking-wide">
+                    <div id="display-winner-answer-title" class="text-xl sm:text-3xl font-bold text-white">
                         --
                     </div>
-                    <div id="display-winner-answer-detail" class="text-sm sm:text-base text-slate-400 font-semibold mt-1">
+                    <div id="display-winner-answer-detail" class="text-sm text-slate-400 font-medium mt-1">
                         --
                     </div>
                 </div>
             </div>
 
-            <div id="display-winner-spotlight" class="w-full hidden mb-4 p-4 rounded-2xl bg-gradient-to-r from-amber-500/20 via-rose-500/20 to-amber-500/20 border border-amber-500/50 text-center animate-pulse transition-all duration-300">
-                <span id="display-winner-label" class="text-xs font-black text-amber-400 tracking-widest uppercase block mb-1">⚡ FASTEST BUZZ ⚡</span>
-                <span id="display-winner-name" class="text-3xl font-black text-white tracking-wide">--</span>
+            <!-- MINIMAL: ขยายขนาดชื่อผู้เล่น Buzz เร็วที่สุด -->
+            <div id="display-winner-spotlight" class="w-full hidden mb-6 p-6 rounded-2xl bg-slate-900 border border-amber-400/40 text-center">
+                <span id="display-winner-label" class="text-xs font-bold text-amber-400 tracking-widest uppercase block mb-1">⚡ FASTEST BUZZ ⚡</span>
+                <span id="display-winner-name" class="text-4xl sm:text-6xl font-black text-white tracking-wide">--</span>
             </div>
 
-            <div class="w-full grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="w-full grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="md:col-span-2">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">⚡ BUZZ QUEUE</span>
-                        <span id="tv-queue-count" class="text-[10px] font-mono text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20">0 IN QUEUE</span>
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">⚡ BUZZ QUEUE</span>
+                        <span id="tv-queue-count" class="text-[10px] font-mono text-amber-400 bg-slate-900 px-2.5 py-1 rounded border border-slate-800">0 IN QUEUE</span>
                     </div>
-                    <div id="display-buzz-list" class="space-y-2 max-h-[220px] overflow-y-auto pr-1">
-                        <div class="text-center py-8 text-slate-700 text-xs border border-dashed border-slate-800/80 rounded-2xl">
+                    <div id="display-buzz-list" class="space-y-2.5 max-h-[240px] overflow-y-auto pr-1">
+                        <div class="text-center py-8 text-slate-700 text-xs border border-dashed border-slate-800 rounded-2xl">
                             WAITING FOR BUZZ...
                         </div>
                     </div>
                 </div>
 
                 <div>
-                    <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-2">🏆 SCOREBOARD</span>
-                    <div id="display-scoreboard" class="space-y-1.5 max-h-[220px] overflow-y-auto bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80">
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-3">🏆 SCOREBOARD</span>
+                    <div id="display-scoreboard" class="space-y-2 max-h-[240px] overflow-y-auto bg-slate-900/40 p-3.5 rounded-2xl border border-slate-800/80">
                         <p class="text-xs text-slate-700 text-center py-6">NO SCORES YET</p>
                     </div>
                 </div>
@@ -150,96 +144,92 @@
         </div>
 
         <!-- SCREEN 3: HOST CONTROLLER -->
-        <div id="view-host" class="w-full max-w-md bg-slate-900/90 p-4 rounded-3xl border border-slate-800 hidden flex-col items-center backdrop-blur-2xl shadow-2xl">
+        <div id="view-host" class="w-full max-w-md bg-slate-900/40 p-5 rounded-3xl border border-slate-800 hidden flex-col items-center shadow-xl">
             
             <!-- TOP STATUS BAR -->
-            <div class="w-full flex justify-between items-center mb-3 bg-slate-950 p-3 rounded-2xl border border-slate-800">
+            <div class="w-full flex justify-between items-center mb-4 bg-slate-900 p-3.5 rounded-2xl border border-slate-800">
                 <div>
-                    <span class="text-[9px] text-slate-500 uppercase font-black tracking-widest block">ROOM CODE</span>
-                    <span id="host-room-code" class="text-2xl font-black text-amber-400 font-mono tracking-wider">----</span>
+                    <span class="text-[9px] text-slate-500 uppercase font-bold tracking-widest block">ROOM CODE</span>
+                    <span id="host-room-code" class="text-2xl font-bold text-amber-400 font-mono tracking-wider">----</span>
                 </div>
                 <div class="flex gap-2">
-                    <button id="btn-toggle-lock" onclick="safeAction(toggleLock)" class="bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold px-3 py-2 rounded-xl text-xs border border-slate-700/80 transition active:scale-95 flex items-center gap-1.5">
+                    <button id="btn-toggle-lock" onclick="safeAction(toggleLock)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium px-3.5 py-2 rounded-xl text-xs border border-slate-700 transition active:scale-95">
                         🔒 LOCK
                     </button>
-                    <button onclick="setupHostWithCode()" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-400 px-3 py-2 rounded-xl transition text-xs font-semibold">
+                    <button onclick="setupHostWithCode()" class="bg-slate-950 border border-slate-800 hover:bg-slate-800 text-slate-400 px-3 py-2 rounded-xl transition text-xs font-medium">
                         🔑 Join Code
                     </button>
                 </div>
             </div>
 
             <!-- HOST NAVIGATION TABS -->
-            <div class="w-full grid grid-cols-4 gap-1 p-1 bg-slate-950 rounded-2xl border border-slate-800 mb-3 text-[11px]">
-                <button id="tab-btn-live" onclick="switchHostTab('live')" class="py-2 rounded-xl font-bold text-slate-400 tab-active">🕹️ เกมสด</button>
-                <button id="tab-btn-preset" onclick="switchHostTab('preset')" class="py-2 rounded-xl font-bold text-slate-400">🎮 โจทย์</button>
-                <button id="tab-btn-random" onclick="switchHostTab('random')" class="py-2 rounded-xl font-bold text-slate-400">🎲 สุ่มผู้เล่น</button>
-                <button id="tab-btn-score" onclick="switchHostTab('score')" class="py-2 rounded-xl font-bold text-slate-400">🏆 คะแนน</button>
+            <div class="w-full grid grid-cols-4 gap-1 p-1 bg-slate-950 rounded-2xl border border-slate-800 mb-4 text-xs">
+                <button id="tab-btn-live" onclick="switchHostTab('live')" class="py-2.5 rounded-xl font-medium text-slate-400 tab-active">🕹️ เกมสด</button>
+                <button id="tab-btn-preset" onclick="switchHostTab('preset')" class="py-2.5 rounded-xl font-medium text-slate-400">🎮 โจทย์</button>
+                <button id="tab-btn-random" onclick="switchHostTab('random')" class="py-2.5 rounded-xl font-medium text-slate-400">🎲 สุ่ม</button>
+                <button id="tab-btn-score" onclick="switchHostTab('score')" class="py-2.5 rounded-xl font-medium text-slate-400">🏆 คะแนน</button>
             </div>
 
             <!-- TAB 1: LIVE GAME CONTROLS -->
-            <div id="host-tab-live" class="w-full space-y-3">
-                <div class="bg-slate-950/90 p-3.5 rounded-2xl border border-amber-500/30 shadow-lg">
-                    <span class="text-[10px] font-black text-amber-400 uppercase tracking-wider block mb-2">⚡ ควบคุมเกมสด & ตัดสินคะแนน</span>
+            <div id="host-tab-live" class="w-full space-y-4">
+                <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800">
+                    <span class="text-[10px] font-bold text-amber-400 uppercase tracking-wider block mb-3">⚡ ควบคุมเกมสด & ตัดสินคะแนน</span>
 
-                    <!-- DYNAMIC MODE ACTIONS -->
-                    <div id="host-mode-actions" class="space-y-2 mb-2"></div>
+                    <div id="host-mode-actions" class="space-y-2 mb-3"></div>
 
-                    <!-- SCORING DECISION BUTTONS -->
-                    <div class="grid grid-cols-2 gap-2 mb-2">
-                        <button onclick="safeAction(() => judgeAnswer(true))" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-3 rounded-xl text-xs active:scale-95 shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-1.5">
+                    <div class="grid grid-cols-2 gap-2 mb-3">
+                        <button onclick="safeAction(() => judgeAnswer(true))" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-xs transition active:scale-95">
                             ✓ ถูกต้อง (+1)
                         </button>
-                        <button onclick="safeAction(() => judgeAnswer(false))" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-black py-3 rounded-xl text-xs active:scale-95 shadow-lg shadow-rose-600/20 flex items-center justify-center gap-1.5">
+                        <button onclick="safeAction(() => judgeAnswer(false))" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 rounded-xl text-xs transition active:scale-95">
                             ✕ ตอบผิด (-1)
                         </button>
                     </div>
 
-                    <!-- QUICK CONTROL ACTIONS -->
-                    <div class="grid grid-cols-2 gap-2 mb-2">
-                        <button onclick="safeAction(nextQuestion)" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-black py-2.5 rounded-xl text-xs transition active:scale-95 shadow-md shadow-cyan-600/20 flex items-center justify-center gap-1">
-                            ⏭️ ข้อต่อไป (Next)
+                    <div class="grid grid-cols-2 gap-2 mb-3">
+                        <button onclick="safeAction(nextQuestion)" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-medium py-2.5 rounded-xl text-xs border border-slate-700 transition active:scale-95">
+                            ⏭️ ข้อต่อไป
                         </button>
-                        <button onclick="safeAction(resetBuzzer)" class="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black py-2.5 rounded-xl text-xs transition active:scale-95 shadow-md shadow-amber-500/20 flex items-center justify-center gap-1">
+                        <button onclick="safeAction(resetBuzzer)" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition active:scale-95">
                             🔄 RESET BUZZER
                         </button>
                     </div>
 
-                    <button onclick="safeAction(startTimerFromConfig)" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-2.5 rounded-xl text-xs transition active:scale-95 shadow">
+                    <button onclick="safeAction(startTimerFromConfig)" class="w-full bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold py-2.5 rounded-xl text-xs border border-slate-700 transition active:scale-95">
                         ⏱️ เริ่มนับถอยหลัง
                     </button>
                 </div>
 
-                <!-- SETTING: BUZZ TIMING RULE & TIMER CONFIG -->
-                <div class="bg-slate-950/90 p-3.5 rounded-2xl border border-slate-800">
-                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-2">⚙️ ตั้งค่าเงื่อนไขเวลา</span>
-                    <div class="mb-2">
-                        <label class="block text-[10px] text-slate-400 font-bold mb-1">เงื่อนไขการกดปุ่ม (Buzz Timing Mode):</label>
-                        <select id="select-buzz-timing" class="w-full bg-slate-900 border border-slate-700 text-amber-300 font-bold text-xs rounded-xl px-3 py-2 outline-none">
-                            <option value="during">⚡ กดได้ระหว่างนับถอยหลัง (อ่านจบแล้วค่อยเริ่มนับ)</option>
+                <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-3">⚙️ ตั้งค่าเงื่อนไขเวลา</span>
+                    <div class="mb-3">
+                        <label class="block text-[10px] text-slate-400 font-medium mb-1">เงื่อนไขการกดปุ่ม (Buzz Timing Mode):</label>
+                        <select id="select-buzz-timing" class="w-full bg-slate-950 border border-slate-800 text-amber-400 font-medium text-xs rounded-xl px-3 py-2.5 outline-none">
+                            <option value="during">⚡ กดได้ระหว่างนับถอยหลัง</option>
                             <option value="on_zero">🛑 ล็อกปุ่ม - กดเมื่อหมดเวลา / สัญญาณ GO!</option>
                         </select>
                     </div>
 
                     <div class="flex items-center gap-2">
-                        <span class="text-[10px] text-slate-400 font-bold">เวลานับถอยหลัง:</span>
-                        <input type="number" id="input-custom-timer-sec" value="10" min="1" max="90" class="w-16 bg-slate-900 border border-slate-700 text-amber-400 font-mono font-bold text-center rounded-xl py-1 text-xs outline-none">
-                        <span class="text-xs text-slate-400 font-bold">วิ</span>
+                        <span class="text-[10px] text-slate-400 font-medium">เวลานับถอยหลัง:</span>
+                        <input type="number" id="input-custom-timer-sec" value="10" min="1" max="90" class="w-16 bg-slate-950 border border-slate-800 text-amber-400 font-mono font-bold text-center rounded-xl py-1.5 text-xs outline-none">
+                        <span class="text-xs text-slate-400 font-medium">วิ</span>
                         <div class="flex gap-1 ml-auto">
-                            <button onclick="document.getElementById('input-custom-timer-sec').value=5" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 text-[10px] font-mono px-2 py-1 rounded-lg">5s</button>
-                            <button onclick="document.getElementById('input-custom-timer-sec').value=10" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 text-[10px] font-mono px-2 py-1 rounded-lg">10s</button>
-                            <button onclick="document.getElementById('input-custom-timer-sec').value=20" class="bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 text-[10px] font-mono px-2 py-1 rounded-lg">20s</button>
+                            <button onclick="document.getElementById('input-custom-timer-sec').value=5" class="bg-slate-950 border border-slate-800 text-slate-400 text-[10px] font-mono px-2 py-1 rounded-lg">5s</button>
+                            <button onclick="document.getElementById('input-custom-timer-sec').value=10" class="bg-slate-950 border border-slate-800 text-slate-400 text-[10px] font-mono px-2 py-1 rounded-lg">10s</button>
+                            <button onclick="document.getElementById('input-custom-timer-sec').value=20" class="bg-slate-950 border border-slate-800 text-slate-400 text-[10px] font-mono px-2 py-1 rounded-lg">20s</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- TAB 2: GAME PRESETS & CUSTOM CONTENT -->
-            <div id="host-tab-preset" class="w-full space-y-3 hidden">
-                <div class="bg-slate-950/90 p-3.5 rounded-2xl border border-slate-800">
-                    <label class="block text-[10px] font-black text-amber-400 uppercase tracking-wider mb-2">🎮 เลือกโหมด & คลังโจทย์ (50 ข้อ/โหมด)</label>
+            <!-- TAB 2: GAME PRESETS -->
+            <div id="host-tab-preset" class="w-full space-y-4 hidden">
+                <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800">
+                    <label class="block text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-3">🎮 เลือกโหมด & คลังโจทย์</label>
                     
-                    <div class="grid grid-cols-3 gap-2 mb-2.5">
-                        <select id="select-game-mode" onchange="onGameModeChange()" class="col-span-2 bg-slate-900 border border-slate-700 text-amber-300 font-bold text-xs rounded-xl px-3 py-2.5 outline-none focus:border-amber-400">
+                    <div class="grid grid-cols-3 gap-2 mb-3">
+                        <select id="select-game-mode" onchange="onGameModeChange()" class="col-span-2 bg-slate-950 border border-slate-800 text-amber-300 font-medium text-xs rounded-xl px-3 py-2.5 outline-none">
                             <option value="song">🎵 1. ทายเพลงจาก Siri / เนื้อร้อง</option>
                             <option value="emoji">🧩 2. ทายคำจาก Emoji</option>
                             <option value="math">🧮 3. คิดเลขไว (Math Blitz)</option>
@@ -249,31 +239,31 @@
                             <option value="trivia">⚡ 7. คำถามตอบไว (Trivia)</option>
                             <option value="spelling">🔠 8. สะกดคำศัพท์</option>
                         </select>
-                        <button onclick="safeAction(randomPresetItem)" class="bg-amber-400/10 border border-amber-500/40 text-amber-400 hover:bg-amber-400/20 font-bold rounded-xl text-xs active:scale-95 transition flex items-center justify-center gap-1">
+                        <button onclick="safeAction(randomPresetItem)" class="bg-slate-950 border border-slate-800 text-amber-400 font-medium rounded-xl text-xs active:scale-95 transition">
                             🎲 สุ่มโจทย์
                         </button>
                     </div>
 
-                    <select id="select-preset-song" onchange="onSelectPresetChange()" class="w-full bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-xl p-2.5 outline-none font-medium mb-2">
+                    <select id="select-preset-song" onchange="onSelectPresetChange()" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-2.5 outline-none font-medium mb-3">
                     </select>
 
-                    <div id="youtube-search-shortcut" class="hidden mb-2">
-                        <button onclick="openYouTubeSearch()" class="w-full bg-red-600/20 border border-red-500/40 text-red-400 font-bold py-2 rounded-xl text-xs hover:bg-red-600/30 transition flex items-center justify-center gap-1">
+                    <div id="youtube-search-shortcut" class="hidden mb-3">
+                        <button onclick="openYouTubeSearch()" class="w-full bg-slate-950 border border-slate-800 text-rose-400 font-medium py-2 rounded-xl text-xs hover:bg-slate-800 transition">
                             ▶️ ค้นหาเพลงนี้บน YouTube
                         </button>
                     </div>
 
-                    <button onclick="toggleCustomLyricsArea()" class="w-full bg-slate-900/50 border border-dashed border-slate-800 text-slate-400 font-semibold py-2 rounded-xl text-xs transition hover:text-white hover:border-slate-700">
+                    <button onclick="toggleCustomLyricsArea()" class="w-full bg-slate-950 border border-slate-800 text-slate-400 font-medium py-2 rounded-xl text-xs transition">
                         ✏️ ป้อนโจทย์ / บันทึกคลังข้อมูลเอง
                     </button>
 
-                    <div id="custom-lyrics-container" class="hidden mt-2 pt-2 border-t border-slate-800">
-                        <textarea id="input-host-lyrics" rows="3" placeholder="พิมพ์ข้อความ (ขึ้นบรรทัดใหม่ = ขั้นถัดไป)..." class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white focus:outline-none mb-2 font-mono"></textarea>
+                    <div id="custom-lyrics-container" class="hidden mt-3 pt-3 border-t border-slate-800">
+                        <textarea id="input-host-lyrics" rows="3" placeholder="พิมพ์ข้อความ..." class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none mb-2 font-mono"></textarea>
                         <div class="grid grid-cols-2 gap-2">
-                            <button onclick="safeAction(sendCustomLyrics)" class="bg-slate-800 border border-slate-700 text-slate-200 font-bold py-2 rounded-xl text-xs hover:bg-slate-700 active:scale-95">
+                            <button onclick="safeAction(sendCustomLyrics)" class="bg-slate-800 text-slate-200 font-medium py-2 rounded-xl text-xs hover:bg-slate-700 active:scale-95">
                                 🗣️ อ่านโจทย์ทันที
                             </button>
-                            <button onclick="addNewItemToPreset()" class="bg-slate-800 border border-slate-700 text-amber-400 font-bold py-2 rounded-xl text-xs hover:bg-slate-700 active:scale-95">
+                            <button onclick="addNewItemToPreset()" class="bg-slate-800 text-amber-400 font-medium py-2 rounded-xl text-xs hover:bg-slate-700 active:scale-95">
                                 💾 บันทึกถาวร (Save)
                             </button>
                         </div>
@@ -281,36 +271,36 @@
                 </div>
             </div>
 
-            <!-- TAB 3: RANDOM PLAYER PICKER SYSTEM -->
-            <div id="host-tab-random" class="w-full space-y-3 hidden">
-                <div class="bg-slate-950/90 p-4 rounded-2xl border border-amber-500/30 text-center">
-                    <span class="text-xs font-black text-amber-400 uppercase tracking-wider block mb-1">🎲 ระบบสุ่มเลือกผู้เล่น</span>
-                    <p class="text-[11px] text-slate-400 mb-3">สุ่มผู้เล่นสำหรับบทลงโทษ / ตอบคำถามสด / แจกรางวัล</p>
+            <!-- TAB 3: RANDOM PLAYER -->
+            <div id="host-tab-random" class="w-full space-y-4 hidden">
+                <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 text-center">
+                    <span class="text-xs font-bold text-amber-400 uppercase tracking-wider block mb-1">🎲 ระบบสุ่มเลือกผู้เล่น</span>
+                    <p class="text-[11px] text-slate-400 mb-4">สุ่มผู้เล่นสำหรับบทลงโทษ / ตอบคำถามสด / แจกรางวัล</p>
                     
-                    <button onclick="safeAction(pickRandomPlayer)" class="w-full bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black py-4 rounded-2xl text-base shadow-lg shadow-amber-500/20 active:scale-95 transition flex items-center justify-center gap-2">
+                    <button onclick="safeAction(pickRandomPlayer)" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold py-4 rounded-2xl text-sm active:scale-95 transition">
                         🎯 สุ่มผู้เล่นดวงดี! (Random Player)
                     </button>
                 </div>
             </div>
 
-            <!-- TAB 4: SCOREBOARD & ROOM RESET -->
-            <div id="host-tab-score" class="w-full space-y-3 hidden">
-                <div class="bg-slate-950/90 p-3.5 rounded-2xl border border-slate-800">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">🏆 สกอร์บอร์ดผู้เล่นออนไลน์</span>
-                    <div id="host-scoreboard" class="space-y-1.5 max-h-[220px] overflow-y-auto pr-1">
+            <!-- TAB 4: SCOREBOARD -->
+            <div id="host-tab-score" class="w-full space-y-4 hidden">
+                <div class="bg-slate-900 p-4 rounded-2xl border border-slate-800">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-3">🏆 สกอร์บอร์ดผู้เล่นออนไลน์</span>
+                    <div id="host-scoreboard" class="space-y-2 max-h-[220px] overflow-y-auto pr-1">
                         <p class="text-xs text-slate-600 text-center py-2">ยังไม่มีผู้เล่นในห้อง</p>
                     </div>
                 </div>
 
-                <button onclick="clearRoomCompletely()" class="w-full bg-rose-950/40 border border-rose-800/60 text-rose-400 hover:bg-rose-900/40 text-xs py-2.5 rounded-xl font-bold transition">
+                <button onclick="clearRoomCompletely()" class="w-full bg-slate-900 border border-slate-800 text-rose-400 hover:bg-rose-950/30 text-xs py-3 rounded-xl font-medium transition">
                     ⚠️ ล้างข้อมูลห้องและคะแนนทั้งหมด (Reset Room)
                 </button>
             </div>
         </div>
 
         <!-- SCREEN 4: PLAYER LOGIN -->
-        <div id="view-player-login" class="w-full max-w-sm bg-slate-900/60 p-6 rounded-3xl border border-slate-800 shadow-2xl hidden backdrop-blur-2xl">
-            <h2 class="text-xl font-black text-center mb-1 text-white uppercase tracking-wider">JOIN GAME</h2>
+        <div id="view-player-login" class="w-full max-w-sm bg-slate-900/40 p-6 sm:p-8 rounded-3xl border border-slate-800 hidden">
+            <h2 class="text-lg font-bold text-center mb-1 text-white uppercase tracking-wider">JOIN GAME</h2>
             <p class="text-xs text-slate-500 text-center mb-6">ใส่นามแฝงและรหัสห้องเพื่อเข้าเล่น</p>
 
             <div class="space-y-4">
@@ -322,29 +312,30 @@
                     <label class="block text-[10px] text-slate-500 uppercase font-bold mb-1">ROOM CODE</label>
                     <input type="text" id="input-room-code" placeholder="4 DIGITS" maxlength="6" class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-amber-400 font-mono tracking-widest focus:outline-none focus:border-amber-400 text-center font-bold text-xl uppercase transition">
                 </div>
-                <button onclick="joinRoom()" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-black py-3.5 rounded-xl shadow-lg transition active:scale-95 text-base">
+                <button onclick="joinRoom()" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold py-3.5 rounded-xl transition active:scale-95 text-base">
                     ENTER GAME
                 </button>
             </div>
         </div>
 
         <!-- SCREEN 5: PLAYER GAME BUZZER -->
-        <div id="view-player-game" class="w-full max-w-sm bg-slate-900/60 p-5 rounded-3xl border border-slate-800 hidden flex-col items-center text-center backdrop-blur-2xl">
+        <div id="view-player-game" class="w-full max-w-sm bg-slate-900/40 p-6 rounded-3xl border border-slate-800 hidden flex-col items-center text-center">
+            <!-- MINIMAL: ขยายชื่อผู้เล่นฝั่งมือถือให้ชัดเจนขึ้น -->
             <div class="w-full flex justify-between items-center mb-4 border-b border-slate-800/80 pb-3">
-                <span id="player-display-name" class="font-bold text-slate-200 text-sm">--</span>
-                <span id="player-display-score" class="text-xs bg-slate-950 text-amber-400 border border-slate-800 px-3 py-1 rounded-full font-mono font-bold">0 PTS</span>
+                <span id="player-display-name" class="font-extrabold text-amber-400 text-xl sm:text-2xl truncate max-w-[200px]">--</span>
+                <span id="player-display-score" class="text-xs bg-slate-950 text-slate-300 border border-slate-800 px-3 py-1.5 rounded-full font-mono font-bold">0 PTS</span>
             </div>
 
-            <div id="player-question-box" class="w-full bg-slate-950 border border-slate-800 p-3 rounded-2xl mb-3 text-xs font-medium text-slate-400 min-h-[48px] flex items-center justify-center">
+            <div id="player-question-box" class="w-full bg-slate-950 border border-slate-800 p-4 rounded-2xl mb-4 text-xs font-medium text-slate-400 min-h-[52px] flex items-center justify-center">
                 WAITING FOR HOST...
             </div>
 
-            <div id="player-status-banner" class="w-full py-2 px-4 rounded-xl bg-slate-950 border border-slate-800 text-emerald-400 text-xs font-bold mb-4">
+            <div id="player-status-banner" class="w-full py-2.5 px-4 rounded-xl bg-slate-950 border border-slate-800 text-emerald-400 text-xs font-bold mb-6">
                 READY TO BUZZ (หรือกด SPACEBAR)
             </div>
 
-            <button id="buzz-button" onclick="pressBuzz()" class="buzz-btn-active w-56 h-56 rounded-full bg-gradient-to-b from-rose-500 to-rose-700 border-8 border-slate-950 shadow-2xl flex flex-col items-center justify-center cursor-pointer transition transform my-2">
-                <span class="text-4xl font-black tracking-widest text-white drop-shadow-md">BUZZ</span>
+            <button id="buzz-button" onclick="pressBuzz()" class="buzz-btn-active w-56 h-56 rounded-full bg-rose-600 border-8 border-slate-950 flex flex-col items-center justify-center cursor-pointer transition transform my-2">
+                <span class="text-4xl font-black tracking-widest text-white">BUZZ</span>
             </button>
         </div>
 
@@ -360,7 +351,7 @@
         let isMuted = false;
         let buzzList = [];
         let playerScores = {};
-        let onlinePlayersMap = {}; // { name: timestamp }
+        let onlinePlayersMap = {};
         let disqualifiedPlayers = new Set();
         let pingIntervalTimer = null;
         
@@ -387,13 +378,12 @@
             });
         }
 
-        // --- PRESET GENERATOR: 50 QUESTIONS PER MODE (TOTAL 400 PRESETS) ---
+        // --- PRESET GENERATOR ---
         function generate50Presets() {
             const datasets = {
                 song: [], emoji: [], math: [], hint: [], speed_go: [], reverse: [], trivia: [], spelling: []
             };
 
-            // 1. Song (50 items)
             const songs = [
                 ["ทรงอย่างแบด", "Paper Planes", "ทรงอย่างแบด แซดอย่างบ่อย\nเธอทำให้ฉันต้องเจ็บช้ำ"],
                 ["พิง", "NON TANONT", "ที่ตรงนี้มีคนที่รอเธออยู่\nที่ตรงนี้มีคนที่รักเธอเกินใคร"],
@@ -402,9 +392,7 @@
                 ["เฮอร์ไมโอเน่", "ออมสิน", "ท่องคาถาไมออนนี่ ให้เธอนั้นหันมามอง"],
                 ["วาดไว้", "BOWKYLION", "พี่พาน้องกลับบ้านเรานะ\nวาดไว้ในความทรงจำ"],
                 ["ซ่อนกลิ่น", "PALMY", "คงไว้ได้แค่กลิ่นโชยมา\nเหลือไว้เพียงความทรงจำ"],
-                ["โต๊ะริม", "NONT TANONT", "เธอมาทำให้จิตใจของฉันละลาย\nนั่งมองเธอที่โต๊ะริม"],
-                ["พิจารณา", "Cinch", "มองตาฉันแล้วช่วยพิจารณา\nเรื่องของเราสองคน"],
-                ["สายตาหลอกกันไม่ได้", "INNK", "สายตาของเธอมันบอกว่ารัก\nอย่ามาทำเป็นเฉยชา"]
+                ["โต๊ะริม", "NONT TANONT", "เธอมาทำให้จิตใจของฉันละลาย\nนั่งมองเธอที่โต๊ะริม"]
             ];
             for(let i=0; i<50; i++) {
                 const base = songs[i % songs.length];
@@ -415,16 +403,11 @@
                 });
             }
 
-            // 2. Emoji (50 items)
             const emojis = [
                 ["ช้างศึก", "เฉลย: ทีมชาติไทย", "🐘 + ⚽"],
                 ["ชานมไข่มุก", "เฉลย: เครื่องดื่มยอดฮิต", "🍵 + 🥛 + 🧋"],
                 ["รักแรกพบ", "เฉลย: ชื่อเพลงฮิต", "❤️ + 1️⃣ + 👀"],
-                ["ผัดไทยกุ้งสด", "เฉลย: อาหารไทย", "🍳 + 🍝 + 🦐"],
-                ["เสือร้องไห้", "เฉลย: เมนูปิ้งย่าง", "🐅 + 😭 + 🥩"],
-                ["ดาวเสาร์", "เฉลย: ดาวเคราะห์", "⭐ + 🪐"],
-                ["แมงมุมชักใย", "เฉลย: สัตว์และพฤติกรรม", "🕷️ + 🕸️"],
-                ["กระต่ายตื่นตระหนก", "เฉลย: สำนวนไทย", "🐰 + 😱 + ⚡"]
+                ["ผัดไทยกุ้งสด", "เฉลย: อาหารไทย", "🍳 + 🍝 + 🦐"]
             ];
             for(let i=0; i<50; i++) {
                 const base = emojis[i % emojis.length];
@@ -435,7 +418,6 @@
                 });
             }
 
-            // 3. Math (50 items)
             for(let i=1; i<=50; i++) {
                 const a = i * 3 + 7;
                 const b = i * 2 + 5;
@@ -446,12 +428,9 @@
                 });
             }
 
-            // 4. Hint (50 items)
             const hints = [
                 ["กล้วย", "ผลไม้สีเหลือง", "คำใบ้ที่ 1: เปลือกสีเหลือง\nคำใบ้ที่ 2: ลิงชอบมาก\nคำใบ้ที่ 3: นำไปบวดชีได้"],
-                ["สนามบินสุวรรณภูมิ", "สถานที่สำคัญ", "คำใบ้ที่ 1: อยู่สมุทรปราการ\nคำใบ้ที่ 2: เครื่องบินขึ้นลง 24 ชม.\nคำใบ้ที่ 3: มีรูปปั้นยักษ์"],
-                ["ตุ๊กตุ๊ก", "ยานพาหนะ", "คำใบ้ที่ 1: มี 3 ล้อ\nคำใบ้ที่ 2: เอกลักษณ์ของไทย\nคำใบ้ที่ 3: เสียงเครื่องยนต์ดังเอกลักษณ์"],
-                ["ต้มยำกุ้ง", "อาหารไทย", "คำใบ้ที่ 1: รสชาติเผ็ดเปรี้ยว\nคำใบ้ที่ 2: มีกุ้งเป็นส่วนประกอบหลัก\nคำใบ้ที่ 3: โด่งดังไปทั่วโลก"]
+                ["สนามบินสุวรรณภูมิ", "สถานที่สำคัญ", "คำใบ้ที่ 1: อยู่สมุทรปราการ\nคำใบ้ที่ 2: เครื่องบินขึ้นลง 24 ชม."]
             ];
             for(let i=0; i<50; i++) {
                 const base = hints[i % hints.length];
@@ -462,7 +441,6 @@
                 });
             }
 
-            // 5. Speed GO! (50 items)
             for(let i=1; i<=50; i++) {
                 datasets.speed_go.push({
                     title: `วัดความไว Round #${i}`,
@@ -471,12 +449,9 @@
                 });
             }
 
-            // 6. Reverse (50 items)
             const reverseWords = [
                 ["ชาบูสุกี้", "สุก - ชา - บู"],
-                ["กุ้งแม่น้ำ", "น้ำ - แม่ - กุ้ง"],
-                ["ส้มตำปูปลาร้า", "ร้า - ปลา - ปู - ตำ - ส้ม"],
-                ["คอมพิวเตอร์", "เตอร์ - พิว - คอม"]
+                ["กุ้งแม่น้ำ", "น้ำ - แม่ - กุ้ง"]
             ];
             for(let i=0; i<50; i++) {
                 const base = reverseWords[i % reverseWords.length];
@@ -487,13 +462,9 @@
                 });
             }
 
-            // 7. Trivia (50 items)
             const triviaItems = [
                 ["ประเทศไทยมีกี่จังหวัด?", "77 จังหวัด"],
-                ["แม่น้ำสายที่ยาวที่สุดในโลก?", "แม่น้ำไนล์"],
-                ["ดาวเคราะห์ที่ใกล้ดวงอาทิตย์ที่สุด?", "ดาวพุธ"],
-                ["สีแดง ผสม สีเหลือง ได้สีอะไร?", "สีส้ม"],
-                ["จังหวัดใดอยู่เหนือสุดของไทย?", "เชียงราย"]
+                ["แม่น้ำสายที่ยาวที่สุดในโลก?", "แม่น้ำไนล์"]
             ];
             for(let i=0; i<50; i++) {
                 const base = triviaItems[i % triviaItems.length];
@@ -504,12 +475,9 @@
                 });
             }
 
-            // 8. Spelling (50 items)
             const spellWords = [
                 ["COMPUTER", "C - O - M - P - U - T - E - R"],
-                ["FOOTBALL", "F - O - O - T - B - A - L - L"],
-                ["THAILAND", "T - H - A - I - L - A - N - D"],
-                ["มหัศจรรย์", "ม - ห - ั - ศ - จ - ร - ร - ย - ์"]
+                ["THAILAND", "T - H - A - I - L - A - N - D"]
             ];
             for(let i=0; i<50; i++) {
                 const base = spellWords[i % spellWords.length];
@@ -543,7 +511,7 @@
             localStorage.setItem('pb_custom_game_presets', JSON.stringify(gamePresets));
         }
 
-        // --- AUDIO ENGINE ---
+        // --- AUDIO ENGINE (RESTRICTED TO TV DISPLAY ONLY) ---
         let audioUnlocked = false;
         let thaiVoice = null;
         window.activeUtterance = null;
@@ -582,8 +550,11 @@
             return audioCtx;
         }
 
+        // เสียงเอฟเฟกต์จะทำงานเมื่ออยู่บนหน้า TV Display เท่านั้น
         function playSound(type) {
-            if (isMuted) return;
+            const isTV = !document.getElementById('view-display').classList.contains('hidden');
+            if (!isTV || isMuted) return;
+
             try {
                 const ctx = getAudioContext();
                 const cleanOsc = (osc, gain, duration) => {
@@ -642,11 +613,11 @@
             } catch(e) {}
         }
 
+        // เสียงอ่านข้อความ TTS จะทำงานเฉพาะหน้า TV Display เท่านั้น
         function speakThaiLine(text, onEndCallback) {
             const isTV = !document.getElementById('view-display').classList.contains('hidden');
-            const isHost = !document.getElementById('view-host').classList.contains('hidden');
             
-            if ((!isTV && !isHost) || isMuted || !('speechSynthesis' in window)) {
+            if (!isTV || isMuted || !('speechSynthesis' in window)) {
                 if (onEndCallback) onEndCallback();
                 return;
             }
@@ -697,22 +668,20 @@
         }
 
         function triggerFireworks() {
-            try {
-                // Multi-burst fireworks effect
-                const count = 200;
-                const defaults = { origin: { y: 0.6 } };
+            const isTV = !document.getElementById('view-display').classList.contains('hidden');
+            if (!isTV) return;
 
+            try {
+                const count = 180;
+                const defaults = { origin: { y: 0.6 } };
                 function fire(particleRatio, opts) {
                     confetti(Object.assign({}, defaults, opts, {
                         particleCount: Math.floor(count * particleRatio)
                     }));
                 }
-
                 fire(0.25, { spread: 26, startVelocity: 55 });
                 fire(0.2, { spread: 60 });
                 fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
-                fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
-                fire(0.1, { spread: 120, startVelocity: 45 });
             } catch(e) {}
         }
 
@@ -753,8 +722,7 @@
                 } else {
                     stopTimer();
                     if (currentBuzzTriggerMode === 'on_zero') {
-                        playSound('go');
-                        if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                        playSound('buzz');
                         isLocked = false;
                         hasBuzzed = false;
                         roundStartTime = Date.now();
@@ -763,7 +731,6 @@
                         updatePlayerButtonUI(true, "PRESS NOW!");
                     } else {
                         playSound('timeout');
-                        if (navigator.vibrate) navigator.vibrate(300);
                         isLocked = true;
                         stopSpeaking();
                         updatePlayerButtonUI(false, "TIME OUT");
@@ -784,7 +751,7 @@
             }
         }
 
-        // MQTT Engine & Presence System
+        // MQTT Engine
         function initMQTT(callback) {
             const statusEl = document.getElementById('connection-status');
             mqttClient = mqtt.connect('wss://broker.emqx.io:8084/mqtt', {
@@ -793,13 +760,13 @@
             });
 
             mqttClient.on('connect', () => {
-                statusEl.className = "text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-900/80 text-emerald-400 border border-slate-800 flex items-center gap-2";
+                statusEl.className = "text-xs font-medium px-3 py-2 rounded-xl bg-slate-900 text-emerald-400 border border-slate-800 flex items-center gap-2";
                 statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> ONLINE`;
                 if (callback) callback();
             });
 
             mqttClient.on('reconnect', () => {
-                statusEl.className = "text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-900/80 text-amber-400 border border-slate-800 flex items-center gap-2";
+                statusEl.className = "text-xs font-medium px-3 py-2 rounded-xl bg-slate-900 text-amber-400 border border-slate-800 flex items-center gap-2";
                 statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span> CONNECTING`;
             });
 
@@ -811,7 +778,6 @@
             });
         }
 
-        // Periodic Online Check Cleanup (Remove offline players after 15 seconds)
         setInterval(() => {
             const now = Date.now();
             let changed = false;
@@ -873,22 +839,22 @@
             if (mode === 'song' || mode === 'hint' || mode === 'spelling') {
                 const label = mode === 'song' ? 'เนื้อเพลงบรรทัดถัดไป' : (mode === 'hint' ? 'อ่านคำใบ้ถัดไป' : 'สะกดตัวถัดไป');
                 actionsHTML = `
-                    <button onclick="safeAction(playSelectedPreset)" class="w-full bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 font-black py-3 rounded-xl text-xs transition active:scale-95 shadow">
+                    <button onclick="safeAction(playSelectedPreset)" class="w-full bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold py-3 rounded-xl text-xs border border-slate-700 transition active:scale-95">
                         ▶️ เริ่มอ่านโจทย์ประจำข้อ
                     </button>
-                    <button onclick="safeAction(songNextLine)" class="w-full bg-slate-900 hover:bg-slate-800 text-slate-200 font-bold py-2.5 rounded-xl text-xs border border-slate-800 active:scale-95">
+                    <button onclick="safeAction(songNextLine)" class="w-full bg-slate-950 hover:bg-slate-800 text-slate-200 font-medium py-2.5 rounded-xl text-xs border border-slate-800 active:scale-95">
                         ➡️ ${label}
                     </button>
                 `;
             } else if (mode === 'speed_go') {
                 actionsHTML = `
-                    <button onclick="safeAction(playSelectedPreset)" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-black py-3 rounded-xl text-xs transition active:scale-95 shadow-lg shadow-rose-600/20">
+                    <button onclick="safeAction(playSelectedPreset)" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 rounded-xl text-xs transition active:scale-95">
                         🎯 เริ่มนับถอยหลัง GO!
                     </button>
                 `;
             } else {
                 actionsHTML = `
-                    <button onclick="safeAction(playSelectedPreset)" class="w-full bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 font-black py-3 rounded-xl text-xs transition active:scale-95 shadow">
+                    <button onclick="safeAction(playSelectedPreset)" class="w-full bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold py-3 rounded-xl text-xs border border-slate-700 transition active:scale-95">
                         ⚡ แสดงโจทย์ทันที
                     </button>
                 `;
@@ -969,7 +935,7 @@
             document.getElementById('display-winner-answer-detail').innerText = detail;
 
             const card = document.getElementById('display-main-card');
-            card.className = "w-full bg-slate-950/90 border-2 border-emerald-400 p-6 sm:p-10 rounded-3xl mb-4 text-center transition-all duration-300 glow-emerald relative overflow-hidden min-h-[220px] flex flex-col justify-center items-center";
+            card.className = "w-full bg-slate-900/60 border border-emerald-500/50 p-8 sm:p-12 rounded-3xl mb-6 text-center transition-all min-h-[240px] flex flex-col justify-center items-center";
         }
 
         function renderOnlinePlayersLobby() {
@@ -985,11 +951,12 @@
                 return;
             }
 
+            // MINIMAL: ปรับแต่งให้ชื่อผู้เล่นที่ออนไลน์เห็นชัดอ่านง่าย
             grid.innerHTML = onlineList.map(name => `
-                <div class="flex items-center gap-2 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl shadow">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span class="text-xs font-bold text-slate-200">${escapeHTML(name)}</span>
-                    <span class="text-[10px] text-amber-400 font-mono font-bold">(${playerScores[name] || 0} pts)</span>
+                <div class="flex items-center gap-2 bg-slate-900 border border-slate-800 px-3.5 py-2 rounded-xl">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    <span class="text-sm font-bold text-slate-200">${escapeHTML(name)}</span>
+                    <span class="text-xs text-amber-400 font-mono font-bold">(${playerScores[name] || 0} pts)</span>
                 </div>
             `).join('');
         }
@@ -1053,7 +1020,7 @@
             const joinUrl = `${window.location.origin}${window.location.pathname}?room=${currentRoom}`;
             document.getElementById('display-qrcode').innerHTML = '';
             new QRCode(document.getElementById("display-qrcode"), {
-                text: joinUrl, width: 90, height: 90, colorDark: "#020617", colorLight: "#ffffff"
+                text: joinUrl, width: 85, height: 85, colorDark: "#020617", colorLight: "#ffffff"
             });
 
             initMQTT(() => {
@@ -1112,7 +1079,7 @@
             publishControl({ action: isLocked ? 'lock' : 'unlock' });
             const btn = document.getElementById('btn-toggle-lock');
             btn.innerText = isLocked ? "🔓 UNLOCK" : "🔒 LOCK";
-            btn.className = isLocked ? "bg-rose-600 hover:bg-rose-500 text-white font-bold px-3 py-2 rounded-xl text-xs transition active:scale-95 shadow-md shadow-rose-600/20" : "bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold px-3 py-2 rounded-xl text-xs border border-slate-700/80 transition active:scale-95";
+            btn.className = isLocked ? "bg-rose-600 hover:bg-rose-500 text-white font-bold px-3.5 py-2 rounded-xl text-xs transition active:scale-95" : "bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium px-3.5 py-2 rounded-xl text-xs border border-slate-700 transition active:scale-95";
         }
 
         function playSelectedPreset() {
@@ -1245,22 +1212,22 @@
             el.innerHTML = entries.map(([name, score]) => {
                 const isOnline = !!onlinePlayersMap[name];
                 return `
-                    <div class="flex justify-between items-center bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800 text-xs">
+                    <div class="flex justify-between items-center bg-slate-950 px-3 py-2 rounded-xl border border-slate-800 text-xs">
                         <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-400' : 'bg-slate-600'}"></span>
-                            <span class="font-bold text-slate-300">${escapeHTML(name)}</span>
+                            <span class="w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-400' : 'bg-slate-700'}"></span>
+                            <span class="font-bold text-slate-200 text-sm">${escapeHTML(name)}</span>
                         </div>
                         <div class="flex items-center gap-1">
-                            <span class="font-bold text-amber-400 font-mono mr-2">${score}</span>
-                            <button onclick="addScore('${escapeHTML(name)}', 1)" class="bg-slate-800 hover:bg-slate-700 px-2 py-0.5 rounded text-emerald-400 font-bold text-[10px]">+1</button>
-                            <button onclick="addScore('${escapeHTML(name)}', -1)" class="bg-slate-800 hover:bg-slate-700 px-2 py-0.5 rounded text-rose-400 font-bold text-[10px]">-1</button>
+                            <span class="font-bold text-amber-400 font-mono text-sm mr-2">${score}</span>
+                            <button onclick="addScore('${escapeHTML(name)}', 1)" class="bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded text-emerald-400 font-bold text-[10px]">+1</button>
+                            <button onclick="addScore('${escapeHTML(name)}', -1)" class="bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded text-rose-400 font-bold text-[10px]">-1</button>
                         </div>
                     </div>
                 `;
             }).join('');
         }
 
-        // PLAYER LOGIC & HEARTBEAT PING
+        // PLAYER LOGIC
         function showPlayerLogin() { 
             const savedName = localStorage.getItem('pb_name');
             const savedRoom = localStorage.getItem('pb_room');
@@ -1304,11 +1271,9 @@
 
             if (currentBuzzTriggerMode === 'on_zero' && isLocked) {
                 disqualifiedPlayers.add(myPlayerName);
-                playSound('wrong');
                 updatePlayerButtonUI(false, "FALSE START! (ฟาวล์ - ออกตัวก่อน)");
             } else if (!isLocked) {
                 hasBuzzed = true;
-                playSound('buzz');
                 if (navigator.vibrate) navigator.vibrate(80);
                 updatePlayerButtonUI(false, "BUZZED!");
             }
@@ -1321,18 +1286,18 @@
 
             if (disqualifiedPlayers.has(myPlayerName)) {
                 btn.className = "w-56 h-56 rounded-full bg-slate-900 border-8 border-slate-950 flex flex-col items-center justify-center cursor-not-allowed opacity-30 my-2";
-                banner.className = "w-full py-2 px-4 rounded-xl bg-slate-950 border border-slate-800 text-rose-500 text-xs font-bold mb-4";
+                banner.className = "w-full py-2.5 px-4 rounded-xl bg-slate-950 border border-slate-800 text-rose-500 text-xs font-bold mb-6";
                 banner.innerText = text || "หมดสิทธิ์ตอบในรอบนี้ (DISQUALIFIED)";
                 return;
             }
 
             if (unlocked) {
-                btn.className = "buzz-btn-active w-56 h-56 rounded-full bg-gradient-to-b from-rose-500 to-rose-700 border-8 border-slate-950 shadow-2xl flex flex-col items-center justify-center cursor-pointer transition transform my-2 pulse-fast";
-                banner.className = "w-full py-2 px-4 rounded-xl bg-slate-950 border border-slate-800 text-emerald-400 text-xs font-bold mb-4";
+                btn.className = "buzz-btn-active w-56 h-56 rounded-full bg-rose-600 border-8 border-slate-950 flex flex-col items-center justify-center cursor-pointer transition transform my-2";
+                banner.className = "w-full py-2.5 px-4 rounded-xl bg-slate-950 border border-slate-800 text-emerald-400 text-xs font-bold mb-6";
                 banner.innerText = "READY TO BUZZ (หรือกด SPACEBAR)";
             } else {
                 btn.className = "w-56 h-56 rounded-full bg-slate-900 border-8 border-slate-950 flex flex-col items-center justify-center cursor-not-allowed opacity-30 my-2";
-                banner.className = "w-full py-2 px-4 rounded-xl bg-slate-950 border border-slate-800 text-rose-500 text-xs font-bold mb-4";
+                banner.className = "w-full py-2.5 px-4 rounded-xl bg-slate-950 border border-slate-800 text-rose-500 text-xs font-bold mb-6";
                 banner.innerText = text || "LOCKED";
             }
         }
@@ -1550,6 +1515,7 @@
             }
         }
 
+        // MINIMAL & LARGE PLAYER NAME: แสดงรายชื่อคิวกด Buzz ขนาดใหญ่
         function renderTVBuzzList() {
             const listEl = document.getElementById('display-buzz-list');
             const queueCount = document.getElementById('tv-queue-count');
@@ -1557,21 +1523,21 @@
             if (!listEl) return;
 
             if (buzzList.length === 0) {
-                listEl.innerHTML = `<div class="text-center py-8 text-slate-700 text-xs border border-dashed border-slate-800/80 rounded-2xl">WAITING FOR BUZZ...</div>`;
+                listEl.innerHTML = `<div class="text-center py-8 text-slate-700 text-xs border border-dashed border-slate-800 rounded-2xl">WAITING FOR BUZZ...</div>`;
                 return;
             }
 
             listEl.innerHTML = buzzList.map((item, index) => {
                 const isFirst = index === 0;
                 return `
-                    <div class="flex items-center justify-between p-3 sm:p-4 rounded-2xl ${isFirst ? 'bg-amber-500/10 border border-amber-500/50 text-amber-300 glow-amber' : 'bg-slate-950 border border-slate-800 text-slate-300'} transition-all">
+                    <div class="flex items-center justify-between p-4 rounded-2xl ${isFirst ? 'bg-amber-400 text-slate-950 font-extrabold' : 'bg-slate-900 border border-slate-800 text-slate-200'} transition-all">
                         <div class="flex items-center gap-3">
-                            <span class="w-8 h-8 rounded-xl flex items-center justify-center font-black text-sm ${isFirst ? 'bg-amber-400 text-slate-950' : 'bg-slate-800 text-slate-500'}">
+                            <span class="w-8 h-8 rounded-xl flex items-center justify-center font-black text-sm ${isFirst ? 'bg-slate-950 text-amber-400' : 'bg-slate-800 text-slate-400'}">
                                 ${index + 1}
                             </span>
-                            <span class="font-bold text-base sm:text-lg">${escapeHTML(item.name)}</span>
+                            <span class="font-black text-xl sm:text-2xl tracking-wide">${escapeHTML(item.name)}</span>
                         </div>
-                        <span class="text-xs font-mono text-slate-500 bg-slate-900 px-3 py-1 rounded-lg border border-slate-800">${escapeHTML(item.timeStr)}</span>
+                        <span class="text-xs font-mono px-3 py-1 rounded-lg ${isFirst ? 'bg-slate-950 text-amber-400 font-bold' : 'bg-slate-950 text-slate-500 border border-slate-800'}">${escapeHTML(item.timeStr)}</span>
                     </div>
                 `;
             }).join('');
@@ -1588,12 +1554,12 @@
             el.innerHTML = entries.map(([name, score], idx) => {
                 const isOnline = !!onlinePlayersMap[name];
                 return `
-                    <div class="flex justify-between items-center bg-slate-900/90 p-2.5 rounded-xl border border-slate-800/80">
-                        <div class="flex items-center gap-1.5">
+                    <div class="flex justify-between items-center bg-slate-900/80 p-3 rounded-xl border border-slate-800">
+                        <div class="flex items-center gap-2">
                             <span class="w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-400' : 'bg-slate-700'}"></span>
-                            <span class="font-medium text-slate-300 text-xs">#${idx+1} ${escapeHTML(name)}</span>
+                            <span class="font-bold text-slate-200 text-sm">#${idx+1} ${escapeHTML(name)}</span>
                         </div>
-                        <span class="font-black text-amber-400 font-mono text-xs">${score}</span>
+                        <span class="font-bold text-amber-400 font-mono text-sm">${score}</span>
                     </div>
                 `;
             }).join('');
